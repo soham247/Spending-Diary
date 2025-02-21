@@ -4,10 +4,12 @@ import { NextRequest } from "next/server";
 
 connect();
 
-export const DELETE = async( request: NextRequest, { params }: { params: { id: string } }
-) => {
+export async function DELETE(
+  request: NextRequest,
+  context: { params: { id: string } }
+): Promise<Response> {
   try {
-    const { id: expenseId } = params;
+    const { id: expenseId } = context.params;
     console.log("Expense ID:", expenseId);
     
     if (!expenseId) {
@@ -28,7 +30,8 @@ export const DELETE = async( request: NextRequest, { params }: { params: { id: s
       { message: "Expense deleted successfully", success: true },
       { status: 200 }
     );
-  } catch {
+  } catch (error) {
+    console.error("Error deleting expense:", error);
     return Response.json(
       { error: "Something went wrong" },
       { status: 500 }
