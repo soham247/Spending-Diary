@@ -1,5 +1,6 @@
 import { connect } from "@/dbConfig/dbConfig";
 import { getDataFromToken } from "@/helpers/getDataFromTokens";
+import Expense from "@/models/expenseModel";
 import User from "@/models/userModel";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -20,6 +21,7 @@ export const GET = async (request: NextRequest) => {
       .select("-password -phone")
       .populate({
         path: "expenses",
+        model: Expense,
         options: {
           sort: { createdAt: -1 },
         },
