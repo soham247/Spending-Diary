@@ -4,14 +4,11 @@ import { NextRequest } from "next/server";
 
 connect();
 
-export async function DELETE(
-  request: NextRequest,
-  context: { params: { id: string } }
-): Promise<Response> {
+export const DELETE = async ( request: NextRequest) => {
   try {
-    const { id: expenseId } = context.params;
+    const expenseId = request.nextUrl.searchParams.get("id");
     console.log("Expense ID:", expenseId);
-    
+
     if (!expenseId) {
       return Response.json(
         { error: "Expense ID is required" },
@@ -21,10 +18,7 @@ export async function DELETE(
     const deletedExpense = await Expense.findByIdAndDelete(expenseId);
 
     if (!deletedExpense) {
-      return Response.json(
-        { error: "Expense not found" },
-        { status: 404 }
-      );
+      return Response.json({ error: "Expense not found" }, { status: 404 });
     }
     return Response.json(
       { message: "Expense deleted successfully", success: true },
@@ -32,9 +26,6 @@ export async function DELETE(
     );
   } catch (error) {
     console.error("Error deleting expense:", error);
-    return Response.json(
-      { error: "Something went wrong" },
-      { status: 500 }
-    );
+    return Response.json({ error: "Something went wrong" }, { status: 500 });
   }
 }

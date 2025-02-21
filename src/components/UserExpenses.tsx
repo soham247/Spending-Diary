@@ -53,7 +53,7 @@ export default function UserExpenses() {
 
     const deleteExpense = async (expenseId: string) => {
         try {
-            const response = await axios.delete(`/api/expenses/delete/${expenseId}`);
+            const response = await axios.delete(`/api/expenses/delete?id=${expenseId}`);
             if (response.status === 200) {
                 await getUserExpenses();
             }
