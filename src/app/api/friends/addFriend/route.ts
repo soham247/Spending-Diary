@@ -1,7 +1,6 @@
 import { connect } from "@/dbConfig/dbConfig";
 import { getDataFromToken } from "@/helpers/getDataFromTokens";
 import User from "@/models/userModel";
-import mongoose from "mongoose";
 import { NextRequest, NextResponse } from "next/server";
 
 connect();
@@ -35,7 +34,7 @@ const friendId = reqBody.friendId;
     const savedFriend = await friend.save();
 
 
-    if (!savedUser) {
+    if (!savedUser || !savedFriend) {
       return NextResponse.json(
         {
           message: "Failed to add friend",
