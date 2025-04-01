@@ -89,7 +89,7 @@ export default function ExpensePage() {
     try {
       setLoading(true);
       
-      let payers = [];
+      const payers = [];
       
       if (split) {
         // Get all selected friends

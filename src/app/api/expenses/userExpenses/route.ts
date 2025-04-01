@@ -1,7 +1,6 @@
 import { connect } from "@/dbConfig/dbConfig";
 import { getDataFromToken } from "@/helpers/getDataFromTokens";
 import Expense from "@/models/expenseModel";
-import User from "@/models/userModel";
 import { NextRequest, NextResponse } from "next/server";
 
 connect();
