@@ -94,7 +94,7 @@ export default function ExpensePage() {
       if (split) {
         // Get all selected friends
         const selectedFriendIds = Object.entries(selectedFriends)
-          .filter(([_, isSelected]) => isSelected)
+          .filter(([, isSelected]) => isSelected)
           .map(([id]) => id);
         
         // If no friends are selected, handle error
