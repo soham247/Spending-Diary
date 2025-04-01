@@ -9,18 +9,29 @@ const expenseSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    payerId: {
-        type: Schema.Types.ObjectId,
-        ref: "User",
-        required: true
-    },
+    // payerId: {
+    //     type: Schema.Types.ObjectId,
+    //     ref: "User",
+    //     required: true
+    // },
     isSplitted: {
         type: Boolean,
         default: false
     },
-    splitUsers: {
-        type: [Schema.Types.ObjectId],
-        ref: "User"
+    // first payer is the one who paid the bill
+    payers: {
+        type: [
+            {
+                userId: {
+                    type: Schema.Types.ObjectId,
+                    ref: "User"
+                },
+                amount: {
+                    type: Number,
+                    default: 0
+                }
+            }
+        ]
     },
     note: {
         type: String

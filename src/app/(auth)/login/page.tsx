@@ -7,8 +7,10 @@ import Link from "next/link";
 import axios, { AxiosError } from "axios";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/store/Auth";
 
 export default function LoginPage() {
+    const { login } = useAuthStore()
     const { toast } = useToast()
     const router = useRouter()
     const [error, setError] = useState("")
@@ -30,6 +32,7 @@ export default function LoginPage() {
             setLoading(true)
             const response = await axios.post("/api/users/login", {phone, password})
             if(response.status === 200) {
+                login(response.data.user.id)
                 toast({
                     title: "Login successful",
                     variant: "success",

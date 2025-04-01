@@ -18,10 +18,6 @@ const userSchema = new mongoose.Schema({
         required: [true, "Please add a password"],
         trim: true
     },
-    expenses: {
-        type: [Schema.Types.ObjectId],
-        ref: "Expense"
-    },
     friends: {
         type: [
             {

@@ -5,8 +5,10 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { ModeToggle } from "./theme/ThemeToggler";
+import { useAuthStore } from "@/store/Auth";
 
 export default function Header() {
+    const { logout } = useAuthStore() 
     const router = useRouter()
     const {toast} = useToast()
     const handleLogout = async() => {
@@ -20,6 +22,7 @@ export default function Header() {
                 })
                 router.push('/')
             }
+            logout()
         } catch{
             toast({
                 title: "Something went wrong",

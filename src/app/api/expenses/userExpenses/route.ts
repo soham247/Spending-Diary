@@ -17,15 +17,20 @@ export const GET = async (request: NextRequest) => {
       );
     }
 
-    const userWithExpenses = await User.findById(userId)
-      .select("-password -phone")
-      .populate({
-        path: "expenses",
-        model: Expense,
-        options: {
-          sort: { createdAt: -1 },
-        },
-      });
+    // const userWithExpenses = await User.findById(userId)
+    //   .select("-password -phone")
+    //   .populate({
+    //     path: "expenses",
+    //     model: Expense,
+    //     options: {
+    //       sort: { createdAt: -1 },
+    //     },
+    //   });
+
+    const userWithExpenses = await Expense.find(
+      { "payers.userId": userId }
+    ).sort({ createdAt: -1 });
+    
 
     if (!userWithExpenses) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
