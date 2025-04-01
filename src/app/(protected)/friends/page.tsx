@@ -130,7 +130,7 @@ export default function FriendsPage() {
                     <h3 className="font-medium">{friend.userId.name}</h3>
                     <p className="text-sm text-muted-foreground">{friend.userId.phone}</p>
                   </div>
-                  <div className={`font-semibold ${friend.amount > 0 ? 'text-green-600' : friend.amount < 0 ? 'text-red-600' : 'text-muted-foreground'}`}>
+                  <div className={`font-semibold ${friend.amount > 0 ? 'text-orange-600' : friend.amount < 0 ? 'text-red-600' : 'text-muted-foreground'}`}>
                     {friend.amount > 0 ? '+' : ''}{friend.amount}
                   </div>
                 </div>
