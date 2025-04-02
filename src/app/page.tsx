@@ -39,33 +39,6 @@ export default function Home() {
     []
   );
 
-  const features = [
-    {
-      icon: <CreditCard className="w-8 h-8" />,
-      title: "Track Expenses",
-      description:
-        "Easily record every expense you make, whether solo or with friends. Categorize transactions and keep your finances organized in one place.",
-      color: "bg-blue-500/10",
-      highlight: "text-blue-500",
-    },
-    {
-      icon: <Users className="w-8 h-8" />,
-      title: "Split Expenses",
-      description:
-        "Split expenses seamlessly between friends with customizable amounts. No more awkward calculations or confusion about who owes what.",
-      color: "bg-purple-500/10",
-      highlight: "text-purple-500",
-    },
-    {
-      icon: <PiggyBank className="w-8 h-8" />,
-      title: "Balance Tracking",
-      description:
-        "Keep track of what you owe and get owed in real-time. Settle balances efficiently with automated calculations and payment reminders.",
-      color: "bg-green-500/10",
-      highlight: "text-green-500",
-    },
-  ];
-
   const advancedFeatures = [
     {
       icon: <BarChart4 className="w-6 h-6" />,
@@ -182,7 +155,7 @@ export default function Home() {
         <div className="max-w-6xl mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-2 text-primary">Perfect For Every Situation</h2>
           <p className="text-center text-muted-foreground mb-10 max-w-2xl mx-auto">
-            Whether you're managing personal finances, splitting bills with roommates, or traveling with friends, 
+            Whether you&apos;re managing personal finances, splitting bills with roommates, or traveling with friends, 
             Spending Diary has you covered.
           </p>
           

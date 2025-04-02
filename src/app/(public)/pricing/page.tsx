@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { CheckCircle2, XCircle, ArrowRight, Sparkles } from "lucide-react";
+import { CheckCircle2, XCircle, ArrowRight } from "lucide-react";
 import ShimmerButton from "@/components/ui/shimmer-button";
 import { useState } from "react";
 
@@ -67,7 +67,7 @@ export default function Pricing() {
         <div className="max-w-4xl mx-auto px-4">
           <h1 className="text-4xl md:text-5xl font-bold mb-4 text-primary">Simple, Transparent Pricing</h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Choose the plan that's right for you and start managing your expenses with ease.
+            Choose the plan that&apos;s right for you and start managing your expenses with ease.
           </p>
         </div>
       </header>
@@ -170,7 +170,7 @@ export default function Pricing() {
             <div className="bg-card p-6 rounded-xl shadow-sm">
               <h3 className="font-bold text-lg mb-2">How does the billing work?</h3>
               <p className="text-muted-foreground">
-                For Premium plans, we offer monthly or yearly billing. You'll be charged at the beginning of each billing cycle.
+                For Premium plans, we offer monthly or yearly billing. You&apos;ll be charged at the beginning of each billing cycle.
               </p>
             </div>
             
@@ -184,7 +184,7 @@ export default function Pricing() {
             <div className="bg-card p-6 rounded-xl shadow-sm">
               <h3 className="font-bold text-lg mb-2">Is there a refund policy?</h3>
               <p className="text-muted-foreground">
-                Yes, we offer a 14-day money-back guarantee if you're not satisfied with your Premium subscription.
+                Yes, we offer a 14-day money-back guarantee if you&apos;re not satisfied with your Premium subscription.
               </p>
             </div>
           </div>
