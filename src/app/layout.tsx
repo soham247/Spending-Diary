@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Sour_Gummy } from "next/font/google";
+import { Geist, Geist_Mono, Sour_Gummy, Poppins } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
@@ -19,6 +19,12 @@ const sourGummy = Sour_Gummy({
   subsets: ["latin"],
 })
 
+const poppins = Poppins({
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  variable: "--font-poppins",
+  subsets: ["latin"],
+})
+
 export const metadata: Metadata = {
   title: "Spending Diary",
   description: "Modern expense tracker with unique split feature",
@@ -32,7 +38,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${sourGummy.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${sourGummy.variable} ${poppins.variable} antialiased`}
       >
         <ThemeProvider
           attribute="class"

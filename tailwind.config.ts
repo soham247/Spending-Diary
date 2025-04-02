@@ -83,6 +83,7 @@ export default {
   		}, 
 		fontFamily: {
 			sour_gummy: "var(--font-sour-gummy), cursive",
+			poppins: "var(--font-poppins), sans-serif"
 		}
   	}
   },
