@@ -3,9 +3,6 @@
 import { useRouter } from "next/navigation";
 import ShimmerButton from "@/components/ui/shimmer-button";
 import {
-  CreditCard,
-  Users,
-  PiggyBank,
   ArrowRight,
   Sparkles,
   BarChart4,
