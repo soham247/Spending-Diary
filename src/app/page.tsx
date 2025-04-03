@@ -97,8 +97,8 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <header className="flex flex-col justify-center items-center text-center h-[70vh] lg:h-[90vh] relative overflow-hidden">
+    <div className="flex flex-col">
+      <header className="flex flex-col justify-center items-center text-center h-[85vh] lg:h-[90vh] relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-primary/10 to-transparent" />
 
         <div className="absolute inset-0">
@@ -124,13 +124,13 @@ export default function Home() {
           <h1 className="text-6xl lg:text-8xl font-extrabold bg-clip-text text-transparent font-sour_gummy bg-gradient-to-r from-primary to-primary/60">
             Spending Diary
           </h1>
-          <h3 className="text-lg lg:text-xl mt-6 font-semibold text-muted-foreground max-w-3xl mx-auto">
+          <h3 className="lg:text-xl mt-8 lg:mt-6 font-semibold text-muted-foreground max-w-3xl mx-auto">
             The smart way to track expenses, split bills with friends, and manage your finances in one place.
           </h3>
           <div className="flex gap-5 mt-8 justify-center font-semibold">
             <button
               onClick={() => router.push("/login")}
-              className="group relative px-6 py-3 border-2 border-primary rounded-lg transition-colors hover:bg-primary/5"
+              className="group relative px-5 lg:px-6 py-3 border-2 border-primary rounded-lg transition-colors hover:bg-primary/5"
             >
               Log In
               <ArrowRight className="w-4 h-4 inline-block ml-2 transition-transform group-hover:translate-x-1" />
@@ -139,18 +139,22 @@ export default function Home() {
               borderRadius="15px"
               shimmerSize="0.1em"
               onClick={() => router.push("/register")}
-              className="px-6 py-3"
+              className="px-5 lg:px-6 py-3"
             >
               Get Started Free
             </ShimmerButton>
           </div>
-          <p className="mt-4 text-muted-foreground text-sm">No credit card required • Free basic plan • Cancel anytime</p>
+          <div className="mt-6 lg:mt-4 text-muted-foreground text-sm flex flex-wrap justify-center gap-1">
+            <span>No credit card required </span>
+            <span>• Free basic plan</span>
+            <span>• Cancel anytime</span>
+          </div>
         </div>
       </header>
       
       <section className="py-16">
         <div className="max-w-6xl mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-2 text-primary">Perfect For Every Situation</h2>
+          <h2 className="text-3xl font-bold text-center mb-4 text-primary">Perfect For Every Situation</h2>
           <p className="text-center text-muted-foreground mb-10 max-w-2xl mx-auto">
             Whether you&apos;re managing personal finances, splitting bills with roommates, or traveling with friends, 
             Spending Diary has you covered.
@@ -224,7 +228,7 @@ export default function Home() {
             borderRadius="15px"
             shimmerSize="0.1em"
             onClick={() => router.push("/register")}
-            className="px-8 py-4 text-lg"
+            className="px-6 py-3 lg:px-8 lg:py-4 text-lg"
           >
             Create Free Account
           </ShimmerButton>
