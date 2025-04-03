@@ -59,7 +59,7 @@ export default function ExpensePage() {
     if(split === true && friends.length === 0) {
       getFriends();
     }
-  }, [split]);
+  }, [split, friends]);
 
   const handleFriendToggle = (friendId: string) => {
     setSelectedFriends(prev => ({
