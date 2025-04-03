@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { CheckCircle2, XCircle, ArrowRight } from "lucide-react";
 import ShimmerButton from "@/components/ui/shimmer-button";
 import { useState } from "react";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 interface PricingPlan {
     name: string;
@@ -61,12 +62,31 @@ export default function Pricing() {
     },
   };
 
+  const faqs = [
+    {
+      question: "Can I upgrade or downgrade my plan?",
+      answer: "Yes, you can upgrade to Premium at any time. If you need to downgrade, you can do so when your current billing period ends."
+    },
+    {
+      question: "How does the billing work?",
+      answer: "For Premium plans, we offer monthly or yearly billing. You'll be charged at the beginning of each billing cycle."
+    },
+    {
+      question: "What payment methods do you accept?",
+      answer: "We accept all major credit cards, debit cards, UPI, and net banking payments."
+    },
+    {
+      question: "Is there a refund policy?",
+      answer: "Yes, we offer a 14-day money-back guarantee if you're not satisfied with your Premium subscription."
+    }
+  ]
+
   return (
     <div className="min-h-screen flex flex-col">
       <header className="py-16 bg-gradient-to-b from-primary/10 to-transparent text-center">
-        <div className="max-w-4xl mx-auto px-4">
+        <div className="max-w-4xl md:max-w-3xl mx-auto px-4">
           <h1 className="text-4xl md:text-5xl font-bold mb-4 text-primary">Simple, Transparent Pricing</h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="md:mt-5 text-muted-foreground max-w-2xl mx-auto">
             Choose the plan that&apos;s right for you and start managing your expenses with ease.
           </p>
         </div>
@@ -159,35 +179,14 @@ export default function Pricing() {
       <section className="py-16 bg-secondary/30 mt-16">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <h2 className="text-2xl md:text-3xl font-bold mb-4">Frequently Asked Questions</h2>
-          <div className="mt-8 grid md:grid-cols-2 gap-6 text-left">
-            <div className="bg-card p-6 rounded-xl shadow-sm">
-              <h3 className="font-bold text-lg mb-2">Can I upgrade or downgrade my plan?</h3>
-              <p className="text-muted-foreground">
-                Yes, you can upgrade to Premium at any time. If you need to downgrade, you can do so when your current billing period ends.
-              </p>
-            </div>
-            
-            <div className="bg-card p-6 rounded-xl shadow-sm">
-              <h3 className="font-bold text-lg mb-2">How does the billing work?</h3>
-              <p className="text-muted-foreground">
-                For Premium plans, we offer monthly or yearly billing. You&apos;ll be charged at the beginning of each billing cycle.
-              </p>
-            </div>
-            
-            <div className="bg-card p-6 rounded-xl shadow-sm">
-              <h3 className="font-bold text-lg mb-2">What payment methods do you accept?</h3>
-              <p className="text-muted-foreground">
-                We accept all major credit cards, debit cards, UPI, and net banking payments.
-              </p>
-            </div>
-            
-            <div className="bg-card p-6 rounded-xl shadow-sm">
-              <h3 className="font-bold text-lg mb-2">Is there a refund policy?</h3>
-              <p className="text-muted-foreground">
-                Yes, we offer a 14-day money-back guarantee if you&apos;re not satisfied with your Premium subscription.
-              </p>
-            </div>
-          </div>
+          <Accordion type="single" collapsible className="mt-8">
+            {faqs.map((faq, index) => (
+              <AccordionItem value={`item-${index+1}`} key={index}>
+              <AccordionTrigger>{faq.question}</AccordionTrigger>
+              <AccordionContent className="text-left text-muted-foreground">{faq.answer}</AccordionContent>
+            </AccordionItem>
+            ))}
+          </Accordion>
         </div>
       </section>
 

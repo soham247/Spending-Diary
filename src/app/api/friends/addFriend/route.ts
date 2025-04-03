@@ -8,9 +8,8 @@ connect();
 export const POST = async (request: NextRequest) => {
   try {
     const reqBody = await request.json();
-const friendId = reqBody.friendId;
-    console.log(friendId);
-    
+    const friendId = reqBody.friendId;
+
     const userId = await getDataFromToken(request);
 
     const user = await User.findById({ _id: userId }).select(
@@ -32,7 +31,6 @@ const friendId = reqBody.friendId;
 
     const savedUser = await user.save();
     const savedFriend = await friend.save();
-
 
     if (!savedUser || !savedFriend) {
       return NextResponse.json(

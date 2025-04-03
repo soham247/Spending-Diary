@@ -35,6 +35,7 @@ export default function Header() {
         <nav className="flex justify-center gap-3 items-center shadow-sm px-6 py-2 font-semibold">
             <Link href={'/expense'} className={``}>Expenses</Link>
             <Link href={'/friends'} className="">Friends</Link>
+            <Link href={'/profile'} className="">Profile</Link>
             <ModeToggle />
             <button onClick={handleLogout} className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">Logout</button>
         </nav>
