@@ -20,7 +20,8 @@ export default function Header() {
                     variant: "success",
                     duration: 3000
                 })
-                router.push('/')
+                // router.push('/')
+                router.replace('/')
             }
             logout()
         } catch{
