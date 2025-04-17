@@ -1,9 +1,20 @@
 import { connect } from "@/dbConfig/dbConfig";
 import { getDataFromToken } from "@/helpers/getDataFromTokens";
 import Expense from "@/models/expenseModel";
+import mongoose from "mongoose";
 import { NextRequest, NextResponse } from "next/server";
 
 connect();
+
+// Define a proper type for the query
+interface ExpenseQuery {
+  "payers.userId": string | mongoose.Types.ObjectId;
+  createdAt?: {
+    $gte: Date;
+    $lte: Date;
+  };
+  tag?: string;
+}
 
 export const GET = async (request: NextRequest) => {
   try {
@@ -22,10 +33,8 @@ export const GET = async (request: NextRequest) => {
     const year = url.searchParams.get("year");
     const tag = url.searchParams.get("tag");
     
-    // Build query object
-    const query: { [key: string]: any } = { "payers.userId": userId };
+    const query: ExpenseQuery = { "payers.userId": userId };
     
-    // Add date filtering if month and year are provided
     if (month && year) {
       const startDate = new Date(parseInt(year), parseInt(month) - 1, 1);
       const endDate = new Date(parseInt(year), parseInt(month), 0);
@@ -35,7 +44,6 @@ export const GET = async (request: NextRequest) => {
         $lte: endDate
       };
     } else if (year) {
-      // Filter by year only
       const startDate = new Date(parseInt(year), 0, 1);
       const endDate = new Date(parseInt(year), 11, 31);
       
@@ -65,7 +73,8 @@ export const GET = async (request: NextRequest) => {
       },
       { status: 200 }
     );
-  } catch {
+  } catch (error) {
+    console.error("Error fetching user expenses:", error);
     return NextResponse.json(
       { error: "Failed to fetch user expenses" },
       { status: 500 }
