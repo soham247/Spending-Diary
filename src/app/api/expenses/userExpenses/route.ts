@@ -23,7 +23,7 @@ export const GET = async (request: NextRequest) => {
     const tag = url.searchParams.get("tag");
     
     // Build query object
-    let query: any = { "payers.userId": userId };
+    const query: any = { "payers.userId": userId };
     
     // Add date filtering if month and year are provided
     if (month && year) {
