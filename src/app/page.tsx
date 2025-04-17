@@ -97,7 +97,7 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col -mt-14">
       <header className="flex flex-col justify-center items-center text-center h-[85vh] lg:h-[90vh] relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-primary/10 to-transparent" />
 
