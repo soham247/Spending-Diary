@@ -6,13 +6,13 @@ import React, { useState } from "react";
 import Link from "next/link";
 import axios, { AxiosError } from "axios";
 import { useToast } from "@/hooks/use-toast";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/Auth";
 
 export default function LoginPage() {
   const { login } = useAuthStore();
   const { toast } = useToast();
-  const router = useRouter();
+  // const router = useRouter();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -41,7 +41,9 @@ export default function LoginPage() {
           variant: "success",
           duration: 2000,
         });
-        router.push("/expense");
+        setTimeout(() => {
+          window.location.href = "/expense";
+        }, 300);
       } else if (response.status === 400) {
         setError(response.data.message);
       }
