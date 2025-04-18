@@ -4,7 +4,7 @@ import Link from "next/link";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
-import { ModeToggle } from "./theme/ThemeToggler";
+// import { ModeToggle } from "./theme/ThemeToggler";
 import { useAuthStore } from "@/store/Auth";
 import { User, Settings, LogOut, BarChart3, Users, ArrowRight } from "lucide-react";
 
@@ -90,7 +90,7 @@ export default function Header() {
                 
                 {/* Right Side Controls */}
                 <div className="flex items-center gap-4">
-                    <ModeToggle />
+                    {/* <ModeToggle /> */}
                     
                     {userId && (
                         <DropdownMenu>

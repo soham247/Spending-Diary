@@ -48,7 +48,7 @@ export default function ExpensePage() {
               >
                 <X className="h-4 w-4" />
               </Button>
-              <ScrollArea className="max-h-[80vh]">
+              <ScrollArea className="max-h-[80vh] md:max-h-[110vh]">
                 <AddExpenseForm 
                   userId={userId} 
                   onExpenseAdded={handleExpenseAdded} 
