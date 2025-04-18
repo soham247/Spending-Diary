@@ -17,8 +17,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export default function Header() {
-    const { logout } = useAuthStore();
-    const userId = "bdkjbjbajk"
+    const { userId, logout } = useAuthStore();
     const router = useRouter();
     const { toast } = useToast();
 
