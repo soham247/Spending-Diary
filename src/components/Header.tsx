@@ -15,7 +15,6 @@ import {
   Users,
   ChartNoAxesCombined,
   Menu,
-  Home,
 } from "lucide-react";
 import {
   DropdownMenu,
