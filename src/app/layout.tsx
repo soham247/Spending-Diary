@@ -48,7 +48,7 @@ export default function RootLayout({
           disableTransitionOnChange
           >
             <Header />
-            <div className="pt-16">
+            <div className="">
               {children}
             </div>
             <Toaster />

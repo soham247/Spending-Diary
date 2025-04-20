@@ -97,7 +97,7 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col -mt-14">
+    <div className="flex flex-col">
       <header className="flex flex-col justify-center items-center text-center h-[85vh] lg:h-[90vh] relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-primary/10 to-transparent" />
 
@@ -117,11 +117,11 @@ export default function Home() {
           ))}
         </div>
 
-        <div className="relative z-10 max-w-5xl mx-auto px-4">
+        <div className="relative z-10 max-w-5xl mx-auto px-4 pt-8 md:pt-0">
           <span className="px-4 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6 inline-block">
             Simplify your expense management
           </span>
-          <h1 className="text-6xl lg:text-8xl font-extrabold bg-clip-text text-transparent font-sour_gummy bg-gradient-to-r from-primary to-primary/60">
+          <h1 className="text-6xl lg:text-8xl font-extrabold bg-clip-text text-transparent font-sour_gummy bg-gradient-to-r from-primary to-primary/60 p-2">
             Spending Diary
           </h1>
           <h3 className="lg:text-xl mt-8 lg:mt-6 font-semibold text-muted-foreground max-w-3xl mx-auto">

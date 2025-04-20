@@ -88,14 +88,14 @@ export default function FriendsPage() {
   };
 
   return (
-    <div className="container mx-auto py-8 px-4 max-w-4xl">
+    <div className="container mx-auto py-20 px-4 max-w-4xl">
       <Card className="mb-8">
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-4 sm:space-y-0">
           <div>
             <CardTitle className="text-2xl font-bold">Friends</CardTitle>
             <CardDescription>Manage your friends and balances</CardDescription>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 w-full sm:w-auto justify-end">
             <Button
               variant="outline"
               size="sm"
@@ -173,62 +173,124 @@ export default function FriendsPage() {
         </Card>
       ) : (
         <div className="space-y-4">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[200px]">Friend</TableHead>
-                <TableHead className="text-right">Balance</TableHead>
-                <TableHead className="text-right">Status</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {friends.map((friend) => (
-                <TableRow key={friend.userId._id}>
-                  <TableCell className="font-medium">
-                    <p>{friend.userId.name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {friend.userId.phone}
-                    </p>
-                  </TableCell>
-                  <TableCell className={`text-right font-semibold ${friend.amount === 0 ? "text-foreground" : friend.amount < 0 ? "text-red-500" : "text-primary"}`}>
-                    {friend.amount > 0 ? "+" : ""}
-                    {friend.amount}
-                  </TableCell>
-                  <TableCell className={`text-right ${friend.amount === 0 ? "text-green-500" : friend.amount < 0 ? "text-red-500" : "text-primary"}`}>
-                    {friend.amount > 0
-                      ? "Owes you"
-                      : friend.amount < 0
-                      ? "You owe"
-                      : "Settled"}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button variant="ghost" className="text-primary">Settle Balance</Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            This action will settle the balance between you and{" "}
-                            {friend.userId.name} and connot be undone.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction
-                            onClick={() => settleBalance(friend.userId._id)}
-                          >
-                            Settle Balance
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  </TableCell>
+          {/* Desktop view (hidden on mobile) */}
+          <div className="hidden md:block">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[200px]">Friend</TableHead>
+                  <TableHead className="text-right">Balance</TableHead>
+                  <TableHead className="text-right">Status</TableHead>
+                  <TableHead className="text-right">Action</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {friends.map((friend) => (
+                  <TableRow key={friend.userId._id}>
+                    <TableCell className="font-medium">
+                      <p>{friend.userId.name}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {friend.userId.phone}
+                      </p>
+                    </TableCell>
+                    <TableCell className={`text-right font-semibold ${friend.amount === 0 ? "text-foreground" : friend.amount < 0 ? "text-red-500" : "text-primary"}`}>
+                      {friend.amount > 0 ? "+" : ""}
+                      {friend.amount}
+                    </TableCell>
+                    <TableCell className={`text-right ${friend.amount === 0 ? "text-green-500" : friend.amount < 0 ? "text-red-500" : "text-primary"}`}>
+                      {friend.amount > 0
+                        ? "Owes you"
+                        : friend.amount < 0
+                        ? "You owe"
+                        : "Settled"}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="ghost" className="text-primary">Settle Balance</Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This action will settle the balance between you and{" "}
+                              {friend.userId.name} and cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => settleBalance(friend.userId._id)}
+                            >
+                              Settle Balance
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+
+          {/* Mobile view (hidden on desktop) */}
+          <div className="block md:hidden space-y-4">
+            {friends.map((friend) => (
+              <Card key={friend.userId._id} className="p-4">
+                <div className="flex flex-col space-y-3">
+                  <div>
+                    <h3 className="font-medium">{friend.userId.name}</h3>
+                    <p className="text-sm text-muted-foreground">{friend.userId.phone}</p>
+                  </div>
+                  
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium">Balance:</span>
+                    <span className={`font-semibold ${friend.amount === 0 ? "text-foreground" : friend.amount < 0 ? "text-red-500" : "text-primary"}`}>
+                      {friend.amount > 0 ? "+" : ""}
+                      {friend.amount}
+                    </span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium">Status:</span>
+                    <span className={`${friend.amount === 0 ? "text-green-500" : friend.amount < 0 ? "text-red-500" : "text-primary"}`}>
+                      {friend.amount > 0
+                        ? "Owes you"
+                        : friend.amount < 0
+                        ? "You owe"
+                        : "Settled"}
+                    </span>
+                  </div>
+                  
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="outline" className="text-primary w-full mt-2">
+                        Settle Balance
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This action will settle the balance between you and{" "}
+                          {friend.userId.name} and cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => settleBalance(friend.userId._id)}
+                        >
+                          Settle Balance
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
+              </Card>
+            ))}
+          </div>
         </div>
       )}
     </div>

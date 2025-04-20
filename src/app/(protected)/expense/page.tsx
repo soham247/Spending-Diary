@@ -24,7 +24,7 @@ export default function ExpensePage() {
   };
 
   return (
-    <div className="container mx-auto px-2 md:px-8 py-8 max-w-7xl">
+    <div className="container mx-auto px-2 md:px-8 py-8 max-w-7xl mt-10">
       <div className="grid gap-8 md:grid-cols-[350px,1fr]">
         <div className="space-y-6">
           {!showForm ? (
@@ -48,7 +48,7 @@ export default function ExpensePage() {
               >
                 <X className="h-4 w-4" />
               </Button>
-              <ScrollArea className="max-h-[80vh] md:max-h-[110vh]">
+              <ScrollArea className="max-h-[110vh]">
                 <AddExpenseForm 
                   userId={userId} 
                   onExpenseAdded={handleExpenseAdded} 
