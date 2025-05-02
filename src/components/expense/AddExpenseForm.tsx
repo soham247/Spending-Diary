@@ -8,6 +8,7 @@ import { AlertCircle } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import axios, { AxiosError } from "axios";
 import { Friend } from "@/types/friend";
@@ -20,6 +21,9 @@ export default function AddExpenseForm({ userId, onExpenseAdded }: { userId: str
   const [fetchingFriends, setFetchingFriends] = useState(false);
   const [friends, setFriends] = useState<Friend[]>([]);
   const [selectedFriends, setSelectedFriends] = useState<{[key: string]: boolean}>({});
+  const [totalAmount, setTotalAmount] = useState<number>(0);
+  const [splitAmounts, setSplitAmounts] = useState<{[key: string]: number}>({});
+  const [userAmount, setUserAmount] = useState<number>(0);
 
   const tags = ["Food", "Grocery", "Transport", "Medical", "Fruits", "Bills", "Rent", "Entertainment", "Other"];
 
@@ -31,10 +35,15 @@ export default function AddExpenseForm({ userId, onExpenseAdded }: { userId: str
       
       // Initialize selectedFriends state with all friends unchecked
       const friendsState: {[key: string]: boolean} = {};
+      const initialSplitAmounts: {[key: string]: number} = {};
+      
       response.data.data.friends.forEach((friend: Friend) => {
         friendsState[friend.userId._id] = false;
+        initialSplitAmounts[friend.userId._id] = 0;
       });
+      
       setSelectedFriends(friendsState);
+      setSplitAmounts(initialSplitAmounts);
       
     } catch (error) {
       if(error instanceof AxiosError) {
@@ -53,11 +62,107 @@ export default function AddExpenseForm({ userId, onExpenseAdded }: { userId: str
     }
   }, [split, friends]);
 
+  // Update amounts when total changes or friends are selected/deselected
+  useEffect(() => {
+    if (split && totalAmount > 0) {
+      distributeAmount();
+    }
+  }, [totalAmount, selectedFriends, split]);
+
   const handleFriendToggle = (friendId: string) => {
-    setSelectedFriends(prev => ({
-      ...prev,
-      [friendId]: !prev[friendId]
-    }));
+    setSelectedFriends(prev => {
+      const newState = {
+        ...prev,
+        [friendId]: !prev[friendId]
+      };
+      
+      return newState;
+    });
+  };
+  
+  const distributeAmount = () => {
+    // Count selected friends
+    const selectedCount = Object.values(selectedFriends).filter(Boolean).length;
+    
+    // If no friends are selected, set user amount to total
+    if (selectedCount === 0) {
+      setUserAmount(totalAmount);
+      return;
+    }
+    
+    // Calculate even split amount
+    const splitAmount = parseFloat((totalAmount / (selectedCount + 1)).toFixed(2));
+    
+    // Set user amount
+    setUserAmount(splitAmount);
+    
+    // Set friend amounts
+    const newSplitAmounts = { ...splitAmounts };
+    Object.keys(selectedFriends).forEach(friendId => {
+      if (selectedFriends[friendId]) {
+        newSplitAmounts[friendId] = splitAmount;
+      } else {
+        newSplitAmounts[friendId] = 0;
+      }
+    });
+    
+    setSplitAmounts(newSplitAmounts);
+  };
+  
+  const handleAmountChange = (amount: string) => {
+    const parsedAmount = parseFloat(amount);
+    if (!isNaN(parsedAmount)) {
+      setTotalAmount(parsedAmount);
+    } else {
+      setTotalAmount(0);
+    }
+  };
+  
+  const handleSplitAmountChange = (friendId: string, amount: string) => {
+    // Allow complete clearing of the input field
+    if (amount === '') {
+      setSplitAmounts(prev => ({
+        ...prev,
+        [friendId]: 0
+      }));
+      return;
+    }
+    
+    // Process numeric input
+    const parsedAmount = parseFloat(amount);
+    if (!isNaN(parsedAmount) && parsedAmount >= 0) {
+      setSplitAmounts(prev => ({
+        ...prev,
+        [friendId]: parsedAmount
+      }));
+    }
+  };
+  
+  const handleUserAmountChange = (amount: string) => {
+    // Allow complete clearing of the input field
+    if (amount === '') {
+      setUserAmount(0);
+      return;
+    }
+    
+    // Process numeric input
+    const parsedAmount = parseFloat(amount);
+    if (!isNaN(parsedAmount) && parsedAmount >= 0) {
+      setUserAmount(parsedAmount);
+    }
+  };
+
+  const validateSplitTotal = () => {
+    // Sum all split amounts including user's
+    const friendsTotal = Object.entries(splitAmounts)
+      .filter(([id]) => selectedFriends[id])
+      .reduce((sum, [, amount]) => sum + amount, 0);
+    
+    const total = friendsTotal + userAmount;
+    
+    // Check if the total is approximately equal to the expense amount
+    // Allow for small floating point differences (0.01)
+    return Math.abs(total - totalAmount) < 0.01;
   };
 
   const addExpense = async (e:React.FormEvent<HTMLFormElement>) => {
@@ -77,6 +182,22 @@ export default function AddExpenseForm({ userId, onExpenseAdded }: { userId: str
       return;
     }
 
+    // Validate split amounts if splitting
+    if (split) {
+      // Check if any friends are selected
+      const anyFriendSelected = Object.values(selectedFriends).some(Boolean);
+      if (!anyFriendSelected) {
+        setError("Please select at least one friend to split with.");
+        return;
+      }
+      
+      // Validate total equals the expense amount
+      if (!validateSplitTotal()) {
+        setError("Split amounts must sum up to the total expense amount.");
+        return;
+      }
+    }
+
     setError("");
     try {
       setLoading(true);
@@ -84,29 +205,18 @@ export default function AddExpenseForm({ userId, onExpenseAdded }: { userId: str
       const payers = [];
       
       if (split) {
-        // Get all selected friends
-        const selectedFriendIds = Object.entries(selectedFriends)
+        // Add current user with their amount
+        payers.push({ userId: userId, amount: userAmount });
+        
+        // Add selected friends with their amounts
+        Object.entries(selectedFriends)
           .filter(([, isSelected]) => isSelected)
-          .map(([id]) => id);
-        
-        // If no friends are selected, handle error
-        if (selectedFriendIds.length === 0) {
-          setError("Please select at least one friend to split with.");
-          setLoading(false);
-          return;
-        }
-        
-        // Calculate split amount - total participants includes the user + selected friends
-        const totalParticipants = selectedFriendIds.length + 1;
-        const splitAmount = parseFloat((amount / totalParticipants).toFixed(2));
-        
-        // Add current user to payers
-        payers.push({ userId: userId, amount: splitAmount });
-        
-        // Add selected friends to payers
-        selectedFriendIds.forEach(friendId => {
-          payers.push({ userId: friendId, amount: splitAmount });
-        });
+          .forEach(([friendId]) => {
+            payers.push({ 
+              userId: friendId, 
+              amount: splitAmounts[friendId]
+            });
+          });
       } else {
         // If not split, just add the current user with full amount
         payers.push({ userId: userId, amount: amount });
@@ -122,13 +232,21 @@ export default function AddExpenseForm({ userId, onExpenseAdded }: { userId: str
       // Reset form
       (e.target as HTMLFormElement).reset();
       setSelectedTag(null);
+      setTotalAmount(0);
+      setUserAmount(0);
+      
       if (split) {
-        // Reset selected friends
+        // Reset selected friends and split amounts
         const resetFriends: {[key: string]: boolean} = {};
+        const resetAmounts: {[key: string]: number} = {};
+        
         Object.keys(selectedFriends).forEach(key => {
           resetFriends[key] = false;
+          resetAmounts[key] = 0;
         });
+        
         setSelectedFriends(resetFriends);
+        setSplitAmounts(resetAmounts);
       }
       
       // Notify parent component that an expense was added
@@ -158,6 +276,7 @@ export default function AddExpenseForm({ userId, onExpenseAdded }: { userId: str
               step="0.01"
               min="0"
               required
+              onChange={(e) => handleAmountChange(e.target.value)}
             />
           </div>
 
@@ -191,28 +310,76 @@ export default function AddExpenseForm({ userId, onExpenseAdded }: { userId: str
           </div>
 
           {split && (
-            <div className="space-y-2">
-              <Label htmlFor="selectFriends">Select Friends</Label>
-              <ScrollArea className="h-40 border rounded-md p-2">
-                {fetchingFriends ? (
-                  <p>Loading...</p>
-                ) : friends.length > 0 ? (
-                  friends.map((friend) => (
-                    <div key={friend.userId._id} className="flex items-center justify-between py-2">
-                      <Label htmlFor={`friend-${friend.userId._id}`} className="cursor-pointer">
-                        {friend.userId.name}
-                      </Label>
-                      <Switch 
-                        id={`friend-${friend.userId._id}`}
-                        checked={selectedFriends[friend.userId._id] || false}
-                        onCheckedChange={() => handleFriendToggle(friend.userId._id)}
-                      />
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="userAmount">Your share</Label>
+                <Input
+                  id="userAmount"
+                  type="text"
+                  value={userAmount === 0 ? "" : userAmount.toString()}
+                  onChange={(e) => handleUserAmountChange(e.target.value)}
+                  placeholder="0.00"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="selectFriends">Select Friends</Label>
+                <ScrollArea className="h-40 border rounded-md p-2">
+                  {fetchingFriends ? (
+                    <p>Loading...</p>
+                  ) : friends.length > 0 ? (
+                    friends.map((friend) => (
+                      <div key={friend.userId._id} className="flex items-center py-2 space-x-2">
+                        <div className="flex items-center gap-2 flex-1">
+                          <Checkbox 
+                            id={`friend-${friend.userId._id}`}
+                            checked={selectedFriends[friend.userId._id] || false}
+                            onCheckedChange={() => handleFriendToggle(friend.userId._id)}
+                          />
+                          <Label htmlFor={`friend-${friend.userId._id}`} className="cursor-pointer">
+                            {friend.userId.name}
+                          </Label>
+                        </div>
+                        {selectedFriends[friend.userId._id] && (
+                          <Input
+                            type="text"
+                            value={splitAmounts[friend.userId._id] === 0 ? "" : splitAmounts[friend.userId._id].toString()}
+                            onChange={(e) => handleSplitAmountChange(friend.userId._id, e.target.value)}
+                            className="w-24"
+                            placeholder="0.00"
+                          />
+                        )}
+                      </div>
+                    ))
+                  ) : (
+                    <p>No friends found. Add friends to split expenses.</p>
+                  )}
+                </ScrollArea>
+                
+                {split && totalAmount > 0 && (
+                  <div className="mt-2 text-sm">
+                    <div className="flex justify-between">
+                      <span>Total expense:</span>
+                      <span>{totalAmount.toFixed(2)}</span>
                     </div>
-                  ))
-                ) : (
-                  <p>No friends found. Add friends to split expenses.</p>
+                    <div className="flex justify-between">
+                      <span>Sum of splits:</span>
+                      <span>
+                        {(userAmount + 
+                          Object.entries(splitAmounts)
+                            .filter(([id]) => selectedFriends[id])
+                            .reduce((sum, [, amount]) => sum + amount, 0)
+                        ).toFixed(2)}
+                      </span>
+                    </div>
+                    {!validateSplitTotal() && (
+                      <p className="text-destructive mt-1">
+                        Split amounts must sum up to the total expense amount.
+                      </p>
+                    )}
+                  </div>
                 )}
-              </ScrollArea>
+              </div>
             </div>
           )}
 
