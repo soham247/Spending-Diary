@@ -9,11 +9,6 @@ const expenseSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    // payerId: {
-    //     type: Schema.Types.ObjectId,
-    //     ref: "User",
-    //     required: true
-    // },
     isSplitted: {
         type: Boolean,
         default: false

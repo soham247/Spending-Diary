@@ -6,7 +6,6 @@ import React, { useState } from "react";
 import Link from "next/link";
 import axios, { AxiosError } from "axios";
 import { useToast } from "@/hooks/use-toast";
-// import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/Auth";
 
 export default function LoginPage() {
@@ -35,7 +34,7 @@ export default function LoginPage() {
         password,
       });
       if (response.status === 200) {
-        login(response.data.user.id);
+        login(response.data.user.id, response.data.user.isPremium);
         toast({
           title: "Login successful",
           variant: "success",

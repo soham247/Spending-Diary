@@ -284,7 +284,7 @@ export default function UserExpenses({ refresh }: { refresh: boolean }) {
         </div>
       )}
 
-      <div className="grid gap-4 grid-cols-1 lg:grid-cols-2 auto-rows-max">
+      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 auto-rows-max">
         {expenses.map((expense) => {
           const isSplit = isExpenseSplit(expense);
           const userRole = getUserRole(expense);

@@ -4,6 +4,8 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import Header from "@/components/Header";
+import { Suspense } from "react";
+import Loading from "./loading";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,13 +20,13 @@ const geistMono = Geist_Mono({
 const sourGummy = Sour_Gummy({
   variable: "--font-sour-gummy",
   subsets: ["latin"],
-})
+});
 
 const poppins = Poppins({
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
   variable: "--font-poppins",
   subsets: ["latin"],
-})
+});
 
 export const metadata: Metadata = {
   title: "Spending Diary",
@@ -46,13 +48,11 @@ export default function RootLayout({
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
-          >
-            <Header />
-            <div className="">
-              {children}
-            </div>
-            <Toaster />
-          </ThemeProvider>
+        >
+          <Header />
+          <Suspense fallback={<Loading />}>{children}</Suspense>
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );

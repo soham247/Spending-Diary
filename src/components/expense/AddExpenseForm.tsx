@@ -3,13 +3,14 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { AlertCircle } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { AlertCircle, FilterIcon } from "lucide-react";
 import { useState, useEffect } from "react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import axios, { AxiosError } from "axios";
 import { Friend } from "@/types/friend";
 
@@ -260,14 +261,11 @@ export default function AddExpenseForm({ userId, onExpenseAdded }: { userId: str
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="font-sour_gummy">Add New Expense</CardTitle>
-      </CardHeader>
+    <Card className="border-none">
       <CardContent>
-        <form onSubmit={addExpense} className="space-y-4">
+        <form onSubmit={addExpense} className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="amount">Amount</Label>
+            <Label htmlFor="amount" className="font-medium">Amount</Label>
             <Input
               id="amount"
               type="number"
@@ -277,31 +275,48 @@ export default function AddExpenseForm({ userId, onExpenseAdded }: { userId: str
               min="0"
               required
               onChange={(e) => handleAmountChange(e.target.value)}
+              className="h-12"
             />
           </div>
 
-          {/* Tag Selection */}
-          <div className="space-y-2">
-            <Label htmlFor="tag">Category</Label>
-            <Select
-              onValueChange={(value) => setSelectedTag(value)}
-              value={selectedTag || ""}
-            >
-              <SelectTrigger id="tag">
-                <SelectValue placeholder="Select a category" />
-              </SelectTrigger>
-              <SelectContent>
-                {tags.map((tag) => (
-                  <SelectItem key={tag} value={tag}>
-                    {tag}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          {/* Tag Selection as Badges */}
+          <div className="space-y-3">
+            <Label htmlFor="tag" className="font-medium">Category</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="h-12 w-full justify-between border-dashed"
+                >
+                  <div className="flex items-center gap-2">
+                    <FilterIcon className="h-4 w-4" />
+                    {selectedTag ? selectedTag : "Select a category"}
+                  </div>
+                  {selectedTag && (
+                    <Badge className="ml-2">{selectedTag}</Badge>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-72 p-4">
+                <div className="grid grid-cols-2 gap-2">
+                  {tags.map((tag) => (
+                    <Badge 
+                      key={tag}
+                      variant={selectedTag === tag ? "default" : "outline"}
+                      className="cursor-pointer text-center py-1.5 px-3 hover:opacity-80 transition-opacity"
+                      onClick={() => setSelectedTag(tag)}
+                    >
+                      {tag}
+                    </Badge>
+                  ))}
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
 
-          <div className="space-y-2 flex items-center justify-between">
-            <Label htmlFor="split">Split</Label>
+          <div className="flex items-center justify-between bg-muted/40 p-3 rounded-lg">
+            <Label htmlFor="split" className="font-medium cursor-pointer">Split with friends</Label>
             <Switch
               id="split"
               checked={split}
@@ -310,62 +325,69 @@ export default function AddExpenseForm({ userId, onExpenseAdded }: { userId: str
           </div>
 
           {split && (
-            <div className="space-y-4">
+            <div className="space-y-5 bg-muted/20 p-4 rounded-lg border border-dashed">
               <div className="space-y-2">
-                <Label htmlFor="userAmount">Your share</Label>
+                <Label htmlFor="userAmount" className="font-medium">Your share</Label>
                 <Input
                   id="userAmount"
                   type="text"
                   value={userAmount === 0 ? "" : userAmount.toString()}
                   onChange={(e) => handleUserAmountChange(e.target.value)}
                   placeholder="0.00"
+                  className="h-12"
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="selectFriends">Select Friends</Label>
-                <ScrollArea className="h-40 border rounded-md p-2">
+              <div className="space-y-3">
+                <Label htmlFor="selectFriends" className="font-medium">Select Friends</Label>
+                <ScrollArea className="h-48 border rounded-lg p-2 bg-background shadow-sm">
                   {fetchingFriends ? (
-                    <p>Loading...</p>
+                    <div className="flex justify-center items-center h-full">
+                      <p className="text-muted-foreground">Loading friends...</p>
+                    </div>
                   ) : friends.length > 0 ? (
-                    friends.map((friend) => (
-                      <div key={friend.userId._id} className="flex items-center py-2 space-x-2">
-                        <div className="flex items-center gap-2 flex-1">
-                          <Checkbox 
-                            id={`friend-${friend.userId._id}`}
-                            checked={selectedFriends[friend.userId._id] || false}
-                            onCheckedChange={() => handleFriendToggle(friend.userId._id)}
-                          />
-                          <Label htmlFor={`friend-${friend.userId._id}`} className="cursor-pointer">
-                            {friend.userId.name}
-                          </Label>
+                    <div className="space-y-1">
+                      {friends.map((friend) => (
+                        <div key={friend.userId._id} className="flex items-center py-2.5 px-2 space-x-2 hover:bg-muted/50 rounded-md">
+                          <div className="flex items-center gap-2 flex-1">
+                            <Checkbox 
+                              id={`friend-${friend.userId._id}`}
+                              checked={selectedFriends[friend.userId._id] || false}
+                              onCheckedChange={() => handleFriendToggle(friend.userId._id)}
+                            />
+                            <Label htmlFor={`friend-${friend.userId._id}`} className="cursor-pointer">
+                              {friend.userId.name}
+                            </Label>
+                          </div>
+                          {selectedFriends[friend.userId._id] && (
+                            <Input
+                              type="text"
+                              value={splitAmounts[friend.userId._id] === 0 ? "" : splitAmounts[friend.userId._id].toString()}
+                              onChange={(e) => handleSplitAmountChange(friend.userId._id, e.target.value)}
+                              className="w-24 h-8"
+                              placeholder="0.00"
+                            />
+                          )}
                         </div>
-                        {selectedFriends[friend.userId._id] && (
-                          <Input
-                            type="text"
-                            value={splitAmounts[friend.userId._id] === 0 ? "" : splitAmounts[friend.userId._id].toString()}
-                            onChange={(e) => handleSplitAmountChange(friend.userId._id, e.target.value)}
-                            className="w-24"
-                            placeholder="0.00"
-                          />
-                        )}
-                      </div>
-                    ))
+                      ))}
+                    </div>
                   ) : (
-                    <p>No friends found. Add friends to split expenses.</p>
+                    <div className="flex justify-center items-center h-full">
+                      <p className="text-muted-foreground">No friends found. Add friends to split expenses.</p>
+                    </div>
                   )}
                 </ScrollArea>
                 
                 {split && totalAmount > 0 && (
-                  <div className="mt-2 text-sm">
-                    <div className="flex justify-between">
+                  <div className="mt-3 text-sm bg-muted/30 p-3 rounded-md">
+                    <div className="flex justify-between font-medium">
                       <span>Total expense:</span>
-                      <span>{totalAmount.toFixed(2)}</span>
+                      <span>${totalAmount.toFixed(2)}</span>
                     </div>
-                    <div className="flex justify-between">
+                    <div className="flex justify-between mt-1 text-muted-foreground">
                       <span>Sum of splits:</span>
                       <span>
-                        {(userAmount + 
+                        ${(userAmount + 
                           Object.entries(splitAmounts)
                             .filter(([id]) => selectedFriends[id])
                             .reduce((sum, [, amount]) => sum + amount, 0)
@@ -373,7 +395,8 @@ export default function AddExpenseForm({ userId, onExpenseAdded }: { userId: str
                       </span>
                     </div>
                     {!validateSplitTotal() && (
-                      <p className="text-destructive mt-1">
+                      <p className="text-destructive mt-2 text-xs flex items-center gap-1">
+                        <AlertCircle className="w-3 h-3" />
                         Split amounts must sum up to the total expense amount.
                       </p>
                     )}
@@ -384,23 +407,24 @@ export default function AddExpenseForm({ userId, onExpenseAdded }: { userId: str
           )}
 
           <div className="space-y-2">
-            <Label htmlFor="note">Note</Label>
+            <Label htmlFor="note" className="font-medium">Note</Label>
             <Input
               id="note"
               type="text"
               name="note"
               placeholder="Add a description"
+              className="h-12"
             />
           </div>
 
           {error && (
-            <div className="flex items-center gap-2 text-sm text-destructive">
-              <AlertCircle className="w-4 h-4" />
+            <div className="flex items-center gap-2 text-sm text-destructive bg-destructive/10 p-3 rounded-md">
+              <AlertCircle className="w-4 h-4 flex-shrink-0" />
               <p>{error}</p>
             </div>
           )}
 
-          <Button type="submit" disabled={loading} className="w-full">
+          <Button type="submit" disabled={loading} className="w-full h-12 font-medium">
             {loading ? "Adding..." : "Add Expense"}
           </Button>
         </form>
