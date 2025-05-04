@@ -43,7 +43,7 @@ export default function Pricing() {
     premium: {
       name: "Premium",
       description: "For those who want the complete experience",
-      price: billingCycle === "yearly" ? "₹120" : "₹12",
+      price: billingCycle === "yearly" ? "₹79" : "₹7",
       period: billingCycle === "yearly" ? "/year" : "/month",
       features: [
         { name: "Unlimited friends", included: true },
@@ -83,7 +83,7 @@ export default function Pricing() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <header className="py-16 bg-gradient-to-b from-primary/10 to-transparent text-center">
+      <header className="pt-20 pb-14 bg-gradient-to-b from-primary/10 to-transparent text-center">
         <div className="max-w-4xl md:max-w-3xl mx-auto px-4">
           <h1 className="text-4xl md:text-5xl font-bold mb-4 text-primary">Simple, Transparent Pricing</h1>
           <p className="md:mt-5 text-muted-foreground max-w-2xl mx-auto">
@@ -92,7 +92,7 @@ export default function Pricing() {
         </div>
       </header>
 
-      <main className="flex-grow pb-8 md:py-16">
+      <main className="flex-grow pb-8 md:py-8">
         <div className="max-w-6xl mx-auto px-4">
           {/* Billing toggle */}
           <div className="flex justify-center mb-12">
@@ -117,7 +117,7 @@ export default function Pricing() {
               >
                 Yearly
                 <span className="ml-2 text-xs font-medium bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400 px-2 py-0.5 rounded-full">
-                  Save 16%
+                  Save 6%
                 </span>
               </button>
             </div>
