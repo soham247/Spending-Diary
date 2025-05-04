@@ -16,6 +16,7 @@ import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
 import axios, { AxiosError } from "axios";
+import { formatCurrency } from "@/helpers/formatCurrency";
 
 // Define types for chart data
 interface TrendItem {
@@ -120,15 +121,6 @@ export default function PremiumSpendingDashboard() {
 
     fetchAnalyticsData();
   }, [timeframe, category, date]);
-
-  // Helper function to format currency in Indian Rupees
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      minimumFractionDigits: 0
-    }).format(value);
-  };
 
   // Custom tooltip for charts with proper typing
   const CustomTooltip = ({ 

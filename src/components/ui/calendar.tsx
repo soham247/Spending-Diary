@@ -1,7 +1,6 @@
 "use client"
 
 import * as React from "react"
-import { ChevronLeft, ChevronRight } from "lucide-react"
 import { DayPicker } from "react-day-picker"
 
 import { cn } from "@/lib/utils"
@@ -16,12 +15,11 @@ function Calendar({
   className,
   classNames,
   showOutsideDays = true,
-  components,
   ...props
 }: CalendarProps) {
   return (
-    // Using a typecast to avoid TypeScript errors
     <DayPicker
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       {...(props as any)}
       showOutsideDays={showOutsideDays}
       className={cn("p-3", className)}

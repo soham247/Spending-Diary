@@ -29,6 +29,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "../ui/popover";
+import { formatCurrency } from "@/helpers/formatCurrency";
 
 export default function UserExpenses({ refresh }: { refresh: boolean }) {
   const [loading, setLoading] = useState(false);
@@ -116,13 +117,6 @@ export default function UserExpenses({ refresh }: { refresh: boolean }) {
     });
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'INR',
-      minimumFractionDigits: 2
-    }).format(amount);
-  };
 
   const deleteExpense = async (expenseId: string) => {
     try {
