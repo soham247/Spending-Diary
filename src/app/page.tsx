@@ -12,6 +12,10 @@ import {
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import Footer from "@/components/Footer";
+import Image from "next/image";
+import personal from "../../public/personal.png";
+import friends from "../../public/friends.png";
+import travel from "../../public/travel.png";
 
 type UseCase = "personal" | "friends" | "travel";
 
@@ -193,10 +197,14 @@ export default function Home() {
                 ))}
               </ul>
             </div>
-            <div className="bg-white rounded-xl shadow-lg p-2 border border-gray-200">
-              <div className="aspect-video w-full rounded-lg bg-gray-100 flex items-center justify-center">
-                <p className="text-muted-foreground text-sm">[{useCases[activeTab].title} Screenshot]</p>
-              </div>
+            <div className="bg-background rounded-xl shadow-lg p-2 border border-gray-200">
+                <Image 
+                  src={activeTab === "personal" ? personal : activeTab === "friends" ? friends : travel}
+                  alt={`${useCases[activeTab].title} Screenshot`}
+                  width={1280}
+                  height={720}
+                  className="rounded-lg object-cover"
+                />
             </div>
           </div>
         </div>

@@ -199,8 +199,8 @@ export default function PremiumSpendingDashboard() {
           <CardDescription>Advanced insights into your spending patterns</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-wrap gap-4">
-            <div className="flex-1 min-w-[120px]">
+          <div className="flex flex-col sm:flex-row flex-wrap gap-4">
+            <div className="w-full sm:flex-1 min-w-[120px]">
               <Select value={timeframe} onValueChange={setTimeframe}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select timeframe" />
@@ -214,7 +214,7 @@ export default function PremiumSpendingDashboard() {
               </Select>
             </div>
             
-            <div className="flex-1 min-w-[120px]">
+            <div className="w-full sm:flex-1 min-w-[120px]">
               <Select value={category} onValueChange={setCategory}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select category" />
@@ -228,7 +228,7 @@ export default function PremiumSpendingDashboard() {
               </Select>
             </div>
             
-            <div className="flex-1 min-w-[120px]">
+            <div className="w-full sm:flex-1 min-w-[120px]">
               <Popover>
                 <PopoverTrigger asChild>
                   <Button variant="outline" className="w-full justify-start text-left">
@@ -252,11 +252,12 @@ export default function PremiumSpendingDashboard() {
 
       {/* Tabs for different analytics views */}
       <Tabs defaultValue="trends">
-        <TabsList className="grid grid-cols-4 mb-4">
-          <TabsTrigger value="trends">Spending Trends</TabsTrigger>
-          <TabsTrigger value="categories">Category Analysis</TabsTrigger>
+        {/* Fixed TabsList for better mobile display */}
+        <TabsList className="grid w-full grid-cols-4 mb-6">
+          <TabsTrigger value="trends">Trends</TabsTrigger>
+          <TabsTrigger value="categories">Categories</TabsTrigger>
           <TabsTrigger value="forecast">Forecast</TabsTrigger>
-          <TabsTrigger value="comparison">Budget Comparison</TabsTrigger>
+          <TabsTrigger value="comparison">Budget</TabsTrigger>
         </TabsList>
         
         {/* Spending Trends Tab */}
@@ -269,11 +270,11 @@ export default function PremiumSpendingDashboard() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="h-80">
+              <div className="h-60 sm:h-80">
                 <ResponsiveContainer width="100%" height="100%">
                   <ComposedChart
                     data={chartData.trends}
-                    margin={{ top: 20, right: 30, left: 20, bottom: 30 }}
+                    margin={{ top: 20, right: 20, left: 0, bottom: 30 }}
                   >
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="period" />
@@ -324,7 +325,13 @@ export default function PremiumSpendingDashboard() {
                         cx="50%"
                         cy="50%"
                         labelLine={false}
-                        label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                        label={({ name, percent }) => {
+                          // On smaller screens, show only percent
+                          if (window.innerWidth < 768) {
+                            return `${(percent * 100).toFixed(0)}%`;
+                          }
+                          return `${name}: ${(percent * 100).toFixed(0)}%`;
+                        }}
                         outerRadius={80}
                         fill="#8884d8"
                         dataKey="value"
@@ -357,7 +364,7 @@ export default function PremiumSpendingDashboard() {
                     >
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis type="number" />
-                      <YAxis dataKey="name" type="category" scale="band" />
+                      <YAxis dataKey="name" type="category" scale="band" width={80} />
                       <Tooltip formatter={(value: number) => formatCurrency(value)} />
                       <Legend />
                       <Bar dataKey="value" fill="#8884d8">
@@ -385,11 +392,11 @@ export default function PremiumSpendingDashboard() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="h-80">
+              <div className="h-60 sm:h-80">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart
                     data={chartData.forecast}
-                    margin={{ top: 20, right: 30, left: 20, bottom: 30 }}
+                    margin={{ top: 20, right: 20, left: 0, bottom: 30 }}
                   >
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="period" />
@@ -451,14 +458,14 @@ export default function PremiumSpendingDashboard() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="h-80">
+              <div className="h-60 sm:h-80">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
                     data={chartData.breakdown}
-                    margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                    margin={{ top: 20, right: 20, left: 0, bottom: 5 }}
                   >
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
+                    <XAxis dataKey="name" tick={{ fontSize: 12 }} />
                     <YAxis />
                     <Tooltip formatter={(value: number) => formatCurrency(value)} />
                     <Legend />
