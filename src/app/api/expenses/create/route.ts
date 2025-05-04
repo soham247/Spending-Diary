@@ -20,7 +20,6 @@ export const POST = async (request: NextRequest) => {
     );
     const reqBody = await request.json();
     const { tag, amount, note, payers } = reqBody;
-    console.log("backend", payers);
     
     // Create new expense
     const expense = new Expense({
@@ -49,7 +48,6 @@ export const POST = async (request: NextRequest) => {
         
         const friend = await User.findById(friendId);
         if (!friend) {
-          console.log(`Friend with ID ${friendId} not found`);
           continue;
         }
         
@@ -88,7 +86,6 @@ export const POST = async (request: NextRequest) => {
       { status: 200 }
     );
   } catch {
-    // console.log(error);
     return NextResponse.json(
       { error: "Something went wrong" },
       { status: 500 }

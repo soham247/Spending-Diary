@@ -382,12 +382,12 @@ export default function AddExpenseForm({ userId, onExpenseAdded }: { userId: str
                   <div className="mt-3 text-sm bg-muted/30 p-3 rounded-md">
                     <div className="flex justify-between font-medium">
                       <span>Total expense:</span>
-                      <span>${totalAmount.toFixed(2)}</span>
+                      <span>₹{totalAmount.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between mt-1 text-muted-foreground">
                       <span>Sum of splits:</span>
                       <span>
-                        ${(userAmount + 
+                      ₹{(userAmount + 
                           Object.entries(splitAmounts)
                             .filter(([id]) => selectedFriends[id])
                             .reduce((sum, [, amount]) => sum + amount, 0)

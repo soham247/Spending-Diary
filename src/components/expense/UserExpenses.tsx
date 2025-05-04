@@ -8,14 +8,26 @@ import {
   CardTitle,
   CardDescription,
   CardContent,
-  CardFooter,
 } from "../ui/card";
 import { Badge } from "../ui/badge";
-import { Loader2, Trash2, Users, User, Receipt, FilterIcon } from "lucide-react";
+import {
+  Loader2,
+  Trash2,
+  Users,
+  User,
+  Receipt,
+  FilterIcon,
+  EllipsisVertical,
+} from "lucide-react";
 import { Button } from "../ui/button";
 import { useAuthStore } from "@/store/Auth";
 import { Expense } from "@/types/expense";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../ui/tooltip";
 import { Separator } from "../ui/separator";
 import {
   Select,
@@ -24,26 +36,43 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "../ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { formatCurrency } from "@/helpers/formatCurrency";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 
 export default function UserExpenses({ refresh }: { refresh: boolean }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const { userId } = useAuthStore();
-  
+
   // Filter states
-  const [selectedMonth, setSelectedMonth] = useState<string>(String(new Date().getMonth() + 1)); // Current month (1-12)
-  const [selectedYear, setSelectedYear] = useState<string>(String(new Date().getFullYear())); // Current year
+  const [selectedMonth, setSelectedMonth] = useState<string>(
+    String(new Date().getMonth() + 1)
+  ); // Current month (1-12)
+  const [selectedYear, setSelectedYear] = useState<string>(
+    String(new Date().getFullYear())
+  ); // Current year
   const [selectedTag, setSelectedTag] = useState<string>("All");
-  
-  const tags = ["All", "Food", "Grocery", "Transport", "Medical", "Fruits", "Bills", "Rent", "Entertainment", "Other"];
-  
+
+  const tags = [
+    "All",
+    "Food",
+    "Grocery",
+    "Transport",
+    "Medical",
+    "Fruits",
+    "Bills",
+    "Rent",
+    "Entertainment",
+    "Other",
+  ];
+
   const months = [
     { value: "1", label: "January" },
     { value: "2", label: "February" },
@@ -57,9 +86,9 @@ export default function UserExpenses({ refresh }: { refresh: boolean }) {
     { value: "10", label: "October" },
     { value: "11", label: "November" },
     { value: "12", label: "December" },
-    { value: "all", label: "All Months" }
+    { value: "all", label: "All Months" },
   ];
-  
+
   // Generate years (current year and 5 years back)
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 6 }, (_, i) => String(currentYear - i));
@@ -71,23 +100,23 @@ export default function UserExpenses({ refresh }: { refresh: boolean }) {
       // Build URL with query parameters
       let url = "/api/expenses/userExpenses";
       const params = new URLSearchParams();
-      
+
       if (selectedMonth !== "all") {
         params.append("month", selectedMonth);
       }
-      
+
       params.append("year", selectedYear);
-      
+
       if (selectedTag !== "All") {
         params.append("tag", selectedTag);
       }
-      
+
       if (params.toString()) {
         url += `?${params.toString()}`;
       }
-      
+
       const response = await axios.get(url);
-      if (response.status === 200) {        
+      if (response.status === 200) {
         setExpenses(response.data.data);
       }
     } catch (error: unknown) {
@@ -100,7 +129,7 @@ export default function UserExpenses({ refresh }: { refresh: boolean }) {
       setLoading(false);
     }
   };
-    
+
   useEffect(() => {
     getUserExpenses();
   }, [selectedMonth, selectedYear, selectedTag]);
@@ -116,7 +145,6 @@ export default function UserExpenses({ refresh }: { refresh: boolean }) {
       year: "numeric",
     });
   };
-
 
   const deleteExpense = async (expenseId: string) => {
     try {
@@ -142,10 +170,10 @@ export default function UserExpenses({ refresh }: { refresh: boolean }) {
   const getUserRole = (expense: Expense) => {
     // Check if current user created the expense
     const isCreator = expense.payers[0].userId === userId;
-    
+
     // Check if it's a split expense
     const isSplit = isExpenseSplit(expense);
-    
+
     if (isSplit) {
       return isCreator ? "split-owner" : "split-splitter";
     } else {
@@ -154,7 +182,7 @@ export default function UserExpenses({ refresh }: { refresh: boolean }) {
   };
 
   const getUserAmount = (expense: Expense) => {
-    const userPayer = expense.payers.find(payer => payer.userId === userId);
+    const userPayer = expense.payers.find((payer) => payer.userId === userId);
     return userPayer ? userPayer.amount : 0;
   };
 
@@ -185,9 +213,9 @@ export default function UserExpenses({ refresh }: { refresh: boolean }) {
         return null;
     }
   };
-  
+
   const getMonthName = (monthNum: string) => {
-    return months.find(m => m.value === monthNum)?.label || "All Months";
+    return months.find((m) => m.value === monthNum)?.label || "All Months";
   };
 
   if (loading) {
@@ -204,7 +232,7 @@ export default function UserExpenses({ refresh }: { refresh: boolean }) {
         <h2 className="text-2xl font-bold tracking-tight text-foreground font-sour_gummy">
           Expenses
         </h2>
-        
+
         <div className="flex flex-wrap items-center gap-2">
           {/* Month selector */}
           <Select value={selectedMonth} onValueChange={setSelectedMonth}>
@@ -219,7 +247,7 @@ export default function UserExpenses({ refresh }: { refresh: boolean }) {
               ))}
             </SelectContent>
           </Select>
-          
+
           {/* Year selector */}
           <Select value={selectedYear} onValueChange={setSelectedYear}>
             <SelectTrigger className="w-24">
@@ -233,7 +261,7 @@ export default function UserExpenses({ refresh }: { refresh: boolean }) {
               ))}
             </SelectContent>
           </Select>
-          
+
           {/* Tag filter */}
           <Popover>
             <PopoverTrigger asChild>
@@ -245,7 +273,7 @@ export default function UserExpenses({ refresh }: { refresh: boolean }) {
             <PopoverContent className="w-60">
               <div className="grid grid-cols-2 gap-2">
                 {tags.map((tag) => (
-                  <Badge 
+                  <Badge
                     key={tag}
                     variant={selectedTag === tag ? "default" : "outline"}
                     className="cursor-pointer text-center py-1"
@@ -258,15 +286,22 @@ export default function UserExpenses({ refresh }: { refresh: boolean }) {
             </PopoverContent>
           </Popover>
         </div>
-        
+
         <div className="flex flex-col items-end">
           <p className="text-sm text-muted-foreground text-right">
-            {expenses.length} {expenses.length === 1 ? "expense" : "expenses"} in {selectedMonth === "all" ? "" : getMonthName(selectedMonth)} {selectedYear}
+            {expenses.length} {expenses.length === 1 ? "expense" : "expenses"}{" "}
+            in {selectedMonth === "all" ? "" : getMonthName(selectedMonth)}{" "}
+            {selectedYear}
           </p>
           {expenses.length > 0 && (
             <p className="text-sm font-medium">
-              Total: {formatCurrency(expenses.reduce((acc, expense) => 
-                acc + getUserAmount(expense), 0))}
+              Total:{" "}
+              {formatCurrency(
+                expenses.reduce(
+                  (acc, expense) => acc + getUserAmount(expense),
+                  0
+                )
+              )}
             </p>
           )}
         </div>
@@ -283,7 +318,7 @@ export default function UserExpenses({ refresh }: { refresh: boolean }) {
           const isSplit = isExpenseSplit(expense);
           const userRole = getUserRole(expense);
           const userAmount = getUserAmount(expense);
-          
+
           return (
             <Card
               key={expense._id}
@@ -298,7 +333,10 @@ export default function UserExpenses({ refresh }: { refresh: boolean }) {
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <Badge variant="outline" className="flex items-center gap-1 px-2 py-1">
+                          <Badge
+                            variant="outline"
+                            className="flex items-center gap-1 px-2 py-1"
+                          >
                             {getBadgeIcon(userRole)}
                             <span>{getBadgeLabel(userRole)}</span>
                           </Badge>
@@ -313,9 +351,27 @@ export default function UserExpenses({ refresh }: { refresh: boolean }) {
                       </Tooltip>
                     </TooltipProvider>
                   </div>
-                  <time className="text-sm text-muted-foreground whitespace-nowrap">
-                    {formatDate(expense.createdAt)}
-                  </time>
+                  <div className="flex items-center gap-2">
+                    <time className="text-sm text-muted-foreground whitespace-nowrap">
+                      {formatDate(expense.createdAt)}
+                    </time>
+
+                    {expense.payers[0].userId === userId && (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger>
+                          <EllipsisVertical className="w-5 h-5 text-muted-foreground cursor-pointer" />
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-48">
+                          <DropdownMenuItem
+                            className="flex items-center space-x-2 text-red-600"
+                            onClick={() => deleteExpense(expense._id)}
+                          >
+                            <Trash2 className="w-4 h-4" /> Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    )}
+                  </div>
                 </div>
                 <CardDescription className="text-sm">
                   {expense.note}
@@ -324,46 +380,39 @@ export default function UserExpenses({ refresh }: { refresh: boolean }) {
               <CardContent className="space-y-4">
                 <div className="flex justify-between items-center">
                   <div className="flex flex-col">
-                    <span className="text-sm text-muted-foreground">Your share</span>
+                    <span className="text-sm text-muted-foreground">
+                      Your share
+                    </span>
                     <CardTitle className="text-2xl font-bold text-primary">
                       {formatCurrency(userAmount)}
                     </CardTitle>
                   </div>
-                  
+
                   {isSplit && (
                     <div className="flex flex-col items-end">
-                      <span className="text-sm text-muted-foreground">Total expense</span>
+                      <span className="text-sm text-muted-foreground">
+                        Total expense
+                      </span>
                       <span className="text-lg font-semibold">
                         {formatCurrency(expense.amount)}
                       </span>
                     </div>
                   )}
                 </div>
-                
+
                 {isSplit && (
                   <>
                     <Separator />
                     <div className="text-sm text-muted-foreground">
                       <div className="flex justify-between items-center">
-                        <span>Split between {expense.payers.length} people</span>
+                        <span>
+                          Split between {expense.payers.length} people
+                        </span>
                       </div>
                     </div>
                   </>
                 )}
               </CardContent>
-              <CardFooter className="flex justify-end pt-2">
-                {expense.payers[0].userId === userId && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-destructive hover:bg-destructive/10"
-                    onClick={() => deleteExpense(expense._id)}
-                  >
-                    <Trash2 className="w-4 h-4 mr-2" />
-                    <span>Delete</span>
-                  </Button>
-                )}
-              </CardFooter>
             </Card>
           );
         })}
@@ -372,11 +421,17 @@ export default function UserExpenses({ refresh }: { refresh: boolean }) {
       {expenses.length === 0 && !error && (
         <div className="flex flex-col items-center justify-center p-8 text-center border rounded-lg border-border bg-background">
           <Receipt className="w-12 h-12 text-muted-foreground mb-2" />
-          <p className="text-lg font-medium text-foreground">No expenses found</p>
+          <p className="text-lg font-medium text-foreground">
+            No expenses found
+          </p>
           <p className="text-sm text-muted-foreground">
-            {selectedTag !== "All" 
-              ? `No ${selectedTag.toLowerCase()} expenses in ${getMonthName(selectedMonth)} ${selectedYear}.`
-              : `No expenses in ${getMonthName(selectedMonth)} ${selectedYear}.`}
+            {selectedTag !== "All"
+              ? `No ${selectedTag.toLowerCase()} expenses in ${getMonthName(
+                  selectedMonth
+                )} ${selectedYear}.`
+              : `No expenses in ${getMonthName(
+                  selectedMonth
+                )} ${selectedYear}.`}
           </p>
         </div>
       )}
