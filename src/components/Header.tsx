@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { ModeToggle } from "./theme/ThemeToggler";
 import {
@@ -29,12 +29,10 @@ import {
   SheetTrigger,
 } from "./ui/sheet";
 import { signOut, useSession } from "next-auth/react";
-import { tr } from "date-fns/locale";
 
 export default function Header() {
   const { data: session } = useSession();
   const userId = session?.user.id || null;
-  const router = useRouter();
   const { toast } = useToast();
   const pathname = usePathname();
 

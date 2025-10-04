@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
 
-export const GET = async (request: NextRequest) => {
+export const GET = async () => {
   try {
     const session = await getServerSession(authOptions);
     const userId = session?.user?.id;
@@ -38,8 +38,7 @@ export const GET = async (request: NextRequest) => {
       },
       { status: 200 }
     );
-  } catch (error) {
-    console.error(error);
+  } catch {
     return NextResponse.json(
       {
         message: "Failed to get friends",

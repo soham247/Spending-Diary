@@ -42,7 +42,7 @@ export default function LoginPage() {
           window.location.href = "/expense";
         }, 300);
       }
-    } catch (error: unknown) {
+    } catch{
         toast({
           title: "Something went wrong",
           variant: "destructive",

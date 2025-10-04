@@ -22,7 +22,11 @@ export const GET = async (request: NextRequest) => {
     const tag = url.searchParams.get("tag");
 
     // Build Prisma where clause
-    const where: any = {
+    const where: {
+      payers: { some: { userId: string } };
+      createdAt?: { gte: Date; lte: Date };
+      tag?: string;
+    } = {
       payers: { some: { userId } },
     };
 
@@ -57,8 +61,7 @@ export const GET = async (request: NextRequest) => {
       },
       { status: 200 }
     );
-  } catch (error) {
-    console.error("Error fetching user expenses:", error);
+  } catch {
     return NextResponse.json(
       { error: "Failed to fetch user expenses" },
       { status: 500 }
