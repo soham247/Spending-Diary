@@ -4,5 +4,6 @@ export interface Friend {
     name: string;
     phone: string;
   };
+  friendId: string;
   amount: number;
 }
