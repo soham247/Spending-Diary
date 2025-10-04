@@ -1,11 +1,9 @@
 "use client";
 import React from "react";
 import Link from "next/link";
-import axios from "axios";
 import { usePathname, useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { ModeToggle } from "./theme/ThemeToggler";
-import { useAuthStore } from "@/store/Auth";
 import {
   User,
   Settings,
@@ -30,9 +28,12 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "./ui/sheet";
+import { signOut, useSession } from "next-auth/react";
+import { tr } from "date-fns/locale";
 
 export default function Header() {
-  const { userId, logout } = useAuthStore();
+  const { data: session } = useSession();
+  const userId = session?.user.id || null;
   const router = useRouter();
   const { toast } = useToast();
   const pathname = usePathname();
@@ -75,16 +76,7 @@ export default function Header() {
 
   const handleLogout = async () => {
     try {
-      const response = await axios.get("/api/users/logout");
-      if (response.status === 200) {
-        toast({
-          title: "Logout successful",
-          variant: "success",
-          duration: 3000,
-        });
-        router.replace("/");
-      }
-      logout();
+      await signOut({ redirect: true, callbackUrl: "/" });
     } catch {
       toast({
         title: "Something went wrong",

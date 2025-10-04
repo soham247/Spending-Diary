@@ -1,25 +1,11 @@
-import { NextResponse, NextRequest } from "next/server";
+export { default } from "next-auth/middleware"
 
-export function middleware(request: NextRequest) {
-    const path = request.nextUrl.pathname;
-
-    const isPublicPath = path === '/login' || path === '/register' || path === '/';
-
-    const token = request.cookies.get('token')?.value || '';
-
-    if(isPublicPath && token) {
-        return NextResponse.redirect(new URL('/expense', request.nextUrl))
-    }
-
-    if(!isPublicPath && !token) {
-        return NextResponse.redirect(new URL('/login', request.nextUrl))
-    }
-
-    return NextResponse.next();
-}
-
+// Protect only authenticated app routes; leave public and auth pages accessible
 export const config = {
-    matcher: [
-        '/((?!api|_next/static|_next/image|favicon.ico|pricing|about).*)'
-    ]
+  matcher: [
+    "/analytics/:path*",
+    "/expense/:path*",
+    "/friends/:path*",
+    "/profile/:path*",
+  ],
 }

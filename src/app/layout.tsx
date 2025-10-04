@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import Header from "@/components/Header";
 import { Suspense } from "react";
 import Loading from "./loading";
+import Provider from "@/components/AuthProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -49,9 +50,11 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Header />
-          <Suspense fallback={<Loading />}>{children}</Suspense>
-          <Toaster />
+          <Provider>
+            <Header />
+            <Suspense fallback={<Loading />}>{children}</Suspense>
+            <Toaster />
+          </Provider>
         </ThemeProvider>
       </body>
     </html>

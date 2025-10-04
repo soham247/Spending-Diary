@@ -4,12 +4,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import React, { useState } from "react";
 import Link from "next/link";
-import axios, { AxiosError } from "axios";
 import { useToast } from "@/hooks/use-toast";
-import { useAuthStore } from "@/store/Auth";
+import {signIn} from "next-auth/react"
 
 export default function LoginPage() {
-  const { login } = useAuthStore();
   const { toast } = useToast();
   // const router = useRouter();
   const [error, setError] = useState("");
@@ -29,12 +27,12 @@ export default function LoginPage() {
     setError("");
     try {
       setLoading(true);
-      const response = await axios.post("/api/users/login", {
-        phone,
-        password,
-      });
-      if (response.status === 200) {
-        login(response.data.user.id, response.data.user.isPremium);
+      const response = await signIn("credentials", {
+        phone: phone as string,
+        password: password as string,
+        redirect: false,
+      })
+      if (response?.ok) {
         toast({
           title: "Login successful",
           variant: "success",
@@ -43,17 +41,8 @@ export default function LoginPage() {
         setTimeout(() => {
           window.location.href = "/expense";
         }, 300);
-      } else if (response.status === 400) {
-        setError(response.data.message);
       }
     } catch (error: unknown) {
-      if (error instanceof AxiosError)
-        toast({
-          title: error.response?.data.error,
-          variant: "destructive",
-          duration: 3000,
-        });
-      else
         toast({
           title: "Something went wrong",
           variant: "destructive",
