@@ -20,7 +20,6 @@ import {
   EllipsisVertical,
 } from "lucide-react";
 import { Button } from "../ui/button";
-import { useAuthStore } from "@/store/Auth";
 import { Expense } from "@/types/expense";
 import {
   Tooltip,
@@ -44,13 +43,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
+import { useSession } from "next-auth/react";
 
 export default function UserExpenses({ refresh }: { refresh: boolean }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [expenses, setExpenses] = useState<Expense[]>([]);
-  const { userId } = useAuthStore();
-
+  const { data: session } = useSession();
+  const userId = session?.user.id || null;
   // Filter states
   const [selectedMonth, setSelectedMonth] = useState<string>(
     String(new Date().getMonth() + 1)
@@ -321,7 +321,7 @@ export default function UserExpenses({ refresh }: { refresh: boolean }) {
 
           return (
             <Card
-              key={expense._id}
+              key={expense.id}
               className="overflow-hidden transition-shadow hover:shadow-lg"
             >
               <CardHeader className="space-y-2">
@@ -364,7 +364,7 @@ export default function UserExpenses({ refresh }: { refresh: boolean }) {
                         <DropdownMenuContent align="end" className="w-48">
                           <DropdownMenuItem
                             className="flex items-center space-x-2 text-red-600"
-                            onClick={() => deleteExpense(expense._id)}
+                            onClick={() => deleteExpense(expense.id)}
                           >
                             <Trash2 className="w-4 h-4" /> Delete
                           </DropdownMenuItem>

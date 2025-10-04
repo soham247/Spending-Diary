@@ -1,0 +1,63 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id          String   @id @default(cuid())
+  name        String
+  phone       String   @unique
+  password    String
+  isPremium   Boolean  @default(false)
+  verifyToken String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  friends     Friend[]
+
+  @@index([phone])
+  @@map("users")
+}
+
+model Friend {
+  id        String   @id @default(cuid())
+  userId    String
+  friendId  String
+  amount    Float    @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, friendId])
+  @@index([userId])
+  @@index([friendId])
+  @@map("friends")
+}
+
+model Expense {
+  id         String      @id @default(cuid())
+  note       String
+  amount      Float
+  tag         String
+  isSplitted  Boolean     @default(false)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  payers      Payer[]
+
+  @@map("expenses")
+}
+
+model Payer {
+  id        String   @id @default(cuid())
+  expenseId String
+  userId    String
+  amount    Float
+  expense   Expense  @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expenseId])
+}

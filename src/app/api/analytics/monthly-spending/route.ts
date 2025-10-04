@@ -1,20 +1,9 @@
-import { getDataFromToken } from "@/helpers/getDataFromTokens";
 import { NextRequest, NextResponse } from "next/server";
-import { connect } from "@/dbConfig/dbConfig";
-import Expense from "@/models/expenseModel";
-import User from "@/models/userModel";
-import { Expense as ExpenseType } from "@/types/expense";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { db } from "@/lib/db";
 
-connect();
-
-interface ExpenseQuery {
-  "payers.0.userId": string;
-  createdAt?: {
-    $gte: Date;
-    $lte: Date;
-  };
-  tag?: string;
-}
+type SimpleExpense = { amount: number; tag: string; createdAt: Date | string };
 
 // Helper function to get month name from date
 const getMonthName = (date: Date | string) => {
@@ -44,8 +33,7 @@ interface MonthlyDataItem {
 }
 
 // Helper function to process expense data by month
-const processMonthlyData = (expenses: ExpenseType[]) => {
-  // Group expenses by month
+const processMonthlyData = (expenses: SimpleExpense[]) => {
   const monthlyData: Record<string, MonthlyDataItem> = {};
   
   expenses.forEach(expense => {
@@ -87,16 +75,23 @@ const processMonthlyData = (expenses: ExpenseType[]) => {
 // API route for basic monthly spending (free version)
 async function GET(request: NextRequest) {
   try {
-    const userId = await getDataFromToken(request);
+    const session = await getServerSession(authOptions);
+    const userId = session?.user?.id;
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     
-    // Get last 6 months of expenses
     const sixMonthsAgo = new Date();
     sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
     
-    const expenses = await Expense.find({
-      "payers.0.userId": userId,
-      createdAt: { $gte: sixMonthsAgo }
-    }).sort({ createdAt: 1 });
+    const expenses = await db.expense.findMany({
+      where: {
+        payers: { some: { userId } },
+        createdAt: { gte: sixMonthsAgo },
+      },
+      orderBy: { createdAt: 'asc' },
+      select: { amount: true, tag: true, createdAt: true },
+    });
     
     const monthlyData = processMonthlyData(expenses);
     
@@ -118,10 +113,13 @@ async function GET(request: NextRequest) {
 // Advanced analytics endpoint for premium version
 async function POST(request: NextRequest) {
   try {
-    const userId = await getDataFromToken(request);
+    const session = await getServerSession(authOptions);
+    const userId = session?.user?.id;
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     
-    // Get user to check if premium
-    const user = await User.findById(userId);
+    const user = await db.user.findUnique({ where: { id: userId }, select: { isPremium: true } });
     if (!user?.isPremium) {
       return NextResponse.json(
         { error: "Premium subscription required" },
@@ -129,43 +127,44 @@ async function POST(request: NextRequest) {
       );
     }
     
-    // Get query parameters
     const url = new URL(request.url);
     const timeframe = url.searchParams.get('timeframe') || 'monthly';
     const category = url.searchParams.get('category');
     const dateParam = url.searchParams.get('date');
     
-    // Calculate date range based on timeframe
     const endDate = dateParam ? new Date(dateParam) : new Date();
     const startDate = new Date(endDate);
     
     switch(timeframe) {
       case 'weekly':
-        startDate.setMonth(endDate.getMonth() - 3); // 3 months of weekly data
+        startDate.setMonth(endDate.getMonth() - 3);
         break;
       case 'monthly':
-        startDate.setFullYear(endDate.getFullYear() - 1); // 1 year of monthly data
+        startDate.setFullYear(endDate.getFullYear() - 1);
         break;
       case 'quarterly':
-        startDate.setFullYear(endDate.getFullYear() - 2); // 2 years of quarterly data
+        startDate.setFullYear(endDate.getFullYear() - 2);
         break;
       case 'yearly':
-        startDate.setFullYear(endDate.getFullYear() - 5); // 5 years of yearly data
+        startDate.setFullYear(endDate.getFullYear() - 5);
         break;
       default:
-        startDate.setMonth(endDate.getMonth() - 6); // Default to 6 months
+        startDate.setMonth(endDate.getMonth() - 6);
     }
     
-    const query: ExpenseQuery = {
-      "payers.0.userId": userId,
-      createdAt: { $gte: startDate, $lte: endDate }
+    const where: any = {
+      payers: { some: { userId } },
+      createdAt: { gte: startDate, lte: endDate },
     };
-    
     if (category && category !== 'all') {
-      query.tag = category;
+      where.tag = category;
     }
     
-    const expenses = await Expense.find(query).sort({ createdAt: 1 });
+    const expenses = await db.expense.findMany({
+      where,
+      orderBy: { createdAt: 'asc' },
+      select: { amount: true, tag: true, createdAt: true },
+    });
     
     const trendsData = processTrendsData(expenses, timeframe);
     const categoriesData = processCategoriesData(expenses);
@@ -192,7 +191,7 @@ async function POST(request: NextRequest) {
   }
 }
 
-function processTrendsData(expenses: ExpenseType[], timeframe: string) {
+function processTrendsData(expenses: SimpleExpense[], timeframe: string) {
   const periodsData: Record<string, {
     period: string;
     total: number;
@@ -248,7 +247,7 @@ function processTrendsData(expenses: ExpenseType[], timeframe: string) {
 }
 
 // Process data for category pie chart
-function processCategoriesData(expenses: ExpenseType[]) {
+function processCategoriesData(expenses: SimpleExpense[]) {
   const categories: Record<string, number> = {};
   
   expenses.forEach(expense => {
@@ -265,7 +264,7 @@ function processCategoriesData(expenses: ExpenseType[]) {
 }
 
 // Process data for breakdown bar chart
-function processBreakdownData(expenses: ExpenseType[]) {
+function processBreakdownData(expenses: SimpleExpense[]) {
   const categories: Record<string, number> = {};
   
   expenses.forEach(expense => {
@@ -275,16 +274,15 @@ function processBreakdownData(expenses: ExpenseType[]) {
     categories[expense.tag] += expense.amount;
   });
   
-  // Add mock budget data for comparison
   return Object.entries(categories).map(([name, value]) => ({
     name,
     value,
-    budget: (value as number) * (Math.random() * 0.5 + 0.7) // Random budget between 70-120% of actual
+    budget: (value as number) * (Math.random() * 0.5 + 0.7)
   }));
 }
 
 // Process data for forecast chart
-function processForecastData(expenses: ExpenseType[], timeframe: string) {
+function processForecastData(expenses: SimpleExpense[], timeframe: string) {
   interface ForecastPeriodData {
     period: string;
     actual: number | null;
@@ -331,19 +329,17 @@ function processForecastData(expenses: ExpenseType[], timeframe: string) {
   result.sort((a, b) => {
     const dateA = new Date(parseDate(a.period, timeframe));
     const dateB = new Date(parseDate(b.period, timeframe));
-    return dateA.getTime() - dateB.getTime(); // Use getTime() for numeric comparison
+    return dateA.getTime() - dateB.getTime();
   });
   
   if (result.length > 0) {
     const lastPeriods = result.slice(-3);
     const avgGrowth = calculateAverageGrowth(lastPeriods);
     
-    // Latest period data
     const latestPeriod = result[result.length - 1];
     let lastAmount = latestPeriod.actual || 0;
     let nextPeriodDate = getNextPeriodDate(latestPeriod.period, timeframe);
     
-    // Add forecast for next 3 periods
     for (let i = 0; i < 3; i++) {
       const forecastAmount = lastAmount * (1 + avgGrowth);
       const periodName = formatPeriodName(nextPeriodDate, timeframe);
@@ -362,9 +358,8 @@ function processForecastData(expenses: ExpenseType[], timeframe: string) {
   return result;
 }
 
-// Helper function to calculate average growth rate
 function calculateAverageGrowth(periods: Array<{period: string, actual: number | null}>) {
-  if (periods.length <= 1) return 0.05; // Default 5% growth if not enough data
+  if (periods.length <= 1) return 0.05;
   
   let totalGrowth = 0;
   let growthPoints = 0;
@@ -382,7 +377,6 @@ function calculateAverageGrowth(periods: Array<{period: string, actual: number |
   return growthPoints > 0 ? totalGrowth / growthPoints : 0.05;
 }
 
-// Helper function to get next period date
 function getNextPeriodDate(periodStr: string, timeframe: string) {
   const date = parseDate(periodStr, timeframe);
   
@@ -406,7 +400,6 @@ function getNextPeriodDate(periodStr: string, timeframe: string) {
   return date;
 }
 
-// Helper function to format period name
 function formatPeriodName(date: Date, timeframe: string) {
   switch(timeframe) {
     case 'weekly':
@@ -423,24 +416,21 @@ function formatPeriodName(date: Date, timeframe: string) {
   }
 }
 
-// Helper function to parse period string to date
 function parseDate(periodStr: string, timeframe: string) {
   const date = new Date();
   
   switch(timeframe) {
     case 'weekly':
-      // Format: "Week X, YYYY"
       const weekParts = periodStr.match(/Week (\d+), (\d+)/);
       if (weekParts) {
         const weekNum = parseInt(weekParts[1]);
         const year = parseInt(weekParts[2]);
         date.setFullYear(year);
-        date.setMonth(0, 1); // January 1st
+        date.setMonth(0, 1);
         date.setDate(1 + (weekNum - 1) * 7);
       }
       break;
     case 'monthly':
-      // Format: "MMM YYYY"
       const monthParts = periodStr.match(/([A-Za-z]+) (\d+)/);
       if (monthParts) {
         const monthName = monthParts[1];
@@ -452,7 +442,6 @@ function parseDate(periodStr: string, timeframe: string) {
       }
       break;
     case 'quarterly':
-      // Format: "QX YYYY"
       const quarterParts = periodStr.match(/Q(\d+) (\d+)/);
       if (quarterParts) {
         const quarter = parseInt(quarterParts[1]);
@@ -463,13 +452,11 @@ function parseDate(periodStr: string, timeframe: string) {
       }
       break;
     case 'yearly':
-      // Format: "YYYY"
       date.setFullYear(parseInt(periodStr));
       date.setMonth(0);
       date.setDate(1);
       break;
     default:
-      // Default to monthly format
       const defaultParts = periodStr.match(/([A-Za-z]+) (\d+)/);
       if (defaultParts) {
         const monthName = defaultParts[1];

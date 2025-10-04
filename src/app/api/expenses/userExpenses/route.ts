@@ -1,75 +1,59 @@
-import { connect } from "@/dbConfig/dbConfig";
-import { getDataFromToken } from "@/helpers/getDataFromTokens";
-import Expense from "@/models/expenseModel";
-import mongoose from "mongoose";
 import { NextRequest, NextResponse } from "next/server";
-
-connect();
-
-// Define a proper type for the query
-interface ExpenseQuery {
-  "payers.userId": string | mongoose.Types.ObjectId;
-  createdAt?: {
-    $gte: Date;
-    $lte: Date;
-  };
-  tag?: string;
-}
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { db } from "@/lib/db";
 
 export const GET = async (request: NextRequest) => {
   try {
-    const userId = await getDataFromToken(request);
-    
+    const session = await getServerSession(authOptions);
+    const userId = session?.user?.id;
+
     if (!userId) {
       return NextResponse.json(
-        { error: "Unauthorized - Invalid token" },
+        { error: "Unauthorized" },
         { status: 401 }
       );
     }
-    
+
     // Get query parameters
     const url = new URL(request.url);
     const month = url.searchParams.get("month");
     const year = url.searchParams.get("year");
     const tag = url.searchParams.get("tag");
-    
-    const query: ExpenseQuery = { "payers.userId": userId };
-    
+
+    // Build Prisma where clause
+    const where: any = {
+      payers: { some: { userId } },
+    };
+
     if (month && year) {
       const startDate = new Date(parseInt(year), parseInt(month) - 1, 1);
       const endDate = new Date(parseInt(year), parseInt(month), 0);
-      
-      query.createdAt = {
-        $gte: startDate,
-        $lte: endDate
-      };
+      where.createdAt = { gte: startDate, lte: endDate };
     } else if (year) {
       const startDate = new Date(parseInt(year), 0, 1);
       const endDate = new Date(parseInt(year), 11, 31);
-      
-      query.createdAt = {
-        $gte: startDate,
-        $lte: endDate
-      };
+      where.createdAt = { gte: startDate, lte: endDate };
     }
-    
+
     if (tag && tag !== "All") {
-      query.tag = tag;
+      where.tag = tag;
     }
-    
-    const userWithExpenses = await Expense.find(query)
-      .limit(50)
-      .sort({ createdAt: -1 });
-    
-    if (!userWithExpenses) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
-    }
-    
+
+    const expenses = await db.expense.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      take: 50,
+      include: {
+        payers: true,
+      },
+    });
+
     return NextResponse.json(
       {
         message: "User expenses fetched successfully",
         success: true,
-        data: userWithExpenses,
+        data: expenses,
       },
       { status: 200 }
     );

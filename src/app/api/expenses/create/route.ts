@@ -1,80 +1,69 @@
-import { getDataFromToken } from "@/helpers/getDataFromTokens";
 import { NextRequest, NextResponse } from "next/server";
-import { connect } from "@/dbConfig/dbConfig";
-import User from "@/models/userModel";
-import Expense from "@/models/expenseModel";
-import mongoose from "mongoose";
-
-connect();
-
-interface Friend {
-  userId: mongoose.Types.ObjectId;
-  amount: number;
-}
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { db } from "@/lib/db";
 
 export const POST = async (request: NextRequest) => {
   try {
-    const userId = await getDataFromToken(request);
-    const user = await User.findById({ _id: userId }).select(
-      "-password -phone"
-    );
+    const session = await getServerSession(authOptions);
+    const currentUserId = session?.user?.id;
+
+    if (!currentUserId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const reqBody = await request.json();
-    const { tag, amount, note, payers } = reqBody;
-    
-    // Create new expense
-    const expense = new Expense({
-      tag,
-      amount,
-      isSplitted: payers && payers.length > 1,
-      payers: payers || [{ userId, amount }],
-      note,
+    const { tag, amount, note, payers } = reqBody as {
+      tag: string;
+      amount: number;
+      note?: string;
+      payers?: Array<{ userId: string; amount: number }>;
+    };
+
+    const effectivePayers = (payers && payers.length > 0)
+      ? payers
+      : [{ userId: currentUserId, amount }];
+
+    // Create expense and related payers
+    const savedExpense = await db.expense.create({
+      data: {
+        tag,
+        amount,
+        note: note ?? "",
+        isSplitted: effectivePayers.length > 1,
+        payers: {
+          createMany: {
+            data: effectivePayers.map((p) => ({ userId: p.userId, amount: p.amount })),
+          },
+        },
+      },
+      include: {
+        payers: true,
+      },
     });
 
-    const savedExpense = await expense.save();
+    // If expense is split, update bilateral friend balances
+    if (effectivePayers.length > 1) {
+      for (const p of effectivePayers) {
+        if (p.userId === currentUserId) continue;
 
-    if (!savedExpense) {
-      return NextResponse.json(
-        { error: "Creating expense gone wrong" },
-        { status: 500 }
-      );
-    }
-    
-    
-    // If expense is split, update balances and add expense to friends' expenses
-    if (payers && payers.length > 1) {
-      for(let i = 1; i < payers.length; i++) {
-        const friendId = payers[i].userId;
-        const friendAmount = payers[i].amount;
-        
-        const friend = await User.findById(friendId);
-        if (!friend) {
-          continue;
-        }
-        
-        // Update balances in both directions
-        // Find current user in friend's friend list
-        const currentUserInFriendsList = friend.friends?.find(
-          (f: Friend) => f.userId.toString() === userId.toString()
-        );
-        
-        if (currentUserInFriendsList) {
-          currentUserInFriendsList.amount -= friendAmount; // Friend owes less to current user
-        }
-        
-        // Find friend in current user's friend list
-        const friendInUsersList = user.friends?.find(
-          (f: Friend) => f.userId.toString() === friendId.toString()
-        );
-        
-        if (friendInUsersList) {
-          friendInUsersList.amount += friendAmount; // Friend owes more to current user
-        }
-        
-        await friend.save();
+        const friendId = p.userId;
+        const friendAmount = p.amount;
+
+        // current user's ledger: friend owes me more
+        await db.friend.upsert({
+          where: { userId_friendId: { userId: currentUserId, friendId } },
+          create: { userId: currentUserId, friendId, amount: friendAmount },
+          update: { amount: { increment: friendAmount } },
+        });
+
+        // friend's ledger: from their POV, amount decreases
+        await db.friend.upsert({
+          where: { userId_friendId: { userId: friendId, friendId: currentUserId } },
+          create: { userId: friendId, friendId: currentUserId, amount: -friendAmount },
+          update: { amount: { decrement: friendAmount } },
+        });
       }
-      
-      // Save user again after all friend updates
-      await user.save();
     }
 
     return NextResponse.json(
@@ -85,7 +74,8 @@ export const POST = async (request: NextRequest) => {
       },
       { status: 200 }
     );
-  } catch {
+  } catch (e) {
+    console.error("Error creating expense:", e);
     return NextResponse.json(
       { error: "Something went wrong" },
       { status: 500 }

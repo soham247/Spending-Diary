@@ -1,6 +1,6 @@
 export interface Friend {
   userId: {
-    _id: string;
+    id: string;
     name: string;
     phone: string;
   };

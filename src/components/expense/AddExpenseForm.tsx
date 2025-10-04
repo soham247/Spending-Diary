@@ -13,8 +13,9 @@ import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import axios, { AxiosError } from "axios";
 import { Friend } from "@/types/friend";
+import { useSession } from "next-auth/react";
 
-export default function AddExpenseForm({ userId, onExpenseAdded }: { userId: string | null; onExpenseAdded: () => void }) {
+export default function AddExpenseForm({ onExpenseAdded }: { onExpenseAdded: () => void }) {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>("");
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
@@ -25,6 +26,8 @@ export default function AddExpenseForm({ userId, onExpenseAdded }: { userId: str
   const [totalAmount, setTotalAmount] = useState<number>(0);
   const [splitAmounts, setSplitAmounts] = useState<{[key: string]: number}>({});
   const [userAmount, setUserAmount] = useState<number>(0);
+  const { data: session } = useSession();
+  const userId = session?.user.id || null;
 
   const tags = ["Food", "Grocery", "Transport", "Medical", "Fruits", "Bills", "Rent", "Entertainment", "Other"];
 
@@ -32,15 +35,16 @@ export default function AddExpenseForm({ userId, onExpenseAdded }: { userId: str
     try {
       setFetchingFriends(true);
       const response = await axios.get("/api/friends/get");
-      setFriends(response.data.data.friends);
+      const friendsList = response.data?.data?.friends || [];
+      setFriends(friendsList);
       
       // Initialize selectedFriends state with all friends unchecked
       const friendsState: {[key: string]: boolean} = {};
       const initialSplitAmounts: {[key: string]: number} = {};
       
-      response.data.data.friends.forEach((friend: Friend) => {
-        friendsState[friend.userId._id] = false;
-        initialSplitAmounts[friend.userId._id] = 0;
+      friendsList.forEach((friend: Friend) => {
+        friendsState[friend.userId.id] = false;
+        initialSplitAmounts[friend.userId.id] = 0;
       });
       
       setSelectedFriends(friendsState);
@@ -345,25 +349,25 @@ export default function AddExpenseForm({ userId, onExpenseAdded }: { userId: str
                     <div className="flex justify-center items-center h-full">
                       <p className="text-muted-foreground">Loading friends...</p>
                     </div>
-                  ) : friends.length > 0 ? (
+                  ) : friends?.length > 0 ? (
                     <div className="space-y-1">
-                      {friends.map((friend) => (
-                        <div key={friend.userId._id} className="flex items-center py-2.5 px-2 space-x-2 hover:bg-muted/50 rounded-md">
+                      {friends?.map((friend) => (
+                        <div key={friend.userId.id} className="flex items-center py-2.5 px-2 space-x-2 hover:bg-muted/50 rounded-md">
                           <div className="flex items-center gap-2 flex-1">
                             <Checkbox 
-                              id={`friend-${friend.userId._id}`}
-                              checked={selectedFriends[friend.userId._id] || false}
-                              onCheckedChange={() => handleFriendToggle(friend.userId._id)}
+                              id={`friend-${friend.userId.id}`}
+                              checked={selectedFriends[friend.userId.id] || false}
+                              onCheckedChange={() => handleFriendToggle(friend.userId.id)}
                             />
-                            <Label htmlFor={`friend-${friend.userId._id}`} className="cursor-pointer">
+                            <Label htmlFor={`friend-${friend.userId.id}`} className="cursor-pointer">
                               {friend.userId.name}
                             </Label>
                           </div>
-                          {selectedFriends[friend.userId._id] && (
+                          {selectedFriends[friend.userId.id] && (
                             <Input
                               type="text"
-                              value={splitAmounts[friend.userId._id] === 0 ? "" : splitAmounts[friend.userId._id].toString()}
-                              onChange={(e) => handleSplitAmountChange(friend.userId._id, e.target.value)}
+                              value={splitAmounts[friend.userId.id] === 0 ? "" : splitAmounts[friend.userId.id].toString()}
+                              onChange={(e) => handleSplitAmountChange(friend.userId.id, e.target.value)}
                               className="w-24 h-8"
                               placeholder="0.00"
                             />

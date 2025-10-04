@@ -1,51 +1,34 @@
-import { connect } from "@/dbConfig/dbConfig";
-import { getDataFromToken } from "@/helpers/getDataFromTokens";
-import User from "@/models/userModel";
-import mongoose from "mongoose";
 import { NextRequest, NextResponse } from "next/server";
-
-connect();
-
-interface Friend {
-  userId: mongoose.Types.ObjectId;
-  amount: number;
-}
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { db } from "@/lib/db";
 
 export const POST = async (req: NextRequest) => {
-    try {
-        const userId = await getDataFromToken(req);
-        const reqBody = await req.json();
-        const friendId = reqBody.friendId;
-
-        const user = await User.findById(userId).select("-password -phone");
-        const friend = await User.findById(friendId).select("-password -phone");
-
-        if (!user || !friend) {
-            return NextResponse.json({ error: "User not found" }, { status: 404 });
-        }
-
-        user.friends?.find((f: Friend) => {
-            if (f.userId.toString() === friendId) {
-                f.amount = 0;
-            }
-        })
-
-        friend.friends?.find((f: Friend) => {
-            if (f.userId.toString() === userId) {
-                f.amount = 0;
-            }
-        })
-
-        const savedUser = await user.save();
-        const savedFriend = await friend.save();
-
-        if (!savedUser || !savedFriend) {
-            return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
-        }
-
-        return NextResponse.json({ message: "Settled successfully", success: true }, { status: 200 });
-        
-    } catch {
-        return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
+  try {
+    const session = await getServerSession(authOptions);
+    const userId = session?.user?.id;
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    const reqBody = await req.json();
+    const friendId = reqBody.friendId as string;
+
+    // Ensure both records exist; set amounts to 0
+    await db.friend.upsert({
+      where: { userId_friendId: { userId, friendId } },
+      create: { userId, friendId, amount: 0 },
+      update: { amount: 0 },
+    });
+    await db.friend.upsert({
+      where: { userId_friendId: { userId: friendId, friendId: userId } },
+      create: { userId: friendId, friendId: userId, amount: 0 },
+      update: { amount: 0 },
+    });
+
+    return NextResponse.json({ message: "Settled successfully", success: true }, { status: 200 });
+  } catch (e) {
+    console.error(e);
+    return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
+  }
 };

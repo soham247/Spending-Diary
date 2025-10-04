@@ -151,7 +151,7 @@ export default function FriendsPage() {
             </Card>
           ))}
         </div>
-      ) : friends.length === 0 ? (
+      ) : friends?.length === 0 ? (
         <Card className="border-dashed border-2 p-8">
           <div className="flex flex-col items-center justify-center text-center space-y-4">
             <div className="rounded-full bg-secondary p-4">
@@ -185,8 +185,8 @@ export default function FriendsPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {friends.map((friend) => (
-                  <TableRow key={friend.userId._id}>
+                {friends?.map((friend) => (
+                  <TableRow key={friend.userId.id}>
                     <TableCell className="font-medium">
                       <p>{friend.userId.name}</p>
                       <p className="text-sm text-muted-foreground">
@@ -220,7 +220,7 @@ export default function FriendsPage() {
                           <AlertDialogFooter>
                             <AlertDialogCancel>Cancel</AlertDialogCancel>
                             <AlertDialogAction
-                              onClick={() => settleBalance(friend.userId._id)}
+                              onClick={() => settleBalance(friend.userId.id)}
                             >
                               Settle Balance
                             </AlertDialogAction>
@@ -236,8 +236,8 @@ export default function FriendsPage() {
 
           {/* Mobile view (hidden on desktop) */}
           <div className="block md:hidden space-y-4">
-            {friends.map((friend) => (
-              <Card key={friend.userId._id} className="p-4">
+            {friends?.map((friend) => (
+              <Card key={friend.userId.id} className="p-4">
                 <div className="flex flex-col space-y-3">
                   <div>
                     <h3 className="font-medium">{friend.userId.name}</h3>
@@ -280,7 +280,7 @@ export default function FriendsPage() {
                       <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
                         <AlertDialogAction
-                          onClick={() => settleBalance(friend.userId._id)}
+                          onClick={() => settleBalance(friend.userId.id)}
                         >
                           Settle Balance
                         </AlertDialogAction>

@@ -2,7 +2,6 @@
 
 import UserExpenses from "@/components/expense/UserExpenses";
 import AddExpenseForm from "@/components/expense/AddExpenseForm";
-import { useAuthStore } from "@/store/Auth";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Tag } from "lucide-react";
@@ -15,7 +14,6 @@ import {
 } from "@/components/ui/dialog";
 
 export default function ExpensePage() {
-  const { userId } = useAuthStore();
   const [refresh, setRefresh] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
 
@@ -29,7 +27,7 @@ export default function ExpensePage() {
   };
 
   return (
-    <div className="container mx-auto px-2 md:px-8 py-8 max-w-7xl mt-10 relative min-h-screen">
+    <div className="container mx-auto px-2 md:px-8 py-8 max-w-7xl relative min-h-screen">
       {/* Dialog for Add Expense Form */}
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
         <DialogContent className="sm:max-w-xl max-h-[90vh] overflow-hidden border-t-4 border-primary border-l-0 border-r-0">
@@ -40,7 +38,6 @@ export default function ExpensePage() {
           </DialogHeader>
           <ScrollArea className="pb-6 max-h-[calc(90vh-80px)]">
             <AddExpenseForm 
-              userId={userId} 
               onExpenseAdded={handleExpenseAdded} 
             />
           </ScrollArea>

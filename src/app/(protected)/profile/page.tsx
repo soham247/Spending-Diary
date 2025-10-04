@@ -43,7 +43,7 @@ export default function ProfilePage() {
             <h2 className="text-3xl">{user?.name || "Guest"}</h2>
             <h3 className="text-xl">{user?.phone || "912xxxx874"}</h3>
             <div className="mt-5">
-                <h3>{user?.friends.length || '0'} Friends</h3>
+                <h3>{user?.friends?.length || '0'} Friends</h3>
             </div>
         </div>
     );
