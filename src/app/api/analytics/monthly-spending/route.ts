@@ -36,7 +36,7 @@ interface MonthlyDataItem {
 const processMonthlyData = (expenses: SimpleExpense[]) => {
   const monthlyData: Record<string, MonthlyDataItem> = {};
 
-  expenses.forEach((expense) => {
+  expenses.forEach((expense: SimpleExpense) => {
     const date = new Date(expense.createdAt);
     const monthYear = `${getMonthName(date)} ${date.getFullYear()}`;
 
@@ -215,7 +215,7 @@ function processTrendsData(expenses: SimpleExpense[], timeframe: string) {
     }
   > = {};
 
-  expenses.forEach((expense) => {
+  expenses.forEach((expense: SimpleExpense) => {
     const date = new Date(expense.createdAt);
     let periodKey;
 
