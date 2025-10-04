@@ -23,9 +23,9 @@ export const GET = async () => {
       select: { id: true, name: true, phone: true },
     });
 
-    const userMap = new Map(friendUsers.map((u) => [u.id, u]));
+    const userMap = new Map(friendUsers.map((u: { id: string; name: string; phone: string }) => [u.id, u]));
 
-    const data = links.map((l) => ({
+    const data = links.map((l: { friendId: string; amount: number }) => ({
       userId: { _id: l.friendId, name: userMap.get(l.friendId)?.name ?? "", phone: userMap.get(l.friendId)?.phone ?? "" },
       amount: l.amount,
     }));
