@@ -12,29 +12,29 @@ export const GET = async () => {
       return NextResponse.json({ message: "Unauthorized", success: false, data: null }, { status: 401 });
     }
 
-    const links = await db.friend.findMany({
-      where: { userId },
-      orderBy: { updatedAt: "desc" },
-    });
+    // const links = await db.friend.findMany({
+    //   where: { userId },
+    //   orderBy: { updatedAt: "desc" },
+    // });
 
-    const friendIds = links.map((f: { friendId: string }) => f.friendId);
-    const friendUsers = await db.user.findMany({
-      where: { id: { in: friendIds } },
-      select: { id: true, name: true, phone: true },
-    });
+    // const friendIds = links.map((f: { friendId: string }) => f.friendId);
+    // const friendUsers = await db.user.findMany({
+    //   where: { id: { in: friendIds } },
+    //   select: { id: true, name: true, phone: true },
+    // });
 
-    const userMap = new Map(friendUsers.map((u: { id: string; name: string; phone: string }) => [u.id, u]));
+    // const userMap = new Map(friendUsers.map((u: { id: string; name: string; phone: string }) => [u.id, u]));
 
-    const data = links.map((l: { friendId: string; amount: number }) => ({
-      userId: { _id: l.friendId, name: userMap.get(l.friendId)?.name ?? "", phone: userMap.get(l.friendId)?.phone ?? "" },
-      amount: l.amount,
-    }));
+    // const data = links.map((l: { friendId: string; amount: number }) => ({
+    //   userId: { _id: l.friendId, name: userMap.get(l.friendId)?.name ?? "", phone: userMap.get(l.friendId)?.phone ?? "" },
+    //   amount: l.amount,
+    // }));
 
     return NextResponse.json(
       {
         message: "Friends fetched successfully",
         success: true,
-        data,
+        // data,
       },
       { status: 200 }
     );
