@@ -35,7 +35,7 @@ export default function AddExpenseForm({ onExpenseAdded }: { onExpenseAdded: () 
     try {
       setFetchingFriends(true);
       const response = await axios.get("/api/friends/get");
-      const friendsList = response.data?.data?.friends || [];
+      const friendsList = response.data?.data || [];
       setFriends(friendsList);
       
       // Initialize selectedFriends state with all friends unchecked

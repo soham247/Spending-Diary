@@ -47,9 +47,8 @@ export default function FriendsPage() {
     try {
       setLoading(true);
       const response = await axios.get("/api/friends/get");
-
       if (response.data.success) {
-        setFriends(response.data.data.friends);
+        setFriends(response.data.data);
       } else {
         setError("Failed to fetch friends");
       }
@@ -205,7 +204,7 @@ export default function FriendsPage() {
                         : "Settled"}
                     </TableCell>
                     <TableCell className="text-right">
-                      <AlertDialog>
+                      { friend.amount !== 0 && <AlertDialog>
                         <AlertDialogTrigger asChild>
                           <Button variant="ghost" className="text-primary">Settle Balance</Button>
                         </AlertDialogTrigger>
@@ -226,7 +225,7 @@ export default function FriendsPage() {
                             </AlertDialogAction>
                           </AlertDialogFooter>
                         </AlertDialogContent>
-                      </AlertDialog>
+                      </AlertDialog> }
                     </TableCell>
                   </TableRow>
                 ))}

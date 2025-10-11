@@ -13,7 +13,7 @@ import { Check, Loader2, Search, UserPlus, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface User {
-  _id: string;
+  id: string;
   name: string;
 }
 
@@ -203,10 +203,10 @@ export default function AddFriends({ onComplete }: AddFriendsProps) {
             <div className="space-y-2">
               {users.map((user) => (  
                 <div 
-                  key={user._id}
+                  key={user.id}
                   className={cn(
                     "flex items-center justify-between p-4 rounded-lg border",
-                    friendStatus[user._id] === "added" ? "bg-green-50 border-green-200" : "hover:bg-secondary/50"
+                    friendStatus[user.id] === "added" ? "bg-green-50 border-green-200" : "hover:bg-secondary/50"
                   )}
                 >
                   <div className="flex items-center space-x-3">
@@ -219,19 +219,19 @@ export default function AddFriends({ onComplete }: AddFriendsProps) {
                     </div>
                   </div>
                   <Button
-                    variant={friendStatus[user._id] === "added" ? "outline" : "default"}
+                    variant={friendStatus[user.id] === "added" ? "outline" : "default"}
                     size="sm"
-                    disabled={friendStatus[user._id] === "pending" || friendStatus[user._id] === "added"}
-                    onClick={() => addFriend(user._id)}
+                    disabled={friendStatus[user.id] === "pending" || friendStatus[user.id] === "added"}
+                    onClick={() => addFriend(user.id)}
                     className={cn(
                       "transition-all duration-200",
-                      friendStatus[user._id] === "added" && "border-green-200 text-green-700"
+                      friendStatus[user.id] === "added" && "border-green-200 text-green-700"
                     )}
                   >
-                    {friendStatus[user._id] === "pending" && (
+                    {friendStatus[user.id] === "pending" && (
                       <Loader2 className="h-4 w-4 animate-spin mr-2" />
                     )}
-                    {friendStatus[user._id] === "added" ? (
+                    {friendStatus[user.id] === "added" ? (
                       <>
                         <Check className="h-4 w-4 mr-2" />
                         Added
@@ -239,7 +239,7 @@ export default function AddFriends({ onComplete }: AddFriendsProps) {
                     ) : (
                       <>
                         <UserPlus className="h-4 w-4 mr-2" />
-                        {friendStatus[user._id] === "pending" ? "Adding..." : "Add Friend"}
+                        {friendStatus[user.id] === "pending" ? "Adding..." : "Add Friend"}
                       </>
                     )}
                   </Button>
