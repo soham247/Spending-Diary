@@ -6,10 +6,11 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import {signIn} from "next-auth/react"
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const { toast } = useToast();
-  // const router = useRouter();
+  const router = useRouter();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -38,9 +39,10 @@ export default function LoginPage() {
           variant: "success",
           duration: 2000,
         });
-        setTimeout(() => {
-          window.location.href = "/expense";
-        }, 300);
+        // setTimeout(() => {
+        //   window.location.href = "/expense";
+        // }, 300);
+        router.push("/expense");
       }
     } catch{
         toast({

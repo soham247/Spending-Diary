@@ -29,6 +29,7 @@ import {
   SheetTrigger,
 } from "./ui/sheet";
 import { signOut, useSession } from "next-auth/react";
+import SubscribeBtn from "./SubscribeBtn";
 
 export default function Header() {
   const { data: session } = useSession();
@@ -129,7 +130,11 @@ export default function Header() {
           {userId ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/80 to-blue-500/80 flex items-center justify-center cursor-pointer border-2 border-background shadow-lg hover:shadow-primary/20 transition-all focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-1 focus:ring-offset-background">
+                <button 
+                  className={`w-10 h-10 rounded-full bg-gradient-to-br from-primary/80 to-blue-500/80 flex items-center justify-center cursor-pointer shadow-lg hover:shadow-primary/20 transition-all focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-1 focus:ring-offset-background
+                    ${session?.user?.isPremium ? 'border-2 border-primary' : 'border-2 border-background'}
+                  `}
+                >
                   <User size={18} className="text-white" />
                 </button>
               </DropdownMenuTrigger>
@@ -153,6 +158,7 @@ export default function Header() {
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
+                { !session?.user?.isPremium && <SubscribeBtn /> }
                 <DropdownMenuItem
                   className="text-destructive focus:text-destructive cursor-pointer"
                   onClick={handleLogout}
