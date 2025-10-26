@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { Friend } from "@prisma/client";
 
 export const DELETE = async (request: NextRequest) => {
   try {
@@ -13,7 +14,10 @@ export const DELETE = async (request: NextRequest) => {
 
     const expenseId = request.nextUrl.searchParams.get("id");
     if (!expenseId) {
-      return NextResponse.json({ error: "Expense ID is required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Expense ID is required" },
+        { status: 400 }
+      );
     }
 
     const expense = await db.expense.findUnique({
@@ -32,16 +36,34 @@ export const DELETE = async (request: NextRequest) => {
         const friendAmount = p.amount;
 
         // Reverse the earlier increments/decrements
-        await db.friend.upsert({
-          where: { userId_friendId: { userId: currentUserId, friendId } },
-          create: { userId: currentUserId, friendId, amount: -friendAmount },
-          update: { amount: { decrement: friendAmount } },
-        });
-        await db.friend.upsert({
-          where: { userId_friendId: { userId: friendId, friendId: currentUserId } },
-          create: { userId: friendId, friendId: currentUserId, amount: friendAmount },
-          update: { amount: { increment: friendAmount } },
-        });
+        const friendship: Friend = (
+          await db.friend.findMany({
+            where: {
+              OR: [
+                { userId: currentUserId, friendId },
+                { userId: friendId, friendId: currentUserId },
+              ],
+            },
+          })
+        )[0];
+
+        if (friendship.userId === currentUserId) {
+          await db.friend.update({
+            where: { userId_friendId: { userId: currentUserId, friendId } },
+            data: {
+              amount: { decrement: friendAmount },
+            },
+          });
+        } else {
+          await db.friend.update({
+            where: {
+              userId_friendId: { userId: friendId, friendId: currentUserId },
+            },
+            data: {
+              amount: { increment: friendAmount },
+            },
+          });
+        }
       }
     }
 
@@ -54,6 +76,9 @@ export const DELETE = async (request: NextRequest) => {
     );
   } catch (error) {
     console.error("Error deleting expense:", error);
-    return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Something went wrong" },
+      { status: 500 }
+    );
   }
-}
+};

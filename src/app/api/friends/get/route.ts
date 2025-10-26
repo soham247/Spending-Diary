@@ -12,7 +12,7 @@ export const GET = async () => {
       return NextResponse.json({ message: "Unauthorized", success: false, data: null }, { status: 401 });
     }
 
-    const friendships = await db.friend.findMany(
+    const friends = await db.friend.findMany(
       {
         where: {
           OR: [
@@ -25,32 +25,27 @@ export const GET = async () => {
           ],
         },
         include: {
-          user: true,
-          friend: true,
+          user: {
+            select: {
+              name: true,
+              phone: true,
+            },
+          },
+          friend: {
+            select: {
+              name: true,
+              phone: true,
+            },
+          },
         },
       }
     )
-
-    const data = friendships.map(friendship => {
-      const isOwner = friendship.userId === userId;
-      const friendData = isOwner ? friendship.friend : friendship.user;
-      
-      return {
-        userId: {
-          id: friendData.id,
-          name: friendData.name,
-          phone: friendData.phone,
-        },
-        friendId: friendship.id,
-        amount: friendship.amount
-      };
-    });
 
     return NextResponse.json(
       {
         message: "Friends fetched successfully",
         success: true,
-        data,
+        friends,
       },
       { status: 200 }
     );

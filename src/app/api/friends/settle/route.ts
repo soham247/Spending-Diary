@@ -14,17 +14,17 @@ export const POST = async (req: NextRequest) => {
     const reqBody = await req.json();
     const friendId = reqBody.friendId as string;
 
-    // Ensure both records exist; set amounts to 0
-    await db.friend.upsert({
+    const updatedFriendship = await db.friend.update({
       where: { userId_friendId: { userId, friendId } },
-      create: { userId, friendId, amount: 0 },
-      update: { amount: 0 },
-    });
-    await db.friend.upsert({
-      where: { userId_friendId: { userId: friendId, friendId: userId } },
-      create: { userId: friendId, friendId: userId, amount: 0 },
-      update: { amount: 0 },
-    });
+      data: { amount: 0 },
+    })
+
+    if (!updatedFriendship) {
+      await db.friend.update({
+        where: { userId_friendId: { friendId, userId } },
+        data: { amount: 0 },
+      })
+    }
 
     return NextResponse.json({ message: "Settled successfully", success: true }, { status: 200 });
   } catch (e) {

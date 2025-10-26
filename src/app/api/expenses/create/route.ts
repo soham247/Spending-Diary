@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { Friend } from "@prisma/client";
 
 export const POST = async (request: NextRequest) => {
   try {
@@ -50,19 +51,26 @@ export const POST = async (request: NextRequest) => {
         const friendId = p.userId;
         const friendAmount = p.amount;
 
-        // current user's ledger: friend owes me more
-        await db.friend.upsert({
-          where: { userId_friendId: { userId: currentUserId, friendId } },
-          create: { userId: currentUserId, friendId, amount: friendAmount },
-          update: { amount: { increment: friendAmount } },
-        });
+        const friendship: Friend = (await db.friend.findMany({
+          where: {OR: [{userId: currentUserId, friendId}, {userId: friendId, friendId: currentUserId}]},
+        }))[0];
 
-        // friend's ledger: from their POV, amount decreases
-        await db.friend.upsert({
-          where: { userId_friendId: { userId: friendId, friendId: currentUserId } },
-          create: { userId: friendId, friendId: currentUserId, amount: -friendAmount },
-          update: { amount: { decrement: friendAmount } },
-        });
+        if (friendship.userId === currentUserId ) {
+          await db.friend.update({
+            where: {userId_friendId: {userId: currentUserId, friendId}},
+            data: {
+              amount: {increment: friendAmount}
+            }
+          })
+        } 
+        else {
+          await db.friend.update({
+            where: {userId_friendId: {userId: friendId, friendId: currentUserId}},
+            data: {
+              amount: {decrement: friendAmount}
+            }
+          })
+        }
       }
     }
 
