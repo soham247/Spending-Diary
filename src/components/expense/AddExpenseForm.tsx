@@ -15,13 +15,20 @@ import axios, { AxiosError } from "axios";
 import { Friend } from "@/types/friend";
 import { useSession } from "next-auth/react";
 
+// Helper type for normalized friend data
+interface NormalizedFriend {
+  id: string;
+  name: string;
+  phone: string;
+}
+
 export default function AddExpenseForm({ onExpenseAdded }: { onExpenseAdded: () => void }) {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>("");
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [split, setSplit] = useState(false);
   const [fetchingFriends, setFetchingFriends] = useState(false);
-  const [friends, setFriends] = useState<Friend[]>([]);
+  const [friends, setFriends] = useState<NormalizedFriend[]>([]);
   const [selectedFriends, setSelectedFriends] = useState<{[key: string]: boolean}>({});
   const [totalAmount, setTotalAmount] = useState<number>(0);
   const [splitAmounts, setSplitAmounts] = useState<{[key: string]: number}>({});
@@ -35,16 +42,37 @@ export default function AddExpenseForm({ onExpenseAdded }: { onExpenseAdded: () 
     try {
       setFetchingFriends(true);
       const response = await axios.get("/api/friends/get");
-      const friendsList = response.data?.data || [];
-      setFriends(friendsList);
+      const friendsList: Friend[] = response.data?.friends || [];
+      
+      // Normalize friends data - extract the actual friend info based on who the current user is
+      const normalizedFriends: NormalizedFriend[] = friendsList.map((friend) => {
+        // If current user is the userId, then the friend is in the friend field
+        if (friend.userId === userId) {
+          return {
+            id: friend.friendId,
+            name: friend.friend.name,
+            phone: friend.friend.phone,
+          };
+        } 
+        // If current user is the friendId, then the friend is in the user field
+        else {
+          return {
+            id: friend.userId,
+            name: friend.user.name,
+            phone: friend.user.phone,
+          };
+        }
+      });
+      
+      setFriends(normalizedFriends);
       
       // Initialize selectedFriends state with all friends unchecked
       const friendsState: {[key: string]: boolean} = {};
       const initialSplitAmounts: {[key: string]: number} = {};
       
-      friendsList.forEach((friend: Friend) => {
-        friendsState[friend.userId.id] = false;
-        initialSplitAmounts[friend.userId.id] = 0;
+      normalizedFriends.forEach((friend) => {
+        friendsState[friend.id] = false;
+        initialSplitAmounts[friend.id] = 0;
       });
       
       setSelectedFriends(friendsState);
@@ -352,22 +380,22 @@ export default function AddExpenseForm({ onExpenseAdded }: { onExpenseAdded: () 
                   ) : friends?.length > 0 ? (
                     <div className="space-y-1">
                       {friends?.map((friend) => (
-                        <div key={friend.userId.id} className="flex items-center py-2.5 px-2 space-x-2 hover:bg-muted/50 rounded-md">
+                        <div key={friend.id} className="flex items-center py-2.5 px-2 space-x-2 hover:bg-muted/50 rounded-md">
                           <div className="flex items-center gap-2 flex-1">
                             <Checkbox 
-                              id={`friend-${friend.userId.id}`}
-                              checked={selectedFriends[friend.userId.id] || false}
-                              onCheckedChange={() => handleFriendToggle(friend.userId.id)}
+                              id={`friend-${friend.id}`}
+                              checked={selectedFriends[friend.id] || false}
+                              onCheckedChange={() => handleFriendToggle(friend.id)}
                             />
-                            <Label htmlFor={`friend-${friend.userId.id}`} className="cursor-pointer">
-                              {friend.userId.name}
+                            <Label htmlFor={`friend-${friend.id}`} className="cursor-pointer">
+                              {friend.name}
                             </Label>
                           </div>
-                          {selectedFriends[friend.userId.id] && (
+                          {selectedFriends[friend.id] && (
                             <Input
                               type="text"
-                              value={splitAmounts[friend.userId.id] === 0 ? "" : splitAmounts[friend.userId.id].toString()}
-                              onChange={(e) => handleSplitAmountChange(friend.userId.id, e.target.value)}
+                              value={splitAmounts[friend.id] === 0 ? "" : splitAmounts[friend.id].toString()}
+                              onChange={(e) => handleSplitAmountChange(friend.id, e.target.value)}
                               className="w-24 h-8"
                               placeholder="0.00"
                             />

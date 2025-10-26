@@ -1,9 +1,16 @@
 export interface Friend {
-  userId: {
-    id: string;
+  id: string;
+  userId: string;
+  friendId: string;
+  amount: number;
+  createdAt: Date;
+  updatedAt: Date;
+  user: {
     name: string;
     phone: string;
   };
-  friendId: string;
-  amount: number;
+  friend: {
+    name: string;
+    phone: string;
+  };
 }
