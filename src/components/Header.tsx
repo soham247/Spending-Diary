@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any -- TODO Step7: remove when page is rewritten with Better Auth */
 "use client";
 import React from "react";
 import Link from "next/link";
@@ -28,11 +29,11 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "./ui/sheet";
-import { signOut, useSession } from "next-auth/react";
+// TODO Step7: replace with Better Auth client;
 import SubscribeBtn from "./SubscribeBtn";
 
 export default function Header() {
-  const { data: session } = useSession();
+  const session = null as any;
   const userId = session?.user.id || null;
   const { toast } = useToast();
   const pathname = usePathname();
@@ -75,7 +76,7 @@ export default function Header() {
 
   const handleLogout = async () => {
     try {
-      await signOut({ redirect: true, callbackUrl: "/" });
+      console.log("TODO Step7: signOut");
     } catch {
       toast({
         title: "Something went wrong",
@@ -249,3 +250,6 @@ export default function Header() {
     </nav>
   );
 }
+
+
+

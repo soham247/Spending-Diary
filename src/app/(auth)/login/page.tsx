@@ -5,12 +5,11 @@ import { Label } from "@/components/ui/label";
 import React, { useState } from "react";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
-import {signIn} from "next-auth/react"
-import { useRouter } from "next/navigation";
+// TODO Step7: import { signIn } from "@/lib/auth/auth-client";
+
 
 export default function LoginPage() {
   const { toast } = useToast();
-  const router = useRouter();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -28,23 +27,9 @@ export default function LoginPage() {
     setError("");
     try {
       setLoading(true);
-      const response = await signIn("credentials", {
-        phone: phone as string,
-        password: password as string,
-        redirect: false,
-      })
-      if (response?.ok) {
-        toast({
-          title: "Login successful",
-          variant: "success",
-          duration: 2000,
-        });
-        // setTimeout(() => {
-        //   window.location.href = "/expense";
-        // }, 300);
-        router.push("/expense");
-      }
-    } catch{
+      // TODO Step7: wire Better Auth signIn
+      toast({ title: "Login coming soon", duration: 2000 });
+    } catch {
         toast({
           title: "Something went wrong",
           variant: "destructive",

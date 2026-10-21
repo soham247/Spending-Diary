@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any -- TODO Step7: remove when page is rewritten with Better Auth */
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -13,7 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import axios, { AxiosError } from "axios";
 import { Friend } from "@/types/friend";
-import { useSession } from "next-auth/react";
+// TODO Step7: replace with Better Auth client;
 
 // Helper type for normalized friend data
 interface NormalizedFriend {
@@ -33,7 +34,7 @@ export default function AddExpenseForm({ onExpenseAdded }: { onExpenseAdded: () 
   const [totalAmount, setTotalAmount] = useState<number>(0);
   const [splitAmounts, setSplitAmounts] = useState<{[key: string]: number}>({});
   const [userAmount, setUserAmount] = useState<number>(0);
-  const { data: session } = useSession();
+  const session = null as any;
   const userId = session?.user.id || null;
 
   const tags = ["Food", "Grocery", "Transport", "Medical", "Fruits", "Bills", "Rent", "Entertainment", "Other"];
@@ -464,3 +465,6 @@ export default function AddExpenseForm({ onExpenseAdded }: { onExpenseAdded: () 
     </Card>
   );
 }
+
+
+

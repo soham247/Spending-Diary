@@ -1,19 +1,7 @@
-"use client"
-import { SessionProvider } from "next-auth/react";
-import { FC, ReactNode } from "react";
+"use client";
+import { ReactNode } from "react";
 
-interface ProviderProps {
-  children: ReactNode
+/** Placeholder — will be replaced with TanStack Query provider in Step 7. */
+export default function Provider({ children }: { children: ReactNode }) {
+  return <>{children}</>;
 }
-const Provider: FC<ProviderProps> = ({ children }) => {
-  return (
-    <SessionProvider
-    refetchInterval={5 * 60}
-    refetchOnWindowFocus={false}
-    >
-      {children}
-    </SessionProvider>
-  )
-}
-
-export default Provider

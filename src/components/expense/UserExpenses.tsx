@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any -- TODO Step7: remove when page is rewritten with Better Auth */
 "use client";
 
 import axios, { AxiosError } from "axios";
@@ -43,13 +44,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { useSession } from "next-auth/react";
+// TODO Step7: replace with Better Auth client;
 
 export default function UserExpenses({ refresh }: { refresh: boolean }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [expenses, setExpenses] = useState<Expense[]>([]);
-  const { data: session } = useSession();
+  const session = null as any;
   const userId = session?.user.id || null;
   // Filter states
   const [selectedMonth, setSelectedMonth] = useState<string>(
@@ -438,3 +439,7 @@ export default function UserExpenses({ refresh }: { refresh: boolean }) {
     </div>
   );
 }
+
+
+
+

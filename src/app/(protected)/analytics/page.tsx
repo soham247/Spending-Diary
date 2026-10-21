@@ -1,11 +1,12 @@
+/* eslint-disable @typescript-eslint/no-explicit-any -- TODO Step7: remove when page is rewritten with Better Auth */
 "use client";
 
 import FreeMonthlyChart from "@/components/analytics/FreeMonthlyChart";
 import PremiumSpendingDashboard from "@/components/analytics/PaidMontlyChart";
-import { useSession } from "next-auth/react";
+// TODO Step7: replace with Better Auth client;
 
 function Page() {
-  const { data: session } = useSession();
+  const session = null as any;
   const isPremium = Boolean(session?.user?.isPremium);
   return (
     <div className="pt-16 pb-16 md:pb-2">
@@ -15,3 +16,7 @@ function Page() {
 }
 
 export default Page
+
+
+
+

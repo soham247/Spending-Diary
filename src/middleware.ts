@@ -1,53 +1,39 @@
-import { NextResponse } from "next/server"
-import type { NextRequest } from "next/server"
-import { getToken } from "next-auth/jwt"
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { safeRedirect } from "@/lib/utils/url";
 
-export async function middleware(req: NextRequest) {
-  const { pathname } = req.nextUrl
+const SESSION_COOKIE = "better-auth.session_token";
+const SECURE_SESSION_COOKIE = "__Secure-better-auth.session_token";
 
-  // Read NextAuth JWT (requires NEXTAUTH_SECRET)
-  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
-  const isAuthenticated = !!token
+export function middleware(req: NextRequest) {
+  const { pathname, search } = req.nextUrl;
 
-  // Public routes that authenticated users should not access
-  const publicRoutes = new Set(["/", "/pricing", "/login", "/register"]) // (public) and (auth)
-  const isPublicRoute = publicRoutes.has(pathname)
+  const hasSession =
+    req.cookies.has(SESSION_COOKIE) ||
+    req.cookies.has(SECURE_SESSION_COOKIE);
 
-  // Protected app routes
-  const isProtectedRoute =
-    pathname.startsWith("/analytics") ||
-    pathname.startsWith("/expense") ||
-    pathname.startsWith("/friends") ||
-    pathname.startsWith("/profile")
-
-  // If authenticated and trying to access a public page, redirect to /expense
-  if (isAuthenticated && isPublicRoute) {
-    const url = req.nextUrl.clone()
-    url.pathname = "/expense"
-    return NextResponse.redirect(url)
+  // No cookie → redirect to login with callbackUrl
+  if (!hasSession) {
+    const callbackUrl = safeRedirect(pathname + search);
+    const url = req.nextUrl.clone();
+    url.pathname = "/login";
+    url.searchParams.set("callbackUrl", callbackUrl);
+    return NextResponse.redirect(url);
   }
 
-  // If not authenticated and trying to access a protected page, redirect to /login
-  if (!isAuthenticated && isProtectedRoute) {
-    const url = req.nextUrl.clone()
-    url.pathname = "/login"
-    url.searchParams.set("callbackUrl", pathname)
-    return NextResponse.redirect(url)
-  }
-
-  return NextResponse.next()
+  // Do NOT redirect away from /login here. A stale cookie must reach
+  // the page, which checks the real session via getOptionalSession.
+  return NextResponse.next();
 }
 
 export const config = {
-  // Run middleware on both protected pages and public pages we may redirect from
   matcher: [
-    "/", // homepage
-    "/pricing",
-    "/login",
-    "/register",
-    "/analytics/:path*",
-    "/expense/:path*",
+    "/home/:path*",
+    "/groups/:path*",
     "/friends/:path*",
-    "/profile/:path*",
+    "/expenses/:path*",
+    "/activity/:path*",
+    "/insights/:path*",
+    "/settings/:path*",
   ],
-}
+};
