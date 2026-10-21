@@ -1,13 +1,21 @@
-"use client"
-import React from "react"
+import type { Metadata } from "next";
 
-const Layout = ({ children }: {children: React.ReactNode}) => {
+export const metadata: Metadata = {
+  title: "Sign in — Spending Diary",
+};
 
-    return(
-        <div className="min-h-screen flex items-center justify-center mt-10">
-            {children}
+export default function AuthLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="min-h-dvh bg-background flex flex-col items-center justify-center px-4 py-12">
+      <div className="w-full max-w-sm">
+        {/* Brand */}
+        <div className="mb-8 text-center">
+          <span className="text-xl font-semibold tracking-tight text-foreground">
+            Spending Diary
+          </span>
         </div>
-    )
+        {children}
+      </div>
+    </div>
+  );
 }
-
-export default Layout

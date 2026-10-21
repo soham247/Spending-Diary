@@ -1,37 +1,20 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Sour_Gummy, Poppins } from "next/font/google";
+import { IBM_Plex_Sans } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
-import Header from "@/components/Header";
-import { Suspense } from "react";
-import Loading from "./loading";
-import Provider from "@/components/AuthProvider";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const ibmPlexSans = IBM_Plex_Sans({
+  weight: ["400", "500", "600"],
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-const sourGummy = Sour_Gummy({
-  variable: "--font-sour-gummy",
-  subsets: ["latin"],
-});
-
-const poppins = Poppins({
-  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
-  variable: "--font-poppins",
-  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-sans",
 });
 
 export const metadata: Metadata = {
-  title: "Spending Diary",
-  description: "Modern expense tracker with unique split feature",
+  title: "Spending Diary — split costs, track spending",
+  description:
+    "Split shared expenses with friends and groups. Track your personal spending. See who owes whom at a glance.",
 };
 
 export default function RootLayout({
@@ -41,20 +24,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} ${sourGummy.variable} ${poppins.variable} antialiased`}
-      >
+      <body className={`${ibmPlexSans.variable} antialiased`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >
-          <Provider>
-            <Header />
-            <Suspense fallback={<Loading />}>{children}</Suspense>
-            <Toaster />
-          </Provider>
+          {children}
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>
