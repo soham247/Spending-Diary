@@ -1,5 +1,5 @@
 import "server-only";
-import { and, eq, isNull } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { createId } from "@paralleldrive/cuid2";
 import { db } from "@/lib/db/client";
 import type { DbTx } from "@/lib/db/client";
@@ -240,7 +240,6 @@ export async function editExpense(input: EditExpenseInput): Promise<void> {
 
 export async function deleteExpense(
   expenseId: string,
-  viewerId: string,
 ): Promise<void> {
   await db.transaction(async (tx) => {
     const [row] = await tx
