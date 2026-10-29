@@ -110,3 +110,7 @@ Supersedes D-014. The data layer uses Drizzle ORM over node-postgres. Reasons: C
 ### D-024 · 2026-10-29 · Settling existing debt after blocking
 
 Blocked friends may still record settlements for their existing debt. New expenses remain blocked. For blocked pairs, payments must run from the current debtor to the creditor and cannot exceed the outstanding per-currency debt; accepted friends retain the overpayment behavior in SET-5. This allows either side to record repayment without creating a new debt after blocking. Confirmed by the user during the security remediation.
+
+### D-025 · 2026-10-29 · Replace the legacy Supabase application data for V2
+
+The user confirmed that Supabase remains the database provider and that the old application data is not needed and may be replaced. Reuse the configured database, remove only the four identified legacy application tables (`Payer`, `expenses`, `friends`, `users`), and apply the repository's three Drizzle migrations through a verified direct connection. Keep the pooled runtime connection and all provider-managed schemas intact. This is a one-time authorized migration reset, not permission for future financial hard deletes.

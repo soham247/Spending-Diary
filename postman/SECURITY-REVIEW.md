@@ -57,7 +57,7 @@ Tested runtime: Node 24.13.0. Vitest 5 requires a supported modern Node runtime;
 
 The generated migration is [0002_lowly_roxanne_simpson.sql](../drizzle/0002_lowly_roxanne_simpson.sql). It adds the idempotency table, aligns auth rate-limit constraints, and adds auth lookup indexes. It preserves money foreign keys and the original deferred balance-trigger migration. Auth generation was reconciled while keeping the project's plural table names, timezone timestamps, enums, currency type and ID conventions.
 
-It was applied only to the isolated test database using its direct connection. **It has not been applied to Supabase or a deployed database.** Apply it with a genuine direct connection before running the updated app against that database; the existing configured pooler is not a migration target under this repo's rules.
+At the time of the remediation tests, it had been applied only to the isolated test database using its direct connection. Subsequently, on 2026-10-29, all three migrations were applied to the user's Supabase database through a verified direct connection after the user authorized replacing the old application data. See [the current V2 status](../docs/v2-status.md) and decision D-025. The pooler remains the runtime connection, not the migration target.
 
 Historical keys without a retained request digest return 409 rather than risking duplication. Existing financial records have not been rewritten: audit any historical duplicated settlements or incorrect ledger/currency effects separately before correcting real data through domain services.
 

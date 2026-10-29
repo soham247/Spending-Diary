@@ -33,7 +33,7 @@ V2 is **not yet UI-only**. The repository still needs:
 
 ## Database and configuration
 
-No migration has been applied to the user's Supabase database as part of this work. Migration `0002_lowly_roxanne_simpson.sql` was generated and applied only to an isolated local PostgreSQL test database; the original balance triggers remain intact. Confirm existing migration history and use Drizzle's migration runner with a genuine direct connection before running the updated application against the shared database. Do not paste migrations manually or use `drizzle-kit push` against it.
+On 2026-10-29, the user authorized discarding the old application data and reusing the existing Supabase database for V2 (decision D-025). The four legacy application tables were removed, then all three repository migrations were applied through Drizzle using the verified direct connection. Migration history contains all three entries, all 20 V2 tables exist, and both original balance triggers are enabled, deferrable and initially deferred. The 30 isolated PostgreSQL integration tests passed before this rollout. Real credentials remain in ignored `.env`; runtime `DATABASE_URL` remains pooled and `DIRECT_URL` now uses the verified direct endpoint. Future changes must use the migration runner, not pasted SQL or `drizzle-kit push`.
 
 Supabase can host the PostgreSQL database while this app connects through Drizzle and `pg`; there is no Supabase SDK requirement. The earlier handover's statement that Supabase is not used as a database provider does not match the local connection configuration.
 
