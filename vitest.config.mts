@@ -1,11 +1,13 @@
 import { defineConfig } from "vitest/config";
-import path from "path";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+const configDirectory = fileURLToPath(new URL(".", import.meta.url));
 
 export default defineConfig({
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "src"),
-      "server-only": path.resolve(__dirname, "tests/stubs/server-only.ts"),
+      "@": path.resolve(configDirectory, "src"),
+      "server-only": path.resolve(configDirectory, "tests/stubs/server-only.ts"),
     },
   },
   test: {
@@ -22,6 +24,7 @@ export default defineConfig({
         extends: true,
         test: {
           name: "integration",
+          fileParallelism: false,
           include: ["tests/integration/**/*.test.ts"],
           environment: "node",
           setupFiles: ["./tests/setup-db.ts"],

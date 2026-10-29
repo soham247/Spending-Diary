@@ -1,0 +1,22 @@
+"$kind": "http-request"
+"name": "Owner session resolves"
+"order": 2000
+"method": "GET"
+"url": "{{base_url}}/api/auth/get-session"
+"settings":
+  "followRedirects": false
+"headers":
+  -
+    "key": "Cookie"
+    "value": "{{owner_cookie}}"
+  -
+    "key": "Origin"
+    "value": "{{base_url}}"
+"scripts":
+  -
+    "type": "afterResponse"
+    "language": "text/javascript"
+    "code": |-
+      pm.test('HTTP 200', () => pm.response.to.have.status(200));
+
+      pm.test('Session belongs to owner', () => pm.expect(pm.response.json().user.id).to.eql(pm.environment.get('owner_id')));

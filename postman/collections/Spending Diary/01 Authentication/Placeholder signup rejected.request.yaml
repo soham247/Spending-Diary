@@ -1,0 +1,31 @@
+"$kind": "http-request"
+"name": "Placeholder signup rejected"
+"order": 4000
+"method": "POST"
+"url": "{{base_url}}/api/auth/sign-up/email"
+"settings":
+  "followRedirects": false
+"headers":
+  -
+    "key": "Cookie"
+    "value": "{{anon_cookie}}"
+  -
+    "key": "Origin"
+    "value": "{{base_url}}"
+  -
+    "key": "Content-Type"
+    "value": "application/json"
+"body":
+  "type": "json"
+  "content": |-
+    {
+      "name": "Invalid placeholder",
+      "email": "fixture@spendingdiary.invalid",
+      "password": "NonCredential-Invalid-123"
+    }
+"scripts":
+  -
+    "type": "afterResponse"
+    "language": "text/javascript"
+    "code": |-
+      pm.test('HTTP 400', () => pm.response.to.have.status(400));

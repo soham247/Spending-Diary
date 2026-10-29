@@ -2,17 +2,12 @@ import { requireSession } from "@/lib/auth/guards";
 import { mapError } from "@/lib/api/route-handler";
 import { deleteSettlement } from "@/lib/domain/settlements";
 
-interface Ctx {
-  params: Promise<{ id: string }>;
-}
-
-export async function DELETE(_req: Request, ctx: Ctx) {
-  const { id } = await ctx.params;
+interface Ctx { params: Promise<{ id: string }> }
+export async function DELETE(req: Request, ctx: Ctx) {
   try {
-    await requireSession(_req);
-    await deleteSettlement(id);
+    const session = await requireSession(req);
+    const { id } = await ctx.params;
+    await deleteSettlement(session.userId, id);
     return Response.json({ data: { id } });
-  } catch (err) {
-    return mapError(err);
-  }
+  } catch (error) { return mapError(error); }
 }

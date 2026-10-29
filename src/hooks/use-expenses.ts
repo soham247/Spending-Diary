@@ -21,7 +21,7 @@ export function useCreateExpense() {
       idempotencyKey: string;
     }) => apiCreateExpense(input, idempotencyKey),
     onSuccess: (_data, { input }) => {
-      void qc.invalidateQueries({ queryKey: queryKeys.balances.overall() });
+      for (const queryKey of queryKeys.money.roots()) void qc.invalidateQueries({ queryKey });
       if (input.groupId) {
         void qc.invalidateQueries({ queryKey: queryKeys.groups.expenses(input.groupId) });
         void qc.invalidateQueries({ queryKey: queryKeys.balances.group(input.groupId) });
@@ -37,7 +37,7 @@ export function useEditExpense() {
       apiEditExpense(id, input),
     onSuccess: (_data, { id }) => {
       void qc.invalidateQueries({ queryKey: queryKeys.expenses.detail(id) });
-      void qc.invalidateQueries({ queryKey: queryKeys.balances.overall() });
+      for (const queryKey of queryKeys.money.roots()) void qc.invalidateQueries({ queryKey });
     },
   });
 }
@@ -48,7 +48,7 @@ export function useDeleteExpense() {
     mutationFn: (id: string) => apiDeleteExpense(id),
     onSuccess: (_data, id) => {
       void qc.invalidateQueries({ queryKey: queryKeys.expenses.detail(id) });
-      void qc.invalidateQueries({ queryKey: queryKeys.balances.overall() });
+      for (const queryKey of queryKeys.money.roots()) void qc.invalidateQueries({ queryKey });
     },
   });
 }
@@ -59,7 +59,7 @@ export function useRestoreExpense() {
     mutationFn: (id: string) => apiRestoreExpense(id),
     onSuccess: (_data, id) => {
       void qc.invalidateQueries({ queryKey: queryKeys.expenses.detail(id) });
-      void qc.invalidateQueries({ queryKey: queryKeys.balances.overall() });
+      for (const queryKey of queryKeys.money.roots()) void qc.invalidateQueries({ queryKey });
     },
   });
 }

@@ -1,191 +1,79 @@
-/**
- * Split computation — the only place splits and rounding are calculated.
- * All functions are pure (no DB, no I/O) and have unit tests.
- *
- * Money is always integer minor units (paise). Largest-remainder rounding
- * ensures SUM(shares) === total exactly.
- */
+export interface RawParticipant { userId: string; exactOwed?: number; percentage?: number; shares?: number }
+export interface Participant { userId: string; paid: number; owed: number }
+export interface LedgerEdge { debtorId: string; creditorId: string; amount: number }
+interface WeightedItem { userId: string; exact: number }
+interface Weight { userId: string; weight: bigint }
 
-export interface RawParticipant {
-  userId: string;
-  /** For EXACT splits: owed amount in minor units */
-  exactOwed?: number;
-  /** For PERCENTAGE splits: percentage (e.g. 25.5 for 25.5%) */
-  percentage?: number;
-  /** For SHARES splits: number of shares (e.g. 2) */
-  shares?: number;
+function validateTotal(total: number) {
+  if (!Number.isSafeInteger(total) || total < 0) throw new Error("Total must be nonnegative integer minor units");
 }
-
-export interface Participant {
-  userId: string;
-  paid: number;
-  owed: number;
+function unique(ids: string[]) {
+  if (new Set(ids).size !== ids.length) throw new Error("Participants must be unique");
 }
-
-// ─── Largest-remainder rounding ─────────────────────────────────────
-
-interface WeightedItem {
-  userId: string;
-  exact: number;  // real (floating point) share
+function decimalWeights(items: WeightedItem[]): { items: Weight[]; scale: bigint } {
+  const decimals = items.map(item => {
+    if (!Number.isFinite(item.exact) || item.exact < 0) throw new Error("Weights must be nonnegative");
+    const [mantissa, exponent = "0"] = String(item.exact).toLowerCase().split("e");
+    const [whole, fraction = ""] = mantissa!.split(".");
+    const places = fraction.length - Number(exponent);
+    return { userId: item.userId, digits: BigInt(whole! + fraction), places };
+  });
+  const places = Math.max(0, ...decimals.map(d => d.places));
+  return { items: decimals.map(d => ({ userId: d.userId, weight: d.digits * BigInt(10) ** BigInt(places - d.places) })), scale: BigInt(10) ** BigInt(places) };
 }
-
-/**
- * Given real-valued shares that sum to `total` (approximately), distribute
- * `total` integer minor units using largest-remainder (Hamilton) rounding
- * so that SUM(result) === total exactly.
- */
+function allocate(items: Weight[], total: number): Map<string, number> {
+  validateTotal(total);
+  unique(items.map(i => i.userId));
+  if (total === 0) return new Map(items.map(i => [i.userId, 0]));
+  const denominator = items.reduce((sum, i) => sum + i.weight, BigInt(0));
+  if (denominator <= BigInt(0)) throw new Error("Total weights must be greater than zero");
+  const rows = items.map(i => ({ userId: i.userId, amount: BigInt(total) * i.weight / denominator, remainder: BigInt(total) * i.weight % denominator }));
+  let left = BigInt(total) - rows.reduce((sum, r) => sum + r.amount, BigInt(0));
+  rows.sort((a, b) => a.remainder === b.remainder ? a.userId.localeCompare(b.userId) : a.remainder > b.remainder ? -1 : 1);
+  return new Map(rows.map(row => [row.userId, Number(row.amount + (left-- > BigInt(0) ? BigInt(1) : BigInt(0)))]));
+}
 export function largestRemainder(items: WeightedItem[], total: number): Map<string, number> {
-  const floors = items.map((item) => ({
-    userId: item.userId,
-    floor: Math.floor(item.exact),
-    remainder: item.exact - Math.floor(item.exact),
-  }));
-
-  const sumFloors = floors.reduce((s, x) => s + x.floor, 0);
-  let leftover = total - sumFloors;
-
-  // Sort descending by fractional remainder, break ties by userId for stability
-  const sorted = [...floors].sort((a, b) =>
-    b.remainder !== a.remainder ? b.remainder - a.remainder : a.userId.localeCompare(b.userId),
-  );
-
-  const result = new Map<string, number>();
-  for (const item of sorted) {
-    result.set(item.userId, item.floor + (leftover-- > 0 ? 1 : 0));
-  }
-
-  return result;
+  return allocate(decimalWeights(items).items, total);
 }
-
-// ─── Split algorithms ────────────────────────────────────────────────
-
-/**
- * Split `total` equally among `userIds`.
- */
 export function splitEqual(userIds: string[], total: number): Map<string, number> {
+  validateTotal(total);
   if (userIds.length === 0) return new Map();
-  const each = total / userIds.length;
-  const items: WeightedItem[] = userIds.map((userId) => ({ userId, exact: each }));
-  return largestRemainder(items, total);
+  return allocate(userIds.map(userId => ({ userId, weight: BigInt(1) })), total);
 }
-
-/**
- * Validate and return exact splits.
- * Throws if the sum doesn't equal the total.
- */
-export function splitExact(
-  participants: Array<{ userId: string; owed: number }>,
-  total: number,
-): Map<string, number> {
+export function splitExact(participants: Array<{ userId: string; owed: number }>, total: number): Map<string, number> {
+  validateTotal(total);
+  unique(participants.map(p => p.userId));
+  participants.forEach(p => validateTotal(p.owed));
   const sum = participants.reduce((s, p) => s + p.owed, 0);
-  if (sum !== total) {
-    throw new Error(
-      `Exact splits sum to ${sum} but expense total is ${total}`,
-    );
+  if (sum !== total) throw new Error("Exact splits sum to " + sum + " but expense total is " + total);
+  return new Map(participants.map(p => [p.userId, p.owed]));
+}
+export function splitPercentage(participants: Array<{ userId: string; percentage: number }>, total: number): Map<string, number> {
+  const { items, scale } = decimalWeights(participants.map(p => ({ userId: p.userId, exact: p.percentage })));
+  if (items.reduce((sum, i) => sum + i.weight, BigInt(0)) !== BigInt(100) * scale) {
+    throw new Error("Percentages sum to " + participants.reduce((s, p) => s + p.percentage, 0) + ", expected 100");
   }
-  return new Map(participants.map((p) => [p.userId, p.owed]));
+  return allocate(items, total);
 }
-
-/**
- * Split by percentage. Percentages must sum to exactly 100.
- */
-export function splitPercentage(
-  participants: Array<{ userId: string; percentage: number }>,
-  total: number,
-): Map<string, number> {
-  const sumPct = participants.reduce((s, p) => s + p.percentage, 0);
-  // Allow 0.01 tolerance for floating-point sums
-  if (Math.abs(sumPct - 100) > 0.01) {
-    throw new Error(
-      `Percentages sum to ${sumPct}, expected 100`,
-    );
-  }
-  const items: WeightedItem[] = participants.map((p) => ({
-    userId: p.userId,
-    exact: (p.percentage / 100) * total,
-  }));
-  return largestRemainder(items, total);
+export function splitShares(participants: Array<{ userId: string; shares: number }>, total: number): Map<string, number> {
+  participants.forEach(p => validateTotal(p.shares));
+  return allocate(participants.map(p => ({ userId: p.userId, weight: BigInt(p.shares) })), total);
 }
-
-/**
- * Split by shares (e.g. 1:1:2).
- */
-export function splitShares(
-  participants: Array<{ userId: string; shares: number }>,
-  total: number,
-): Map<string, number> {
-  const totalShares = participants.reduce((s, p) => s + p.shares, 0);
-  if (totalShares <= 0) {
-    throw new Error("Total shares must be greater than zero");
-  }
-  const items: WeightedItem[] = participants.map((p) => ({
-    userId: p.userId,
-    exact: (p.shares / totalShares) * total,
-  }));
-  return largestRemainder(items, total);
-}
-
-// ─── Ledger-edge computation ─────────────────────────────────────────
-
-export interface LedgerEdge {
-  debtorId: string;
-  creditorId: string;
-  amount: number;
-}
-
-/**
- * Given the paid and owed amounts for each participant, compute the set of
- * directed pairwise debt edges that represent who owes whom.
- *
- * Algorithm: pro-rata creditor allocation. Each payer's credit is distributed
- * to debtors proportionally to how much each owes relative to the total owed
- * by all participants who owe more than they paid.
- *
- * A person with paid > owed is a net creditor; paid < owed is a net debtor.
- * This function never generates self-edges (debtor === creditor).
- */
 export function computeLedgerEdges(participants: Participant[]): LedgerEdge[] {
-  const creditors: Array<{ userId: string; credit: number }> = [];
-  const debtors: Array<{ userId: string; debt: number }> = [];
-
-  for (const p of participants) {
-    const net = p.paid - p.owed;
-    if (net > 0) creditors.push({ userId: p.userId, credit: net });
-    else if (net < 0) debtors.push({ userId: p.userId, debt: -net });
-  }
-
+  unique(participants.map(p => p.userId));
+  participants.forEach(p => { validateTotal(p.paid); validateTotal(p.owed); });
+  if (participants.reduce((s, p) => s + p.paid - p.owed, 0) !== 0) throw new Error("Expense is unbalanced");
+  const creditors = participants.filter(p => p.paid > p.owed).map(p => ({ userId: p.userId, remaining: p.paid - p.owed }));
+  const debtors = participants.filter(p => p.owed > p.paid).map(p => ({ userId: p.userId, remaining: p.owed - p.paid }));
+  const compare = (a: { remaining: number; userId: string }, b: { remaining: number; userId: string }) => b.remaining - a.remaining || a.userId.localeCompare(b.userId);
   const edges: LedgerEdge[] = [];
-
-  // For each debtor, distribute debt to creditors pro-rata
-  for (const debtor of debtors) {
-    const totalCredit = creditors.reduce((s, c) => s + c.credit, 0);
-    let remaining = debtor.debt;
-
-    const sortedCreditors = [...creditors].sort(
-      (a, b) => a.userId.localeCompare(b.userId),
-    );
-
-    for (let i = 0; i < sortedCreditors.length; i++) {
-      const creditor = sortedCreditors[i]!;
-      if (creditor.credit <= 0) continue;
-
-      const isLast = i === sortedCreditors.length - 1 ||
-        sortedCreditors.slice(i + 1).every((c) => c.credit <= 0);
-
-      const amount = isLast
-        ? remaining
-        : Math.round((creditor.credit / totalCredit) * debtor.debt);
-
-      if (amount > 0) {
-        edges.push({
-          debtorId: debtor.userId,
-          creditorId: creditor.userId,
-          amount,
-        });
-        remaining -= amount;
-      }
-    }
+  while (true) {
+    creditors.sort(compare); debtors.sort(compare);
+    const creditor = creditors[0]; const debtor = debtors[0];
+    if (!creditor || !debtor || creditor.remaining === 0 || debtor.remaining === 0) break;
+    const amount = Math.min(creditor.remaining, debtor.remaining);
+    edges.push({ debtorId: debtor.userId, creditorId: creditor.userId, amount });
+    creditor.remaining -= amount; debtor.remaining -= amount;
   }
-
   return edges;
 }

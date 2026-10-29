@@ -16,7 +16,7 @@ export function useCreateSettlement() {
       idempotencyKey: string;
     }) => apiCreateSettlement(input, idempotencyKey),
     onSuccess: (_data, { input }) => {
-      void qc.invalidateQueries({ queryKey: queryKeys.balances.overall() });
+      for (const queryKey of queryKeys.money.roots()) void qc.invalidateQueries({ queryKey });
       if (input.groupId) {
         void qc.invalidateQueries({ queryKey: queryKeys.balances.group(input.groupId) });
       }
@@ -29,7 +29,7 @@ export function useDeleteSettlement() {
   return useMutation({
     mutationFn: (id: string) => apiDeleteSettlement(id),
     onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: queryKeys.balances.overall() });
+      for (const queryKey of queryKeys.money.roots()) void qc.invalidateQueries({ queryKey });
     },
   });
 }

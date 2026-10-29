@@ -1,4 +1,5 @@
 export const queryKeys = {
+  money: { roots: () => [["balances"], ["group"], ["friend"]] as const },
   me: () => ["me"] as const,
   balances: {
     overall: () => ["balances"] as const,

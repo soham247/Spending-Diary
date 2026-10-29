@@ -1,0 +1,156 @@
+[
+  {
+    "file": "src/app/api/analytics/monthly-spending/route.ts",
+    "path": "/api/analytics/monthly-spending",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "status": "stub"
+  },
+  {
+    "file": "src/app/api/auth/[...all]/route.ts",
+    "path": "/api/auth/[...all]",
+    "methods": [],
+    "status": "implemented"
+  },
+  {
+    "file": "src/app/api/balances/route.ts",
+    "path": "/api/balances",
+    "methods": [
+      "GET"
+    ],
+    "status": "implemented"
+  },
+  {
+    "file": "src/app/api/expenses/create/route.ts",
+    "path": "/api/expenses/create",
+    "methods": [
+      "POST"
+    ],
+    "status": "implemented"
+  },
+  {
+    "file": "src/app/api/expenses/delete/route.ts",
+    "path": "/api/expenses/delete",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "status": "stub"
+  },
+  {
+    "file": "src/app/api/expenses/userExpenses/route.ts",
+    "path": "/api/expenses/userExpenses",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "status": "stub"
+  },
+  {
+    "file": "src/app/api/expenses/[id]/restore/route.ts",
+    "path": "/api/expenses/{id}/restore",
+    "methods": [
+      "POST"
+    ],
+    "status": "implemented"
+  },
+  {
+    "file": "src/app/api/expenses/[id]/route.ts",
+    "path": "/api/expenses/{id}",
+    "methods": [
+      "GET",
+      "PATCH",
+      "DELETE"
+    ],
+    "status": "implemented"
+  },
+  {
+    "file": "src/app/api/friends/addFriend/route.ts",
+    "path": "/api/friends/addFriend",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "status": "stub"
+  },
+  {
+    "file": "src/app/api/friends/get/route.ts",
+    "path": "/api/friends/get",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "status": "stub"
+  },
+  {
+    "file": "src/app/api/friends/settle/route.ts",
+    "path": "/api/friends/settle",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "status": "stub"
+  },
+  {
+    "file": "src/app/api/payments/order/route.ts",
+    "path": "/api/payments/order",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "status": "stub"
+  },
+  {
+    "file": "src/app/api/payments/validate/route.ts",
+    "path": "/api/payments/validate",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "status": "stub"
+  },
+  {
+    "file": "src/app/api/settlements/route.ts",
+    "path": "/api/settlements",
+    "methods": [
+      "POST"
+    ],
+    "status": "implemented"
+  },
+  {
+    "file": "src/app/api/settlements/[id]/route.ts",
+    "path": "/api/settlements/{id}",
+    "methods": [
+      "DELETE"
+    ],
+    "status": "implemented"
+  },
+  {
+    "file": "src/app/api/users/currentUser/route.ts",
+    "path": "/api/users/currentUser",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "status": "stub"
+  },
+  {
+    "file": "src/app/api/users/getUser/phone/route.tsx",
+    "path": "/api/users/getUser/phone",
+    "methods": [
+      "GET"
+    ],
+    "status": "stub"
+  },
+  {
+    "file": "src/app/api/users/signup/route.ts",
+    "path": "/api/users/signup",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "status": "stub"
+  }
+]

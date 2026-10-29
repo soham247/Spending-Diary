@@ -1,199 +1,105 @@
 import "server-only";
 import { betterAuth } from "better-auth";
+import { APIError, createAuthMiddleware } from "better-auth/api";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "@/lib/db/client";
 import * as schema from "@/lib/db/schema";
 import { isPlaceholderEmail } from "@/lib/utils/email";
 import { sendVerificationEmail, sendPasswordResetEmail } from "@/lib/mail/transport";
 
-const appUrl = getAppUrl();
-
-function getAppUrl(): string {
-  if (process.env.NEXT_PUBLIC_APP_URL) {
-    return process.env.NEXT_PUBLIC_APP_URL;
-  }
-  if (process.env.VERCEL_URL) {
-    return `https://${process.env.VERCEL_BRANCH_URL ?? process.env.VERCEL_URL}`;
-  }
-  return "http://localhost:3000";
+function ineligibleIdentity(user: { email: string }): boolean {
+  const fields = user as Record<string, unknown>;
+  return fields.status !== "ACTIVE" || !!fields.deletedAt || isPlaceholderEmail(user.email);
 }
-
-function sendInBackground(promise: Promise<unknown>): void {
-  // In Next.js, use waitUntil if available; otherwise fire-and-forget
-  promise.catch((err) => {
-    console.error("[mail] Background send failed:", err.message);
-  });
-}
-
-const isPreview =
-  process.env.VERCEL_ENV === "preview" ||
-  (!process.env.GOOGLE_CLIENT_ID && process.env.NODE_ENV !== "test");
 
 export type BetterAuthOptions = Parameters<typeof betterAuth>[0];
-
 export function createAuth(overrides: Partial<BetterAuthOptions> = {}) {
-  const socialProviders =
-    isPreview || !process.env.GOOGLE_CLIENT_ID
-      ? {}
-      : {
-          google: {
-            clientId: process.env.GOOGLE_CLIENT_ID!,
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-          },
-        };
-
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? (process.env.VERCEL_URL ? "https://" + (process.env.VERCEL_BRANCH_URL ?? process.env.VERCEL_URL) : "http://localhost:3000");
   return betterAuth({
-    database: drizzleAdapter(db, {
-      provider: "pg",
-      schema: {
-        user: schema.users,
-        session: schema.sessions,
-        account: schema.accounts,
-        verification: schema.verifications,
-        rateLimit: schema.rateLimits,
-      },
-    }),
+    database: drizzleAdapter(db, { provider: "pg", transaction: true, schema: {
+      user: schema.users, session: schema.sessions, account: schema.accounts,
+      verification: schema.verifications, rateLimit: schema.rateLimits,
+    } }),
     baseURL: appUrl,
     secret: process.env.BETTER_AUTH_SECRET,
     trustedOrigins: [appUrl],
-    account: {
-      accountLinking: {
-        enabled: true,
-        trustedProviders: ["google"],
-      },
-    },
+    session: { expiresIn: 60 * 60 * 24 * 90, updateAge: 60 * 60 * 24 },
+    account: { accountLinking: { enabled: true, trustedProviders: [], requireLocalEmailVerified: false, updateUserInfoOnLink: true } },
     emailVerification: {
-      sendOnSignUp: true,
-      autoSignInAfterVerification: true,
+      sendOnSignUp: true, autoSignInAfterVerification: true,
       sendVerificationEmail: async ({ user, url }) => {
-        if (isPlaceholderEmail(user.email)) return;
-        sendInBackground(sendVerificationEmail({ to: user.email, url }));
+        if (!isPlaceholderEmail(user.email)) await sendVerificationEmail({ to: user.email, url });
       },
     },
     emailAndPassword: {
-      enabled: true,
-      requireEmailVerification: true,
-      minPasswordLength: 10,
-      maxPasswordLength: 128,
-      resetPasswordTokenExpiresIn: 3600,
-      revokeSessionsOnPasswordReset: true,
+      enabled: true, requireEmailVerification: true, minPasswordLength: 10, maxPasswordLength: 128,
+      resetPasswordTokenExpiresIn: 3600, revokeSessionsOnPasswordReset: true,
       sendResetPassword: async ({ user, url }) => {
-        if (isPlaceholderEmail(user.email)) return;
-        sendInBackground(sendPasswordResetEmail({ to: user.email, url }));
+        if (!isPlaceholderEmail(user.email)) await sendPasswordResetEmail({ to: user.email, url });
       },
     },
-    socialProviders,
-    rateLimit: {
-      enabled: true,
-      window: 60,
-      max: 30,
-    },
-    advanced: {
-      ipAddress: {
-        ipAddressHeaders: ["x-forwarded-for"],
-      },
-    },
-    user: {
-      additionalFields: {
-        status: {
-          type: "string",
-          input: false,
-          defaultValue: "ACTIVE",
-        },
-        phone: {
-          type: "string",
-          required: false,
-          input: false,
-        },
-        upiId: {
-          type: "string",
-          required: false,
-          input: false,
-          fieldName: "upi_id",
-        },
-        defaultCurrency: {
-          type: "string",
-          input: true,
-          defaultValue: "INR",
-          fieldName: "default_currency",
-        },
-        mergedIntoId: {
-          type: "string",
-          required: false,
-          input: false,
-          fieldName: "merged_into_id",
-        },
-        deletedAt: {
-          type: "date",
-          required: false,
-          input: false,
-          fieldName: "deleted_at",
-        },
-      },
-    },
+    socialProviders: process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET ? {
+      google: { clientId: process.env.GOOGLE_CLIENT_ID, clientSecret: process.env.GOOGLE_CLIENT_SECRET, requireEmailVerification: true },
+    } : {},
+    rateLimit: { enabled: true, storage: "database", window: 60, max: 30 },
+    hooks: { before: createAuthMiddleware(async ctx => {
+      const body = ctx.body as Record<string, unknown> | undefined;
+      if (ctx.path === "/sign-in/email" && typeof body?.email === "string" && isPlaceholderEmail(body.email)) {
+        throw new APIError("UNAUTHORIZED", { message: "Invalid email or password" });
+      }
+      if (ctx.path === "/request-password-reset" && typeof body?.email === "string") {
+        const record = isPlaceholderEmail(body.email) ? null : await ctx.context.internalAdapter.findUserByEmail(body.email.trim().toLowerCase());
+        if (isPlaceholderEmail(body.email) || (record && ineligibleIdentity(record.user))) {
+          return ctx.json({ status: true, message: "If this email exists in our system, check your email for the reset link" });
+        }
+      }
+      if (ctx.path === "/reset-password") {
+        const token = body?.token ?? ctx.query?.token;
+        if (typeof token === "string") {
+          const proof = await ctx.context.internalAdapter.findVerificationValue("reset-password:" + token);
+          const user = proof ? await ctx.context.internalAdapter.findUserById(proof.value) : null;
+          if (user && ineligibleIdentity(user)) {
+            throw new APIError("BAD_REQUEST", { message: "Invalid token" });
+          }
+        }
+      }
+    }) },
+    user: { additionalFields: {
+      status: { type: "string", input: false, defaultValue: "ACTIVE" },
+      phone: { type: "string", required: false, input: false },
+      upiId: { type: "string", required: false, input: false },
+      defaultCurrency: { type: "string", input: false, defaultValue: "INR" },
+      mergedIntoId: { type: "string", required: false, input: false },
+      deletedAt: { type: "date", required: false, input: false },
+    } },
     databaseHooks: {
-      user: {
-        create: {
-          before: async (user) => {
-            if (isPlaceholderEmail(user.email)) {
-              throw new Error("Sign-up with a placeholder email is not allowed");
+      user: { create: { before: async user => {
+        if (isPlaceholderEmail(user.email)) throw new APIError("BAD_REQUEST", { message: "This email address cannot register" });
+        return { data: { ...user, email: user.email.trim().toLowerCase() } };
+      } } },
+      session: { create: { before: async (session, ctx) => {
+        if (!ctx) throw new APIError("INTERNAL_SERVER_ERROR", { message: "Session context is missing" });
+        const user = await ctx.context.internalAdapter.findUserById(session.userId);
+        if (!user || ineligibleIdentity(user) || !user.emailVerified) {
+          throw new APIError("FORBIDDEN", { message: "Account is not eligible to sign in" });
+        }
+      } } },
+      account: { create: { before: async (account, ctx) => {
+        if (account.providerId === "google") {
+          if (!ctx) throw new APIError("INTERNAL_SERVER_ERROR", { message: "Account linking context is missing" });
+          const adapter = ctx.context.internalAdapter;
+          const user = await adapter.findUserById(account.userId);
+          if (user && !user.emailVerified) {
+            for (const existing of await adapter.findAccounts(user.id)) {
+              if (existing.providerId === "credential") await adapter.deleteAccount(existing.id);
             }
-            return { data: { ...user, email: user.email.toLowerCase().trim() } };
-          },
-        },
-      },
-      account: {
-        create: {
-          before: async (account) => {
-            if (account.providerId === "google") {
-              // Pre-hijack defense: if the target user has an unverified
-              // credential account, purge it so the attacker's password
-              // doesn't survive.
-              try {
-                const { eq, and } = await import("drizzle-orm");
-                const targetUser = await db.query.users.findFirst({
-                  where: eq(schema.users.id, account.userId),
-                });
-                if (targetUser && !targetUser.emailVerified) {
-                  // Delete credential accounts, sessions, and verifications
-                  await db
-                    .delete(schema.accounts)
-                    .where(
-                      and(
-                        eq(schema.accounts.userId, account.userId),
-                        eq(schema.accounts.providerId, "credential"),
-                      ),
-                    );
-                  await db
-                    .delete(schema.sessions)
-                    .where(eq(schema.sessions.userId, account.userId));
-                  await db
-                    .delete(schema.verifications)
-                    .where(
-                      eq(schema.verifications.identifier, targetUser.email),
-                    );
-                  // Reset user fields to prevent attacker-planted data
-                  const localPart = targetUser.email.split("@")[0] ?? "User";
-                  await db
-                    .update(schema.users)
-                    .set({
-                      name: localPart,
-                      image: null,
-                      emailVerified: true,
-                    })
-                    .where(eq(schema.users.id, account.userId));
-                }
-              } catch (err) {
-                console.error("[auth] Pre-hijack cleanup failed:", err);
-              }
-            }
-            return { data: account };
-          },
-        },
-      },
+            await adapter.deleteUserSessions(user.id);
+          }
+        }
+        return { data: account };
+      } } },
     },
     ...overrides,
   });
 }
-
 export const auth = createAuth();

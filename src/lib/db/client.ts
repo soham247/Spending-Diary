@@ -6,7 +6,6 @@ import * as schema from "./schema";
 const isProduction = process.env.NODE_ENV === "production";
 
 declare global {
-  // eslint-disable-next-line no-var
   var __pgPool: Pool | undefined;
 }
 

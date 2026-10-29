@@ -427,3 +427,7 @@ Read `docs/design.md` before building any screen.
 - `docs/schema.md` — database schema and the *why* behind it
   (Drizzle source of truth lives in `src/lib/db/schema.ts`)
 - `docs/decisions.md` — dated log of resolved questionsv
+
+<API_TASKS>
+Before responding to any non-trivial API engineering task — designing, implementing, mocking, testing, monitoring, documenting, or deploying an API or Postman Flow — read `postman/skills/api-builder/SKILL.md` and follow it. It is the default entry point for API work in this repository. Pure questions and trivial one-line edits do not need it.
+</API_TASKS>

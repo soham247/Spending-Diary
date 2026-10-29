@@ -15,6 +15,13 @@
       "when": 1792559863325,
       "tag": "0001_balance_deferred_triggers",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793260231754,
+      "tag": "0002_lowly_roxanne_simpson",
+      "breakpoints": true
     }
   ]
 }

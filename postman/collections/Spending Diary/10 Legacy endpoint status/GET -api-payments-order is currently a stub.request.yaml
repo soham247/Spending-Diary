@@ -1,0 +1,21 @@
+"$kind": "http-request"
+"name": "GET /api/payments/order is currently a stub"
+"order": 13000
+"method": "GET"
+"url": "{{base_url}}/api/payments/order"
+"settings":
+  "followRedirects": false
+"headers":
+  -
+    "key": "Cookie"
+    "value": "{{anon_cookie}}"
+  -
+    "key": "Origin"
+    "value": "{{base_url}}"
+"scripts":
+  -
+    "type": "afterResponse"
+    "language": "text/javascript"
+    "code": |-
+      pm.test('HTTP 501', () => pm.response.to.have.status(501));
+      pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });

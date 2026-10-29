@@ -1,0 +1,42 @@
+"$kind": "http-request"
+"name": "Edit metadata with version"
+"order": 14000
+"method": "PATCH"
+"url": "{{base_url}}/api/expenses/{{equal_id}}"
+"settings":
+  "followRedirects": false
+"headers":
+  -
+    "key": "Cookie"
+    "value": "{{owner_cookie}}"
+  -
+    "key": "Origin"
+    "value": "{{base_url}}"
+  -
+    "key": "Content-Type"
+    "value": "application/json"
+"body":
+  "type": "json"
+  "content": |-
+    {
+      "version": 1,
+      "description": "Edited by owner",
+      "splitType": "EQUAL",
+      "participants": [
+        {
+          "userId": "{{owner_id}}",
+          "paid": 10001
+        },
+        {
+          "userId": "{{friend_id}}",
+          "paid": 0
+        }
+      ]
+    }
+"scripts":
+  -
+    "type": "afterResponse"
+    "language": "text/javascript"
+    "code": |-
+      pm.test('HTTP 200', () => pm.response.to.have.status(200));
+      pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });

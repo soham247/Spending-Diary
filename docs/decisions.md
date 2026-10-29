@@ -106,3 +106,7 @@ Minimum 10 characters, maximum 128, no composition rules, paste and password man
 ### D-023 · 2026-10-01 · Drizzle over Prisma
 
 Supersedes D-014. The data layer uses Drizzle ORM over node-postgres. Reasons: CHECK constraints and partial indexes are declared in the schema, the atomic balance upsert is typed (onConflictDoUpdate with a sql expression), bigint columns map cleanly, and the runtime is small. Raw SQL remains only for deferred triggers (custom migrations in drizzle/). Speed was not the deciding factor: Prisma 7 narrowed the gap and database time dominates a request. Rules out Prisma Client, prisma migrate, HTTP database drivers (they cannot run interactive transactions), and drizzle-kit push on shared databases. Add this line to the end of D-014: Superseded by D-023.
+
+### D-024 · 2026-10-29 · Settling existing debt after blocking
+
+Blocked friends may still record settlements for their existing debt. New expenses remain blocked. For blocked pairs, payments must run from the current debtor to the creditor and cannot exceed the outstanding per-currency debt; accepted friends retain the overpayment behavior in SET-5. This allows either side to record repayment without creating a new debt after blocking. Confirmed by the user during the security remediation.

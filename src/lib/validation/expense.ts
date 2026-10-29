@@ -1,74 +1,51 @@
 import { z } from "zod";
+import { calendarDate, currencySchema, entityId, minorAmount, nonnegativeAmount } from "./money";
 
-/** ISO 4217 currency code */
-const currency = z.string().length(3).toUpperCase();
-
-/** Calendar date string YYYY-MM-DD */
-const calendarDate = z
-  .string()
-  .regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be YYYY-MM-DD");
-
-/** Money amount in minor units — must be a positive integer */
-const minorAmount = z
-  .number()
-  .int("Amount must be an integer in minor units (paise)")
-  .positive("Amount must be positive");
-
-const splitTypeEnum = z.enum(["EQUAL", "EXACT", "PERCENTAGE", "SHARES"]);
-
-const participantBase = z.object({
-  userId: z.string().min(1),
-  paid: z.number().int().min(0),
-});
-
-const participantEqual = participantBase;
-
-const participantExact = participantBase.extend({
-  owed: z.number().int().min(0),
-});
-
-const participantPercentage = participantBase.extend({
-  percentage: z.number().positive().max(100),
-});
-
-const participantShares = participantBase.extend({
-  shares: z.number().int().positive(),
-});
-
-const participants = z.discriminatedUnion("splitType", [
-  z.object({ splitType: z.literal("EQUAL"), participants: z.array(participantEqual).min(1) }),
-  z.object({ splitType: z.literal("EXACT"), participants: z.array(participantExact).min(1) }),
-  z.object({ splitType: z.literal("PERCENTAGE"), participants: z.array(participantPercentage).min(1) }),
-  z.object({ splitType: z.literal("SHARES"), participants: z.array(participantShares).min(1) }),
+const participantBase = z.object({ userId: entityId, paid: nonnegativeAmount });
+const splitType = z.enum(["EQUAL", "EXACT", "PERCENTAGE", "SHARES"]);
+const split = z.discriminatedUnion("splitType", [
+  z.object({ splitType: z.literal("EQUAL"), participants: z.array(participantBase).min(1).max(100) }),
+  z.object({ splitType: z.literal("EXACT"), participants: z.array(participantBase.extend({ owed: nonnegativeAmount })).min(1).max(100) }),
+  z.object({ splitType: z.literal("PERCENTAGE"), participants: z.array(participantBase.extend({ percentage: z.number().positive().max(100) })).min(1).max(100) }),
+  z.object({ splitType: z.literal("SHARES"), participants: z.array(participantBase.extend({ shares: z.number().int().positive().max(1000000) })).min(1).max(100) }),
 ]);
+const fields = {
+  groupId: entityId.nullable().optional(),
+  description: z.string().trim().min(1).max(255),
+  category: z.string().trim().min(1).max(100),
+  notes: z.string().max(2000).nullable().optional(),
+  amount: minorAmount,
+  currency: currencySchema,
+  date: calendarDate,
+};
 
-export const createExpenseSchema = z
-  .object({
-    groupId: z.string().optional().nullable(),
-    description: z.string().min(1).max(255),
-    category: z.string().min(1).max(100),
-    notes: z.string().max(2000).optional().nullable(),
-    amount: minorAmount,
-    currency,
-    date: calendarDate,
-  })
-  .and(participants);
+export const createExpenseSchema = z.object(fields).and(split).superRefine((input, ctx) => {
+  if (new Set(input.participants.map(p => p.userId)).size !== input.participants.length) {
+    ctx.addIssue({ code: "custom", path: ["participants"], message: "Participants must be unique" });
+  }
+  if (input.participants.reduce((sum, p) => sum + p.paid, 0) !== input.amount) {
+    ctx.addIssue({ code: "custom", path: ["participants"], message: "Payments must equal the amount", params: { domain: true } });
+  }
+  if (input.splitType === "EXACT" && input.participants.reduce((sum, p) => sum + p.owed, 0) !== input.amount) {
+    ctx.addIssue({ code: "custom", path: ["participants"], message: "Owed shares must equal the amount", params: { domain: true } });
+  }
+});
 
-export const editExpenseSchema = z
-  .object({
-    version: z.number().int().positive(),
-    description: z.string().min(1).max(255).optional(),
-    category: z.string().min(1).max(100).optional(),
-    notes: z.string().max(2000).optional().nullable(),
-    amount: minorAmount.optional(),
-    currency: currency.optional(),
-    date: calendarDate.optional(),
-  })
-  .and(
-    z
-      .object({ splitType: splitTypeEnum, participants: z.array(participantBase).min(1) })
-      .optional(),
-  );
+export const editExpenseSchema = z.object({
+  version: z.number().int().positive(),
+  description: fields.description.optional(),
+  category: fields.category.optional(),
+  notes: fields.notes,
+  amount: minorAmount.optional(),
+  currency: currencySchema.optional(),
+  date: calendarDate.optional(),
+  splitType: splitType.optional(),
+  participants: z.array(participantBase.extend({
+    owed: nonnegativeAmount.optional(),
+    percentage: z.number().positive().max(100).optional(),
+    shares: z.number().int().positive().max(1000000).optional(),
+  })).min(1).max(100).optional(),
+});
 
 export type CreateExpenseInput = z.infer<typeof createExpenseSchema>;
 export type EditExpenseInput = z.infer<typeof editExpenseSchema>;

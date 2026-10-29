@@ -1,0 +1,62 @@
+"name": "Spending Diary local template"
+"values":
+  -
+    "key": "base_url"
+    "value": "http://localhost:3000"
+    "enabled": true
+    "type": "default"
+  -
+    "key": "run_id"
+    "value": ""
+    "enabled": true
+    "type": "default"
+  -
+    "key": "date"
+    "value": ""
+    "enabled": true
+    "type": "default"
+  -
+    "key": "owner_id"
+    "value": ""
+    "enabled": true
+    "type": "default"
+  -
+    "key": "friend_id"
+    "value": ""
+    "enabled": true
+    "type": "default"
+  -
+    "key": "outsider_id"
+    "value": ""
+    "enabled": true
+    "type": "default"
+  -
+    "key": "group_id"
+    "value": ""
+    "enabled": true
+    "type": "default"
+  -
+    "key": "settlement_group_id"
+    "value": ""
+    "enabled": true
+    "type": "default"
+  -
+    "key": "owner_cookie"
+    "value": ""
+    "enabled": true
+    "type": "secret"
+  -
+    "key": "friend_cookie"
+    "value": ""
+    "enabled": true
+    "type": "secret"
+  -
+    "key": "outsider_cookie"
+    "value": ""
+    "enabled": true
+    "type": "secret"
+  -
+    "key": "anon_cookie"
+    "value": "better-auth.session_token=invalid"
+    "enabled": true
+    "type": "secret"

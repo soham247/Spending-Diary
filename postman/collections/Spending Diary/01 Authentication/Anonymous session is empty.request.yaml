@@ -1,0 +1,22 @@
+"$kind": "http-request"
+"name": "Anonymous session is empty"
+"order": 1000
+"method": "GET"
+"url": "{{base_url}}/api/auth/get-session"
+"settings":
+  "followRedirects": false
+"headers":
+  -
+    "key": "Cookie"
+    "value": "{{anon_cookie}}"
+  -
+    "key": "Origin"
+    "value": "{{base_url}}"
+"scripts":
+  -
+    "type": "afterResponse"
+    "language": "text/javascript"
+    "code": |-
+      pm.test('HTTP 200', () => pm.response.to.have.status(200));
+
+      pm.test('No session disclosed', () => pm.expect(pm.response.json()).to.eql(null));

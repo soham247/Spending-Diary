@@ -268,3 +268,29 @@ describe("computeLedgerEdges", () => {
     );
   });
 });
+
+
+describe("ledger conservation regressions", () => {
+  it("keeps every creditor exact for a multi-payer expense", () => {
+    const p = [{userId:"a",paid:7,owed:0},{userId:"b",paid:3,owed:0},{userId:"c",paid:0,owed:5},{userId:"d",paid:0,owed:5}];
+    const edges=computeLedgerEdges(p);
+    for(const person of p) expect(edges.filter(e=>e.creditorId===person.userId).reduce((s,e)=>s+e.amount,0)-edges.filter(e=>e.debtorId===person.userId).reduce((s,e)=>s+e.amount,0)).toBe(person.paid-person.owed);
+  });
+  it("property: balanced allocations preserve every person's net exactly", () => {
+    fc.assert(fc.property(fc.array(fc.integer({min:0,max:100000}),{minLength:2,maxLength:12}), paid => {
+      const total=paid.reduce((s,v)=>s+v,0);
+      const owed=splitEqual(paid.map((_,i)=>String(i)),total);
+      const p=paid.map((amount,i)=>({userId:String(i),paid:amount,owed:owed.get(String(i))!}));
+      const edges=computeLedgerEdges(p);
+      for(const person of p) {
+        expect(edges.filter(e=>e.creditorId===person.userId).reduce((s,e)=>s+e.amount,0)-edges.filter(e=>e.debtorId===person.userId).reduce((s,e)=>s+e.amount,0)).toBe(person.paid-person.owed);
+      }
+      expect(edges.every(e=>e.amount>0&&Number.isInteger(e.amount)&&e.debtorId!==e.creditorId)).toBe(true);
+    }));
+  });
+  it("keeps largest-remainder splits exact at the PostgreSQL integer maximum", () => {
+    const values=splitShares([{userId:"a",shares:999999},{userId:"b",shares:333333},{userId:"c",shares:1}],2147483647);
+    expect([...values.values()].reduce((s,v)=>s+v,0)).toBe(2147483647);
+    expect([...values.values()].every(Number.isInteger)).toBe(true);
+  });
+});

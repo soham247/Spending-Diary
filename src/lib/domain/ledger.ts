@@ -26,6 +26,7 @@ export async function writeLedgerEntries(
   sourceId: { expenseId: string } | { settlementId: string },
 ): Promise<void> {
   if (edges.length === 0) return;
+  edges = [...edges].sort((a, b) => orderPair(a.debtorId, a.creditorId).join("\0").localeCompare(orderPair(b.debtorId, b.creditorId).join("\0")));
 
   // Insert ledger entries
   await tx.insert(ledgerEntries).values(
@@ -96,9 +97,10 @@ export async function voidLedgerEntries(
   const rows = await tx
     .select()
     .from(ledgerEntries)
-    .where(filter);
+    .where(filter).for("update");
 
   if (rows.length === 0) return;
+  rows.sort((a, b) => orderPair(a.debtorId, a.creditorId).join("\0").localeCompare(orderPair(b.debtorId, b.creditorId).join("\0")));
 
   // Mark voided
   await tx

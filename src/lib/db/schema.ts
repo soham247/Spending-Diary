@@ -126,7 +126,7 @@ export const sessions = pgTable("sessions", {
     .references(() => users.id, { onDelete: "cascade" }),
   createdAt: createdAt(),
   updatedAt: updatedAt(),
-});
+}, t => [index("idx_sessions_user").on(t.userId)]);
 
 export const accounts = pgTable("accounts", {
   id: text("id").primaryKey(),
@@ -144,7 +144,7 @@ export const accounts = pgTable("accounts", {
   password: text("password"),
   createdAt: createdAt(),
   updatedAt: updatedAt(),
-});
+}, t => [index("idx_accounts_user").on(t.userId)]);
 
 export const verifications = pgTable("verifications", {
   id: text("id").primaryKey(),
@@ -153,15 +153,15 @@ export const verifications = pgTable("verifications", {
   expiresAt: timestamp("expires_at", tz).notNull(),
   createdAt: createdAt(),
   updatedAt: updatedAt(),
-});
+}, t => [index("idx_verifications_identifier").on(t.identifier)]);
 
 // ─── Rate limiting ──────────────────────────────────────────────────
 
 export const rateLimits = pgTable("rate_limits", {
   id: text("id").primaryKey(),
-  key: text("key"),
-  count: integer("count"),
-  lastRequest: bigint("last_request", { mode: "number" }),
+  key: text("key").notNull().unique(),
+  count: integer("count").notNull(),
+  lastRequest: bigint("last_request", { mode: "number" }).notNull(),
   window: integer("window"),
   namespace: text("namespace"),
 });
@@ -171,6 +171,19 @@ export const emailRateLimits = pgTable("email_rate_limits", {
   count: integer("count").notNull(),
   windowEndsAt: timestamp("window_ends_at", tz).notNull(),
 });
+
+export const idempotencyRecords = pgTable("idempotency_records", {
+  viewerId: text("viewer_id").notNull().references(() => users.id, { onDelete: "restrict" }),
+  operation: text("operation").notNull(),
+  key: text("key").notNull(),
+  requestHash: text("request_hash").notNull(),
+  resourceId: text("resource_id").notNull(),
+  createdAt: createdAt(),
+}, t => [
+  primaryKey({ columns: [t.viewerId, t.operation, t.key] }),
+  check("ck_idempotency_operation", sql`${t.operation} IN ('expense', 'settlement')`),
+  check("ck_idempotency_key", sql`char_length(${t.key}) BETWEEN 1 AND 200`),
+]);
 
 // ─── Core tables ────────────────────────────────────────────────────
 

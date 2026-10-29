@@ -1,0 +1,21 @@
+"$kind": "http-request"
+"name": "DELETE /api/settlements/pm-nonexistent requires a session"
+"order": 8000
+"method": "DELETE"
+"url": "{{base_url}}/api/settlements/pm-nonexistent"
+"settings":
+  "followRedirects": false
+"headers":
+  -
+    "key": "Cookie"
+    "value": "{{anon_cookie}}"
+  -
+    "key": "Origin"
+    "value": "{{base_url}}"
+"scripts":
+  -
+    "type": "afterResponse"
+    "language": "text/javascript"
+    "code": |-
+      pm.test('HTTP 401', () => pm.response.to.have.status(401));
+      pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });
