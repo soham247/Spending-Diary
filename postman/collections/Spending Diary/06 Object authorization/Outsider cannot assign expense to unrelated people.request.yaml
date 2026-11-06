@@ -2,7 +2,7 @@
 "name": "Outsider cannot assign expense to unrelated people"
 "order": 10000
 "method": "POST"
-"url": "{{base_url}}/api/expenses/create"
+"url": "{{base_url}}/api/expenses"
 "settings":
   "followRedirects": false
 "headers":

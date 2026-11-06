@@ -1,6 +1,6 @@
 "$kind": "http-request"
 "name": "Read EXACT split totals"
-"order": 5000
+"order": 6000
 "method": "GET"
 "url": "{{base_url}}/api/expenses/{{exact_id}}"
 "settings":

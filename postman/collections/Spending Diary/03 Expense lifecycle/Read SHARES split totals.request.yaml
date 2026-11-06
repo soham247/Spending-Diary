@@ -1,6 +1,6 @@
 "$kind": "http-request"
 "name": "Read SHARES split totals"
-"order": 9000
+"order": 10000
 "method": "GET"
 "url": "{{base_url}}/api/expenses/{{shares_id}}"
 "settings":

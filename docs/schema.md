@@ -182,7 +182,8 @@ both numbers for the same person. One row halves the joins, and the composite
 key makes duplicate participants impossible.
 
 `split_input` stores what the user typed (40 for 40%, 2 for two shares) so
-editing round-trips exactly. The computed `owed` is authoritative.
+the form can reopen their original weights. A zero split_input marks a participant excluded from cost sharing, including a payer with owed = 0. Included equal/exact participants use null and included percentage/share participants use a positive weight. The API exposes this as includedInSplit. Participants include both payers and people sharing the cost.
+The computed `owed` is authoritative.
 
 Participant rows represent the expense's current state and are replaced on
 edit. History lives in the activity log (before/after snapshots) and in voided
@@ -504,3 +505,12 @@ already verified in the old app.
    them generate ledger entries, or balances will be counted twice.
 6. Run the reconciliation query; totals must match the opening balances before
    the old tables are dropped.
+## V2 implementation additions (2026-10-30)
+
+Migrations 0003–0005 add an optional users.onboarded_at timestamp, activity_recipients.push_sent_at, and invite_claim_reports. The report table has an ID, a unique invite_id, reporter_id, reason and created_at; identity references restrict deletion. It records the inviter's manual-review report without reversing a merge.
+
+Creation idempotency also covers groups, placeholders, invitations and invitation reports. Reservations store a request digest and resource ID in the same transaction as the created resource. Raw invitation tokens remain absent from the database; the server recovers them from the invite ID using a stable secret and stores only their hash for lookup.
+
+Account/profile settings validate notification_prefs through the shared schema. Actor events are excluded from push delivery; delivery tracking is independent of read state and financial commits.
+
+D-026 defines collapsed-settlement behavior during identity claims: retain original endpoints, soft-delete the collapsed settlement and void its ledger entries. Colliding participant rows sum paid/owed exactly and use exact splits for subsequent edits. D-027 defines reporting for manual review without automatic reversal.

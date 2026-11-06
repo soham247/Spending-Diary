@@ -65,13 +65,19 @@ export async function assertCanEditExpense(viewerId: string, expense: typeof exp
 }
 export async function assertCanRecordSettlement(viewerId: string, input: { groupId: string | null; fromUserId: string; toUserId: string; currency: string }, tx: DbTx) {
   await assertActiveViewer(viewerId, tx);
+  if (viewerId !== input.fromUserId && viewerId !== input.toUserId) throw new NotFoundError();
+  const people = await tx.select().from(users).where(and(inArray(users.id, [input.fromUserId, input.toUserId]), isNull(users.deletedAt))).for("share");
+  if (people.length !== 2 || people.some(person => person.status === "DELETED")) throw new NotFoundError();
   if (input.groupId) {
-    const { group } = await assertGroupMember(viewerId, input.groupId, tx, true);
+    const [group] = await tx.select().from(groups).where(eq(groups.id, input.groupId)).for("share");
+    if (!group) throw new NotFoundError();
+    const members = await tx.select().from(groupMembers).where(and(eq(groupMembers.groupId, input.groupId), inArray(groupMembers.userId, [input.fromUserId, input.toUserId]))).orderBy(groupMembers.userId).for("share");
+    if (members.length !== 2) throw new NotFoundError();
+    if (group.archivedAt) throw new ForbiddenError("Archived groups are read-only");
     if (group.currency !== input.currency) throw new DomainError("Currency must match the group");
-    for (const id of [input.fromUserId, input.toUserId].sort()) await assertGroupMember(id, input.groupId, tx);
     const [low, high] = orderPair(input.fromUserId, input.toUserId);
     const [friendship] = await tx.select().from(friendships).where(and(eq(friendships.userLowId, low), eq(friendships.userHighId, high))).for("share");
-    return friendship?.status === "BLOCKED";
+    return friendship?.status === "BLOCKED" || members.some(member => member.status !== "ACTIVE");
   } else {
     if (viewerId !== input.fromUserId && viewerId !== input.toUserId) throw new NotFoundError();
     const otherId = viewerId === input.fromUserId ? input.toUserId : input.fromUserId;
@@ -86,10 +92,25 @@ export async function assertBlockedSettlementDebt(viewerId: string, input: { gro
   const [low, high] = orderPair(input.fromUserId, input.toUserId);
   const [balance] = await tx.select().from(balances).where(and(eq(balances.scopeId, input.groupId ?? "direct"), eq(balances.userLowId, low), eq(balances.userHighId, high), eq(balances.currency, input.currency))).for("update");
   const debt = (balance?.amount ?? BigInt(0)) * (input.fromUserId === low ? BigInt(1) : BigInt(-1));
-  if (debt <= BigInt(0) || BigInt(input.amount) > debt) throw new DomainError("Blocked friends can only settle their existing debt");
+  if (debt <= BigInt(0) || BigInt(input.amount) > debt) throw new DomainError("Blocked friends and former members can only repay their existing debt without overpaying");
 }
 export async function assertCanDeleteSettlement(viewerId: string, settlement: typeof settlements.$inferSelect, tx: DbTx) {
   await assertActiveViewer(viewerId, tx);
   if (viewerId !== settlement.fromUserId && viewerId !== settlement.toUserId) throw new NotFoundError();
-  if (settlement.groupId) await assertGroupMember(viewerId, settlement.groupId, tx, true);
+  if (settlement.groupId) {
+    const [group] = await tx.select().from(groups).where(eq(groups.id, settlement.groupId)).for("share");
+    if (!group) throw new NotFoundError();
+    if (group.archivedAt) throw new ForbiddenError("Archived groups are read-only");
+  }
+}
+export async function assertGroupAdmin(viewerId: string, groupId: string, tx: DbTx, forWrite = true) {
+  const membership = await assertGroupMember(viewerId, groupId, tx, forWrite);
+  if (membership.role !== "ADMIN") throw new NotFoundError();
+  return membership;
+}
+export async function assertCanConnect(viewerId: string, otherId: string, tx: DbTx) {
+  if (viewerId === otherId) return;
+  const [other] = await tx.select().from(users).where(and(eq(users.id, otherId), isNull(users.deletedAt))).for("share");
+  if (!other || other.status === "DELETED") throw new NotFoundError();
+  await assertUnblocked(viewerId, otherId, tx, false);
 }

@@ -1,8 +1,8 @@
 "$kind": "http-request"
 "name": "Create EXACT split"
-"order": 4000
+"order": 5000
 "method": "POST"
-"url": "{{base_url}}/api/expenses/create"
+"url": "{{base_url}}/api/expenses"
 "settings":
   "followRedirects": false
 "headers":

@@ -14,7 +14,7 @@ function canonical(value: unknown): unknown {
   return value;
 }
 
-export async function reserveIdempotency(tx: DbTx, viewerId: string, operation: "expense" | "settlement", key: string, input: unknown) {
+export async function reserveIdempotency(tx: DbTx, viewerId: string, operation: "expense" | "settlement" | "group" | "placeholder" | "invite" | "invite-report", key: string, input: unknown) {
   if (!key.trim() || key.length > 200) throw new ValidationError("Idempotency-Key must contain 1 to 200 characters");
   const requestHash = createHash("sha256").update(JSON.stringify(canonical(input))).digest("hex");
   const resourceId = createId();

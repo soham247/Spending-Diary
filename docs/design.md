@@ -25,10 +25,10 @@ confetti, cards everywhere).
    written as plain language with the number inline: "Overall, you're owed
    ₹2,340". Not a stat tile with a tiny label. This sentence is the one bold
    element in the product; everything around it stays quiet.
-2. **Color carries meaning, only for money.** Teal means someone owes you,
-   amber means you owe. Everything else is ink on paper. If a color isn't
-   telling you about money direction or an action's consequence, it shouldn't
-   be there.
+2. **Separate brand and money meaning.** Burnt orange identifies primary
+   actions. Teal means someone owes you; amber means you owe. Always pair
+   balance colours with words, and never use the brand colour to communicate
+   a money direction.
 3. **Rows, not cards.** Lists of people, groups, and expenses are rows
    separated by dividers inside one surface. Cards are for things that stand
    alone (a settle-up plan, an invite preview).
@@ -43,119 +43,112 @@ confetti, cards everywhere).
 
 ### 3.1 Color
 
-The base is a cool, slightly green-grey paper with near-black ink. The two
-money colors are chosen to be distinct from each other for color-blind users
-(teal vs amber differ strongly in lightness and hue) and to avoid red for "you
-owe": owing a friend isn't an error.
+The product uses the founder-supplied shadcn OKLCH theme, adopted on
+2026-11-06. White and neutral surfaces support burnt-orange primary actions
+and a matching five-step chart palette. The same tokens apply across the
+landing page, forms, app shell, and shadcn components.
 
-| Token | Light | Dark | Use |
-|---|---|---|---|
-| `background` | `#F6F7F6` | `#111615` | App background (paper) |
-| `foreground` | `#18201E` | `#E8ECEA` | Primary text (ink) |
-| `card` / `popover` | `#FFFFFF` | `#182020` | Surfaces that hold rows, sheets, menus |
-| `muted` | `#ECEFED` | `#202A28` | Subtle fills: selected rows, input backgrounds, skeletons |
-| `muted-foreground` | `#5F6B67` | `#98A5A1` | Secondary text, meta lines, settled amounts |
-| `border` / `input` | `#DDE2DF` | `#2A3532` | Dividers, input outlines |
-| `primary` | `#18201E` | `#E8ECEA` | Primary buttons (ink), active nav |
-| `primary-foreground` | `#F6F7F6` | `#111615` | Text on primary |
-| `ring` | `#5F6B67` | `#98A5A1` | Focus ring |
-| `credit` | `#0F766E` | `#3CC2AE` | "Owes you", "you're owed" amounts |
-| `credit-muted` | `#DDF1EE` | `#12302D` | Background for credit chips and the settle banner |
-| `debit` | `#B45309` | `#F0A05A` | "You owe" amounts |
-| `debit-muted` | `#FBEBD9` | `#35240F` | Background for debit chips |
-| `destructive` | `#B42318` | `#F0786A` | Delete, remove member. Never for "you owe". |
-| `chart-1` … `chart-5` | `#3B6FB6` `#7A5AA6` `#2F8F6B` `#C08A1E` `#A84D6F` | lighter equivalents | Category colors in Insights only |
+`src/app/globals.css` is the source of truth. All tokens, including the
+`sidebar-*` family, are mapped through Tailwind v4 `@theme inline`. Use
+semantic classes such as `bg-primary`, `text-muted-foreground`,
+`bg-sidebar`, and `border-sidebar-border`. Alpha values inside the supplied
+CSS tokens are intentional; feature classes still must not apply opacity
+modifiers to semantic tokens.
 
-Primary buttons are ink, not colored. This keeps teal and amber exclusively
-meaningful. A green "Save" button next to a green "owes you" number would
-teach users that green means nothing.
-
-#### Adding the tokens
-
-shadcn with Tailwind v4 defines variables in `globals.css` and maps them in
-`@theme inline`. Add the money tokens next to the defaults:
+The existing `credit`, `debit`, their muted/foreground variants, and
+`destructive-foreground` extend the supplied palette for financial meaning
+and compatibility. Every amount still renders through `Money`. Primary
+actions are burnt orange, replacing the earlier ink-button rule.
 
 ```css
 :root {
-  --background: #F6F7F6;
-  --foreground: #18201E;
-  --card: #FFFFFF;
-  --card-foreground: #18201E;
-  --popover: #FFFFFF;
-  --popover-foreground: #18201E;
-  --primary: #18201E;
-  --primary-foreground: #F6F7F6;
-  --secondary: #ECEFED;
-  --secondary-foreground: #18201E;
-  --muted: #ECEFED;
-  --muted-foreground: #5F6B67;
-  --accent: #ECEFED;
-  --accent-foreground: #18201E;
-  --destructive: #B42318;
-  --border: #DDE2DF;
-  --input: #DDE2DF;
-  --ring: #5F6B67;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.555 0.163 48.998);
+  --primary-foreground: oklch(0.987 0.022 95.277);
+  --secondary: oklch(0.967 0.001 286.375);
+  --secondary-foreground: oklch(0.21 0.006 285.885);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.879 0.169 91.605);
+  --chart-2: oklch(0.769 0.188 70.08);
+  --chart-3: oklch(0.666 0.179 58.318);
+  --chart-4: oklch(0.555 0.163 48.998);
+  --chart-5: oklch(0.473 0.137 46.201);
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.666 0.179 58.318);
+  --sidebar-primary-foreground: oklch(0.987 0.022 95.277);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+  --radius: 0.625rem;
+  --destructive-foreground: #FFFFFF;
   --credit: #0F766E;
   --credit-foreground: #FFFFFF;
   --credit-muted: #DDF1EE;
   --debit: #B45309;
   --debit-foreground: #FFFFFF;
   --debit-muted: #FBEBD9;
-  --chart-1: #3B6FB6;
-  --chart-2: #7A5AA6;
-  --chart-3: #2F8F6B;
-  --chart-4: #C08A1E;
-  --chart-5: #A84D6F;
-  --radius: 0.625rem;
 }
 
 .dark {
-  --background: #111615;
-  --foreground: #E8ECEA;
-  --card: #182020;
-  --card-foreground: #E8ECEA;
-  --popover: #182020;
-  --popover-foreground: #E8ECEA;
-  --primary: #E8ECEA;
-  --primary-foreground: #111615;
-  --secondary: #202A28;
-  --secondary-foreground: #E8ECEA;
-  --muted: #202A28;
-  --muted-foreground: #98A5A1;
-  --accent: #202A28;
-  --accent-foreground: #E8ECEA;
-  --destructive: #F0786A;
-  --border: #2A3532;
-  --input: #2A3532;
-  --ring: #98A5A1;
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.473 0.137 46.201);
+  --primary-foreground: oklch(0.987 0.022 95.277);
+  --secondary: oklch(0.274 0.006 286.033);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.879 0.169 91.605);
+  --chart-2: oklch(0.769 0.188 70.08);
+  --chart-3: oklch(0.666 0.179 58.318);
+  --chart-4: oklch(0.555 0.163 48.998);
+  --chart-5: oklch(0.473 0.137 46.201);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.769 0.188 70.08);
+  --sidebar-primary-foreground: oklch(0.279 0.077 45.635);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+  --destructive-foreground: #111615;
   --credit: #3CC2AE;
   --credit-foreground: #111615;
   --credit-muted: #12302D;
   --debit: #F0A05A;
   --debit-foreground: #111615;
   --debit-muted: #35240F;
-  --chart-1: #7FA6DE;
-  --chart-2: #B39AD6;
-  --chart-3: #6CC4A0;
-  --chart-4: #E3B85A;
-  --chart-5: #D98AA8;
-}
-
-@theme inline {
-  --color-credit: var(--credit);
-  --color-credit-foreground: var(--credit-foreground);
-  --color-credit-muted: var(--credit-muted);
-  --color-debit: var(--debit);
-  --color-debit-foreground: var(--debit-foreground);
-  --color-debit-muted: var(--debit-muted);
 }
 ```
 
-(The default shadcn mappings for `background`, `card`, etc. already exist in
-`@theme inline`; only the money tokens are new.)
-
-Contrast: `credit` and `debit` on `card` and `background` meet 4.5:1 for body
-text in both themes. Check any new token with a contrast tool before merging.
+Primary buttons use `primary` and `primary-foreground`. Sidebar surfaces and
+selection states use their dedicated sidebar tokens. Do not use credit or
+debit colours for navigation or general actions. Chart labels and legends
+remain necessary because neighbouring orange shades are close in hue.
 
 ### 3.2 Typography
 
@@ -259,58 +252,33 @@ Rules:
 
 ## 5. Layout and navigation
 
-### Mobile (default, < 768 px)
+The authenticated shell uses the official shadcn `Sidebar`, generated with
+the CLI using the `new-york` style and Tailwind v4 configuration. Compose
+feature navigation from sidebar primitives; do not hand-edit generated
+files under `components/ui`.
 
-```
-┌──────────────────────────────┐
-│ Title                  ⋯     │  top bar: screen title, overflow menu
-│                              │
-│  content, px-4               │
-│                              │
-│                              │
-│                        ( + ) │  add-expense button, bottom-right,
-├──────────────────────────────┤  above the nav
-│  Home  Groups  Activity  You │  bottom navigation, labels always shown
-└──────────────────────────────┘
-```
+### Desktop (>= 768 px)
 
-- Four destinations: **Home, Groups, Activity, You** (You = Insights plus
-  Settings). Each is an icon with a label.
-- The add button is a round `size-14` ink button with a `Plus` icon and
-  `aria-label="Add expense"`, bottom-right above the nav. It's the only
-  floating element and the only one with a shadow on the page.
-- Inside a group or friend screen, the add button prefills that group or
-  friend.
-- Bottom nav uses `pb-[env(safe-area-inset-bottom)]`, which is the one
-  sanctioned arbitrary value; add it as a utility in `globals.css` so call
-  sites use a named class.
+- A left sidebar starts expanded and can collapse to icons through the
+  header toggle or the standard Ctrl/Cmd+B shortcut. Collapsed items have
+  tooltips and retain accessible names.
+- The header contains the Spending Diary brand and an Add expense shortcut.
+- Main destinations: Home, My spending, Groups, Friends, Activity, Insights.
+  Settings and Sign out stay at the bottom.
+- Active destinations include their detail routes and expose `aria-current`.
+- A compact page header contains the sidebar toggle and current context.
+  Content is left-aligned in a `max-w-3xl` container including page padding.
 
-### Desktop (≥ 768 px)
+### Mobile (< 768 px)
 
-```
-┌───────────┬────────────────────────────────────────┐
-│ Spending  │  Title                    [Add expense]│
-│ Diary     │                                        │
-│           │   content, max-w-2xl, left-aligned     │
-│ Home      │                                        │
-│ Groups    │                                        │
-│ Activity  │                                        │
-│ Insights  │                                        │
-│           │                                        │
-│ ───────── │                                        │
-│ Goa Trip  │                                        │
-│ Flat 302  │                                        │
-│ + New     │                                        │
-│           │                                        │
-│ Settings  │                                        │
-└───────────┴────────────────────────────────────────┘
-```
-
-- shadcn `Sidebar` with the four destinations, then the user's groups, then
-  Settings at the bottom.
-- "Add expense" becomes a regular primary button in the page header.
-- Content is left-aligned in a `max-w-2xl` column. Numbers align right within
-  that column.
+- The same sidebar opens as a shadcn Sheet from the header menu toggle.
+  It replaces the previous bottom navigation.
+- The drawer has an explicit close button, traps focus, closes with Escape,
+  and returns focus to the trigger. Choosing a destination closes it.
+- Navigation rows and action buttons have at least 44px touch targets.
+- The drawer footer reserves the device bottom safe area. Content needs no
+  bottom-nav spacer. At 360px, neither content nor drawer may overflow.
+- Group/friend expense actions retain their existing prefilled context.
 
 ### Sheets vs dialogs
 
@@ -333,7 +301,7 @@ copy to use.
 │  Split costs with friends,   │
 │  keep track of your own.     │
 │                              │
-│  [ G  Continue with Google ] │  primary (ink)
+│  [ G  Continue with Google ] │  primary (burnt orange)
 │                              │
 │  Use email instead           │  text button, reveals email field
 │                              │
@@ -569,8 +537,7 @@ confirmation step adds friction without adding safety.
 - If the other person has no UPI ID: the UPI button is replaced by the line
   "Priya hasn't added a UPI ID yet." and "Record a cash payment" becomes
   primary.
-- Overpaying shows an inline note in `text-muted-foreground`: "This is ₹200
-  more than you owe. Priya will owe you ₹200."
+- Overpaying requires a confirmation showing the resulting balance, for example: "Priya will owe you ₹200."
 - When the viewer is the one owed, the sheet is "Record a payment from Aman"
   with only the record option.
 - Success toast: "Payment recorded".
@@ -651,6 +618,18 @@ the left, never bold text. Tapping marks read and opens the item.
   listed individually in the rows.
 - A footnote explains the number once: "Your share of shared expenses plus
   your personal expenses. Payments to friends don't count as spending."
+
+#### Personal spending list
+
+The `/expenses` screen defaults to **My spending**, with an inclusive date range
+from the first of the current local calendar month through today. Show the
+filtered total above the expense rows, using the viewer's owed share and separate
+totals per currency. Each row shows the viewer's share and the original expense
+total. Personal/shared/both filters and a **This month** reset narrow the diary;
+**All expenses** and **Deleted expenses** retain the existing history views.
+Totals cover all matching pages and exclude deleted expenses and settlements.
+Invalid date ranges show an inline error; loading and failures never show a false
+zero. Empty valid ranges show zero with guidance to change dates or add an expense.
 
 ### 6.15 Settings (inside "You")
 
@@ -797,3 +776,12 @@ toast to activity entry (Add expense → Expense added → "Aman added Dinner").
 - Don't animate balances.
 - Don't use all-caps labels or middle-dot meta strings.
 - Don't hand-format money or compute splits in a component.
+
+
+### Custom payment form (D-029)
+
+Friend details always offer Record payment, including at zero balance; group pages offer it for active members and former members with remaining debt. Balance-row Settle up shortcuts prefill the amount and direction. The shared sheet has explicit payer/receiver, amount, calendar date, payment method and an optional note (2,000 characters). Friend entry defaults to Direct and offers one eligible group at a time; group entry locks the scope. Notes use the shadcn textarea and appear in payment history and Activity.
+
+At zero balance, on a debt-increasing payment, or on an overpayment that reverses the balance, show a confirmation stating the resulting balance before saving or opening UPI. Cancel preserves the form without recording anything. Normal partial/full repayments need no extra confirmation. Former members and blocked pairs only repay existing pairwise debt without overpaying. Former members retain payment delete/Undo controls after reaching zero; archived groups remain read-only.
+
+Payment Activity uses the transfer icon and names both payer and receiver, with explicit deleted/restored wording. Payments never count as spending. Loading, error/retry and no-eligible-person states appear inside the sheet. Amounts render through Money and inputs preserve their values after a failed save.

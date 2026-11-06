@@ -107,6 +107,7 @@ export const users = pgTable("users", {
     .notNull()
     .default("INR"),
   notificationPrefs: jsonb("notification_prefs"),
+  onboardedAt: timestamp("onboarded_at", tz),
   mergedIntoId: text("merged_into_id").references(
     (): AnyPgColumn => users.id,
   ),
@@ -181,7 +182,7 @@ export const idempotencyRecords = pgTable("idempotency_records", {
   createdAt: createdAt(),
 }, t => [
   primaryKey({ columns: [t.viewerId, t.operation, t.key] }),
-  check("ck_idempotency_operation", sql`${t.operation} IN ('expense', 'settlement')`),
+  check("ck_idempotency_operation", sql`${t.operation} IN ('expense', 'settlement', 'group', 'placeholder', 'invite', 'invite-report')`),
   check("ck_idempotency_key", sql`char_length(${t.key}) BETWEEN 1 AND 200`),
 ]);
 
@@ -281,6 +282,14 @@ export const invites = pgTable(
 );
 
 // ─── Money tables ───────────────────────────────────────────────────
+
+export const inviteClaimReports = pgTable("invite_claim_reports", {
+  id: id(),
+  inviteId: text("invite_id").notNull().unique().references(() => invites.id, { onDelete: "restrict" }),
+  reporterId: text("reporter_id").notNull().references(() => users.id, { onDelete: "restrict" }),
+  reason: text("reason").notNull().default(""),
+  createdAt: createdAt(),
+});
 
 export const expenses = pgTable(
   "expenses",
@@ -482,6 +491,7 @@ export const activityRecipients = pgTable(
       .notNull()
       .references(() => users.id, { onDelete: "restrict" }),
     readAt: timestamp("read_at", tz),
+    pushSentAt: timestamp("push_sent_at", tz),
   },
   (t) => [
     primaryKey({ columns: [t.activityId, t.userId] }),

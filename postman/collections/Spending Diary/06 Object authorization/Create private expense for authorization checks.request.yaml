@@ -2,7 +2,7 @@
 "name": "Create private expense for authorization checks"
 "order": 1000
 "method": "POST"
-"url": "{{base_url}}/api/expenses/create"
+"url": "{{base_url}}/api/expenses"
 "settings":
   "followRedirects": false
 "headers":

@@ -1,6 +1,6 @@
 "$kind": "http-request"
 "name": "Read multiple payer totals"
-"order": 11000
+"order": 12000
 "method": "GET"
 "url": "{{base_url}}/api/expenses/{{multi_id}}"
 "settings":

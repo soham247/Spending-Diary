@@ -1,248 +1,37 @@
-"use client";
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { ArrowRight, BookOpen, Utensils } from "lucide-react";
+import { getOptionalSession } from "@/lib/auth/guards";
+import { Button } from "@/components/ui/button";
+import { Money } from "@/components/money/Money";
 
-import { useRouter } from "next/navigation";
-import ShimmerButton from "@/components/ui/shimmer-button";
-import {
-  ArrowRight,
-  Sparkles,
-  BarChart4,
-  Clock,
-  Bell,
-  Shield,
-} from "lucide-react";
-import { useMemo, useState } from "react";
-import Footer from "@/components/Footer";
-import Image from "next/image";
-import personal from "../../public/personal.png";
-import friends from "../../public/friends.png";
-import travel from "../../public/travel.png";
-
-type UseCase = "personal" | "friends" | "travel";
-
-type UseCaseData = {
-  title: string;
-  description: string;
-  points: string[];
-};
-
-export default function Home() {
-  const router = useRouter();
-  const [activeTab, setActiveTab] = useState<UseCase>("personal");
-
-  const sparklePositions = useMemo(
-    () => [
-      { left: 19, top: 30 },
-      { left: 60, top: 46 },
-      { left: 80, top: 70 },
-      { left: 25, top: 85 },
-      { left: 75, top: 15 },
-    ],
-    []
-  );
-
-  const advancedFeatures = [
-    {
-      icon: <BarChart4 className="w-6 h-6" />,
-      title: "Insightful Analytics",
-      description: "Visualize spending patterns with customizable charts and reports",
-    },
-    {
-      icon: <Clock className="w-6 h-6" />,
-      title: "Recurring Expenses",
-      description: "Set up and track regular payments and subscriptions automatically",
-    },
-    {
-      icon: <Bell className="w-6 h-6" />,
-      title: "Smart Reminders",
-      description: "Get notified about upcoming payments and unsettled balances",
-    },
-    {
-      icon: <Shield className="w-6 h-6" />,
-      title: "Secure & Private",
-      description: "Your financial data is encrypted and never shared with third parties",
-    },
-  ];
-
-  const useCases: Record<UseCase, UseCaseData> = {
-    personal: {
-      title: "Personal Finance",
-      description: "Track your daily expenses, categorize spending, and get insights into your financial habits. Set budgets and reach your savings goals faster.",
-      points: [
-        "Categorize personal expenses with custom tags",
-        "Get monthly spending reports and insights",
-        "Set budget limits and receive alerts",
-        "Track recurring subscriptions and bills"
-      ]
-    },
-    friends: {
-      title: "Friends & Roommates",
-      description: "Split rent, utilities, groceries, and other shared expenses effortlessly. Keep track of who paid what and settle up with confidence.",
-      points: [
-        "Split expenses equally or with custom amounts",
-        "Track balances with multiple friends simultaneously",
-        "Get reminded when payments are due",
-        "Settle up with clear payment histories"
-      ]
-    },
-    travel: {
-      title: "Group Travel",
-      description: "Make your trips stress-free by tracking all shared expenses. No more spreadsheets or confusion about who paid for what during your vacation.",
-      points: [
-        "Create trip-specific expense groups",
-        "Split costs for accommodation, meals, and activities",
-        "Handle expenses in multiple currencies",
-        "Generate end-of-trip settlement summaries"
-      ]
-    }
-  };
-
-  const handleTabChange = (tab: UseCase) => {
-    setActiveTab(tab);
-  };
-
-  return (
-    <div className="flex flex-col">
-      <header className="flex flex-col justify-center items-center text-center h-[85vh] lg:h-[90vh] relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/10 to-transparent" />
-
-        <div className="absolute inset-0">
-          {sparklePositions.map((pos, i) => (
-            <div
-              key={i}
-              className="absolute animate-float"
-              style={{
-                left: `${pos.left}%`,
-                top: `${pos.top}%`,
-                animationDelay: `${i * 2}s`,
-              }}
-            >
-              <Sparkles className="w-6 h-6 text-primary/40" />
-            </div>
-          ))}
-        </div>
-
-        <div className="relative z-10 max-w-5xl mx-auto px-4 pt-8 md:pt-0">
-          <span className="px-4 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6 inline-block">
-            Simplify your expense management
-          </span>
-          <h1 className="text-6xl lg:text-8xl font-extrabold bg-clip-text text-transparent font-sour_gummy bg-gradient-to-r from-primary to-primary/60 p-2">
-            Spending Diary
-          </h1>
-          <h3 className="lg:text-xl mt-8 lg:mt-6 font-semibold text-muted-foreground max-w-3xl mx-auto">
-            The smart way to track expenses, split bills with friends, and manage your finances in one place.
-          </h3>
-          <div className="flex gap-5 mt-8 justify-center font-semibold">
-            <button
-              onClick={() => router.push("/login")}
-              className="group relative px-5 lg:px-6 py-3 border-2 border-primary rounded-lg transition-colors hover:bg-primary/5"
-            >
-              Log In
-              <ArrowRight className="w-4 h-4 inline-block ml-2 transition-transform group-hover:translate-x-1" />
-            </button>
-            <ShimmerButton
-              borderRadius="15px"
-              shimmerSize="0.1em"
-              onClick={() => router.push("/register")}
-              className="px-5 lg:px-6 py-3"
-            >
-              Get Started Free
-            </ShimmerButton>
-          </div>
-          <div className="mt-6 lg:mt-4 text-muted-foreground text-sm flex flex-wrap justify-center gap-1">
-            <span>No credit card required </span>
-            <span>• Free basic plan</span>
-            <span>• Cancel anytime</span>
-          </div>
-        </div>
-      </header>
-      
-      <section className="py-16">
-        <div className="max-w-6xl mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-4 text-primary">Perfect For Every Situation</h2>
-          <p className="text-center text-muted-foreground mb-10 max-w-2xl mx-auto">
-            Whether you&apos;re managing personal finances, splitting bills with roommates, or traveling with friends, 
-            Spending Diary has you covered.
-          </p>
-          
-          <div className="flex flex-wrap justify-center gap-4 mb-8">
-            {(Object.keys(useCases) as UseCase[]).map((tab) => (
-              <button
-                key={tab}
-                onClick={() => handleTabChange(tab)}
-                className={`px-5 py-2 rounded-full transition-all ${
-                  activeTab === tab 
-                  ? "bg-primary text-white" 
-                  : "bg-secondary hover:bg-primary/10"
-                }`}
-              >
-                {tab.charAt(0).toUpperCase() + tab.slice(1)}
-              </button>
-            ))}
-          </div>
-          
-          <div className="grid md:grid-cols-2 gap-8 items-center">
-            <div className="p-6">
-              <h3 className="text-2xl font-bold mb-3">{useCases[activeTab].title}</h3>
-              <p className="text-muted-foreground mb-6">{useCases[activeTab].description}</p>
-              <ul className="space-y-3">
-                {useCases[activeTab].points.map((point, index) => (
-                  <li key={index} className="flex items-start">
-                    <div className="mr-3 mt-1 text-primary">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M20 6L9 17l-5-5"/>
-                      </svg>
-                    </div>
-                    <span>{point}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className="bg-background rounded-xl shadow-lg p-2 border border-gray-200">
-                <Image 
-                  src={activeTab === "personal" ? personal : activeTab === "friends" ? friends : travel}
-                  alt={`${useCases[activeTab].title} Screenshot`}
-                  width={1280}
-                  height={720}
-                  className="rounded-lg object-cover"
-                />
-            </div>
-          </div>
+export default async function LandingPage() {
+  if (await getOptionalSession()) redirect("/home");
+  return <div className="mx-auto max-w-5xl px-4 sm:px-6">
+    <a href="#main" className="sr-only focus:not-sr-only focus:block focus:bg-card focus:p-4">Skip to content</a>
+    <header className="flex items-center justify-between gap-3 border-b border-border py-4">
+      <Link href="/" className="flex min-h-11 items-center gap-2 rounded-md font-semibold focus-visible:outline-2 focus-visible:outline-ring"><BookOpen className="size-5" strokeWidth={1.75} aria-hidden="true" />Spending Diary</Link>
+      <Button asChild variant="ghost" className="h-11"><Link href="/login">Sign in<ArrowRight strokeWidth={1.75} aria-hidden="true" /></Link></Button>
+    </header>
+    <main id="main" tabIndex={-1} className="grid items-center gap-10 py-12 sm:py-20 lg:grid-cols-2 lg:gap-16">
+      <section className="space-y-6">
+        <h1 className="text-4xl font-semibold leading-tight tracking-tight sm:text-5xl">Share the cost.<br />Keep track of<br className="hidden sm:block" /> your share.</h1>
+        <p className="max-w-md text-lg leading-relaxed text-muted-foreground">Dinner with friends. Groceries for the flat. A weekend away. See who owes whom, and keep your own spending clear.</p>
+        <div className="space-y-3"><Button asChild size="lg" className="w-full sm:w-auto"><Link href="/register">Create an account<ArrowRight strokeWidth={1.75} aria-hidden="true" /></Link></Button><p className="text-sm text-muted-foreground">Start with a personal expense or invite a friend</p></div>
+      </section>
+      <section aria-labelledby="example-title" className="overflow-hidden rounded-xl border border-border bg-card">
+        <div className="flex items-center justify-between gap-3 border-b border-border px-6 py-4"><h2 id="example-title" className="text-sm font-medium">One dinner, three shares</h2><span className="text-xs text-muted-foreground">Example</span></div>
+        <div className="space-y-6 p-6">
+          <div className="flex items-center gap-3"><span className="flex size-10 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground"><Utensils className="size-5" strokeWidth={1.75} aria-hidden="true" /></span><div><p className="font-medium">Friday dinner</p><p className="text-sm text-muted-foreground">You paid, split equally with 2 friends</p></div></div>
+          <dl className="divide-y divide-border">
+            <div className="flex items-center justify-between gap-4 py-4"><dt className="text-sm text-muted-foreground">The bill you paid</dt><dd className="font-medium"><Money amount={120000} currency="INR" tone="neutral" /></dd></div>
+            <div className="flex items-center justify-between gap-4 py-4"><dt className="text-sm text-muted-foreground">Your spending</dt><dd className="font-medium"><Money amount={40000} currency="INR" tone="neutral" /></dd></div>
+          </dl>
+          <div className="rounded-md bg-credit-muted p-4"><p className="text-sm">Your friends owe you</p><p className="mt-1 text-3xl font-semibold"><Money amount={80000} currency="INR" tone="credit" /></p></div>
+          <p className="text-sm leading-relaxed text-muted-foreground">Your diary counts your share. Record repayments separately, so they never inflate your spending.</p>
         </div>
       </section>
-      
-      <section className="py-16">
-        <div className="max-w-6xl mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12 text-primary">More Powerful Features</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {advancedFeatures.map((feature, index) => (
-              <div key={index} className="p-6 rounded-xl bg-secondary/30 hover:bg-secondary/50 transition-colors">
-                <div className="mb-4 text-primary">{feature.icon}</div>
-                <h3 className="font-bold mb-2">{feature.title}</h3>
-                <p className="text-sm text-muted-foreground">{feature.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-      
-      <section className="py-16 bg-primary/5">
-        <div className="max-w-3xl mx-auto flex flex-col items-center text-center px-4">
-          <h2 className="text-3xl font-bold mb-6">Start Managing Your Expenses Today</h2>
-          <p className="mb-8 text-muted-foreground">
-            Join thousands of users who are already saving time and reducing stress with Spending Diary.
-            Our intuitive platform makes expense tracking and bill splitting effortless.
-          </p>
-          <ShimmerButton
-            borderRadius="15px"
-            shimmerSize="0.1em"
-            onClick={() => router.push("/register")}
-            className="px-6 py-3 lg:px-8 lg:py-4 text-lg"
-          >
-            Create Free Account
-          </ShimmerButton>
-        </div>
-      </section>
-      <Footer />
-    </div>
-  );
+    </main>
+    <footer className="border-t border-border py-6 text-sm text-muted-foreground">Shared expenses. Personal spending. One clear picture.</footer>
+  </div>;
 }

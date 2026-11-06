@@ -1,6 +1,6 @@
 "$kind": "http-request"
 "name": "Deleted expense hidden"
-"order": 18000
+"order": 19000
 "method": "GET"
 "url": "{{base_url}}/api/expenses/{{equal_id}}"
 "settings":

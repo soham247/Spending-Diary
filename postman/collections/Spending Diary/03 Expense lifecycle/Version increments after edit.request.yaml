@@ -1,6 +1,6 @@
 "$kind": "http-request"
 "name": "Version increments after edit"
-"order": 15000
+"order": 16000
 "method": "GET"
 "url": "{{base_url}}/api/expenses/{{equal_id}}"
 "settings":

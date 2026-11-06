@@ -1,12 +1,19 @@
 [
   {
-    "file": "src/app/api/analytics/monthly-spending/route.ts",
-    "path": "/api/analytics/monthly-spending",
+    "file": "src/app/api/activity/route.ts",
+    "path": "/api/activity",
     "methods": [
-      "GET",
-      "POST"
+      "GET"
     ],
-    "status": "stub"
+    "status": "implemented"
+  },
+  {
+    "file": "src/app/api/activity/[id]/route.ts",
+    "path": "/api/activity/{id}",
+    "methods": [
+      "PATCH"
+    ],
+    "status": "implemented"
   },
   {
     "file": "src/app/api/auth/[...all]/route.ts",
@@ -23,30 +30,21 @@
     "status": "implemented"
   },
   {
-    "file": "src/app/api/expenses/create/route.ts",
-    "path": "/api/expenses/create",
+    "file": "src/app/api/cron/maintenance/route.ts",
+    "path": "/api/cron/maintenance",
     "methods": [
-      "POST"
+      "GET"
     ],
     "status": "implemented"
   },
   {
-    "file": "src/app/api/expenses/delete/route.ts",
-    "path": "/api/expenses/delete",
+    "file": "src/app/api/expenses/route.ts",
+    "path": "/api/expenses",
     "methods": [
       "GET",
       "POST"
     ],
-    "status": "stub"
-  },
-  {
-    "file": "src/app/api/expenses/userExpenses/route.ts",
-    "path": "/api/expenses/userExpenses",
-    "methods": [
-      "GET",
-      "POST"
-    ],
-    "status": "stub"
+    "status": "implemented"
   },
   {
     "file": "src/app/api/expenses/[id]/restore/route.ts",
@@ -67,53 +65,151 @@
     "status": "implemented"
   },
   {
-    "file": "src/app/api/friends/addFriend/route.ts",
-    "path": "/api/friends/addFriend",
+    "file": "src/app/api/friends/route.ts",
+    "path": "/api/friends",
     "methods": [
       "GET",
       "POST"
     ],
-    "status": "stub"
+    "status": "implemented"
   },
   {
-    "file": "src/app/api/friends/get/route.ts",
-    "path": "/api/friends/get",
+    "file": "src/app/api/friends/[id]/route.ts",
+    "path": "/api/friends/{id}",
     "methods": [
       "GET",
-      "POST"
+      "PATCH"
     ],
-    "status": "stub"
+    "status": "implemented"
   },
   {
-    "file": "src/app/api/friends/settle/route.ts",
-    "path": "/api/friends/settle",
+    "file": "src/app/api/groups/route.ts",
+    "path": "/api/groups",
     "methods": [
       "GET",
       "POST"
     ],
-    "status": "stub"
+    "status": "implemented"
   },
   {
-    "file": "src/app/api/payments/order/route.ts",
-    "path": "/api/payments/order",
+    "file": "src/app/api/groups/[id]/members/route.ts",
+    "path": "/api/groups/{id}/members",
     "methods": [
-      "GET",
       "POST"
     ],
-    "status": "stub"
+    "status": "implemented"
   },
   {
-    "file": "src/app/api/payments/validate/route.ts",
-    "path": "/api/payments/validate",
+    "file": "src/app/api/groups/[id]/route.ts",
+    "path": "/api/groups/{id}",
     "methods": [
       "GET",
+      "PATCH"
+    ],
+    "status": "implemented"
+  },
+  {
+    "file": "src/app/api/insights/route.ts",
+    "path": "/api/insights",
+    "methods": [
+      "GET"
+    ],
+    "status": "implemented"
+  },
+  {
+    "file": "src/app/api/invites/claim/route.ts",
+    "path": "/api/invites/claim",
+    "methods": [
       "POST"
     ],
-    "status": "stub"
+    "status": "implemented"
+  },
+  {
+    "file": "src/app/api/invites/preview/route.ts",
+    "path": "/api/invites/preview",
+    "methods": [
+      "GET"
+    ],
+    "status": "implemented"
+  },
+  {
+    "file": "src/app/api/invites/route.ts",
+    "path": "/api/invites",
+    "methods": [
+      "POST"
+    ],
+    "status": "implemented"
+  },
+  {
+    "file": "src/app/api/invites/[id]/report/route.ts",
+    "path": "/api/invites/{id}/report",
+    "methods": [
+      "POST"
+    ],
+    "status": "implemented"
+  },
+  {
+    "file": "src/app/api/invites/[id]/route.ts",
+    "path": "/api/invites/{id}",
+    "methods": [
+      "DELETE"
+    ],
+    "status": "implemented"
+  },
+  {
+    "file": "src/app/api/me/anonymize/route.ts",
+    "path": "/api/me/anonymize",
+    "methods": [
+      "POST"
+    ],
+    "status": "implemented"
+  },
+  {
+    "file": "src/app/api/me/route.ts",
+    "path": "/api/me",
+    "methods": [
+      "GET",
+      "PATCH"
+    ],
+    "status": "implemented"
+  },
+  {
+    "file": "src/app/api/push/config/route.ts",
+    "path": "/api/push/config",
+    "methods": [
+      "GET"
+    ],
+    "status": "implemented"
+  },
+  {
+    "file": "src/app/api/push/subscription/route.ts",
+    "path": "/api/push/subscription",
+    "methods": [
+      "PUT",
+      "DELETE"
+    ],
+    "status": "implemented"
+  },
+  {
+    "file": "src/app/api/settlements/context/route.ts",
+    "path": "/api/settlements/context",
+    "methods": [
+      "GET"
+    ],
+    "status": "implemented"
   },
   {
     "file": "src/app/api/settlements/route.ts",
     "path": "/api/settlements",
+    "methods": [
+      "POST",
+      "GET"
+    ],
+    "status": "implemented"
+  },
+  {
+    "file": "src/app/api/settlements/[id]/restore/route.ts",
+    "path": "/api/settlements/{id}/restore",
     "methods": [
       "POST"
     ],
@@ -126,31 +222,5 @@
       "DELETE"
     ],
     "status": "implemented"
-  },
-  {
-    "file": "src/app/api/users/currentUser/route.ts",
-    "path": "/api/users/currentUser",
-    "methods": [
-      "GET",
-      "POST"
-    ],
-    "status": "stub"
-  },
-  {
-    "file": "src/app/api/users/getUser/phone/route.tsx",
-    "path": "/api/users/getUser/phone",
-    "methods": [
-      "GET"
-    ],
-    "status": "stub"
-  },
-  {
-    "file": "src/app/api/users/signup/route.ts",
-    "path": "/api/users/signup",
-    "methods": [
-      "GET",
-      "POST"
-    ],
-    "status": "stub"
   }
 ]

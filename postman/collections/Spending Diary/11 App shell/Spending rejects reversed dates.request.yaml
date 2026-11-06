@@ -1,0 +1,31 @@
+"$kind": "http-request"
+"name": "Spending rejects reversed dates"
+"order": 10000
+"method": "GET"
+"url": "{{base_url}}/api/expenses?scope=mine&from=2026-11-02&to=2026-11-01"
+"queryParams":
+  -
+    "key": "scope"
+    "value": "mine"
+  -
+    "key": "from"
+    "value": "2026-11-02"
+  -
+    "key": "to"
+    "value": "2026-11-01"
+"settings":
+  "followRedirects": false
+"headers":
+  -
+    "key": "Cookie"
+    "value": "{{owner_cookie}}"
+  -
+    "key": "Origin"
+    "value": "{{base_url}}"
+"scripts":
+  -
+    "type": "afterResponse"
+    "language": "text/javascript"
+    "code": |-
+      pm.test('HTTP 400', () => pm.response.to.have.status(400));
+      pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });

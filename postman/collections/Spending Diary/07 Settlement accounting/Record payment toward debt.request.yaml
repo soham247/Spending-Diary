@@ -28,7 +28,8 @@
       "currency": "INR",
       "method": "CASH",
       "date": "{{date}}",
-      "groupId": "{{settlement_group_id}}"
+      "groupId": "{{settlement_group_id}}",
+      "note": "Partial repayment note"
     }
 "scripts":
   -

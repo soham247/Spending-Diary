@@ -1,8 +1,8 @@
 "$kind": "http-request"
 "name": "Create multiple payer expense"
-"order": 10000
+"order": 11000
 "method": "POST"
-"url": "{{base_url}}/api/expenses/create"
+"url": "{{base_url}}/api/expenses"
 "settings":
   "followRedirects": false
 "headers":

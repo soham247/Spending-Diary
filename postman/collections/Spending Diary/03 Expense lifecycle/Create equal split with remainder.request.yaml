@@ -1,8 +1,8 @@
 "$kind": "http-request"
 "name": "Create equal split with remainder"
-"order": 2000
+"order": 3000
 "method": "POST"
-"url": "{{base_url}}/api/expenses/create"
+"url": "{{base_url}}/api/expenses"
 "settings":
   "followRedirects": false
 "headers":

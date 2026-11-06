@@ -32,8 +32,10 @@ export const config = {
     "/groups/:path*",
     "/friends/:path*",
     "/expenses/:path*",
+    "/settlements/:path*",
     "/activity/:path*",
     "/insights/:path*",
     "/settings/:path*",
+    "/onboarding/:path*",
   ],
 };

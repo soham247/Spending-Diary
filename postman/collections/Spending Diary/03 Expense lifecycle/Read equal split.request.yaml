@@ -1,6 +1,6 @@
 "$kind": "http-request"
 "name": "Read equal split"
-"order": 3000
+"order": 4000
 "method": "GET"
 "url": "{{base_url}}/api/expenses/{{equal_id}}"
 "settings":

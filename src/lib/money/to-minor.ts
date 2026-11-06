@@ -4,7 +4,9 @@
  * or more than 2 decimal places.
  */
 export function toMinor(input: string): number {
-  const trimmed = input.trim();
+  const grouped = input.trim();
+  if (grouped.includes(",") && !/^-?(?:\d{1,3}(?:,\d{3})+|\d{1,2}(?:,\d{2})*,\d{3})(?:\.\d{1,2})?$/.test(grouped)) throw new Error("Invalid amount format. Check comma grouping");
+  const trimmed = grouped.replaceAll(",", "");
   if (trimmed === "" || trimmed === "-") {
     throw new Error("Amount is required");
   }

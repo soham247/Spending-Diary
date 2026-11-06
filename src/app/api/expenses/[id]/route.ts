@@ -1,3 +1,4 @@
+import { schedulePush } from "@/lib/push/schedule";
 import { requireSession } from "@/lib/auth/guards";
 import { mapError } from "@/lib/api/route-handler";
 import { editExpenseSchema } from "@/lib/validation/expense";
@@ -21,6 +22,7 @@ export async function PATCH(req: Request, ctx: Ctx) {
     const { id } = await ctx.params;
     const input = editExpenseSchema.parse(await req.json());
     await editExpense(session.userId, id, input);
+    schedulePush();
     return Response.json({ data: { id } });
   } catch (error) { return mapError(error); }
 }
@@ -29,6 +31,7 @@ export async function DELETE(req: Request, ctx: Ctx) {
     const session = await requireSession(req);
     const { id } = await ctx.params;
     await deleteExpense(session.userId, id);
+    schedulePush();
     return Response.json({ data: { id } });
   } catch (error) { return mapError(error); }
 }

@@ -7,7 +7,7 @@ import { accounts, rateLimits, sessions, users, verifications } from "@/lib/db/s
 import { setTestMailbox } from "@/lib/mail/transport";
 
 const base = "http://localhost:3000";
-let mailbox: Array<{ to: string; subject: string; html: string }>;
+let mailbox: Array<{ to: string; subject: string; html: string; text: string }>;
 let ipCounter = 0;
 const freshPassword = () => randomBytes(24).toString("base64url");
 function configuredAuth() { return createAuth({ baseURL: base, logger: { disabled: true } }); }
@@ -21,7 +21,7 @@ async function signup(auth: ReturnType<typeof createAuth>, email: string, passwo
   return body.user.id as string;
 }
 function mailUrl() {
-  const href = mailbox.at(-1)?.html.match(/href="([^"]+)"/)?.[1];
+  const href = mailbox.at(-1)?.text.match(/https?:\/\/\S+/)?.[0];
   if (!href) throw new Error("Expected an in-memory auth email");
   return new URL(href);
 }

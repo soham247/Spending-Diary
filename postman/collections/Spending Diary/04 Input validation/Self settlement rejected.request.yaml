@@ -34,5 +34,5 @@
     "type": "afterResponse"
     "language": "text/javascript"
     "code": |-
-      pm.test('HTTP 422', () => pm.response.to.have.status(422));
+      pm.test('HTTP 400', () => pm.response.to.have.status(400));
       pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });

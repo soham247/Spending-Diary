@@ -224,11 +224,13 @@ lands in the group with all three expenses and the correct balance.
 - **SET-3** After returning, the app asks "Did the payment go through?". Yes
   records the settlement with method UPI; No does nothing.
 - **SET-4** "Record a cash payment" records a settlement without UPI.
-- **SET-5** Partial settlements are allowed. Overpayment is allowed with a
-  warning ("This is ₹200 more than you owe").
+- **SET-5** Partial settlements are allowed. For unrestricted parties, overpayment is allowed after confirmation stating the resulting balance.
 - **SET-6** Either side of a settlement can delete it, with Undo, and it is
   restorable.
 - **SET-7** Settlements never count as spending.
+- **SET-8** Record payment is available without an existing debt, with explicit payer/receiver, editable amount, date, method and an optional note (2,000 characters). A payment affects Direct or exactly one group.
+- **SET-9** For unrestricted parties, advances, reverse-direction payments and overpayments require confirmation showing the resulting balance. Ordinary repayments do not.
+- **SET-10** Group counterparties include active members and former members with any nonzero pairwise group balance. Former members may record their own repayments, capped at their existing pairwise debt, and delete/undo recorded payments without regaining expense-writing permissions. Archived groups remain read-only.
 
 ### 6.9 Activity and notifications
 
