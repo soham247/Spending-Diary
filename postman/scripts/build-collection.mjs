@@ -37,7 +37,7 @@ const participant = (userId, paid, extras = {}) => ({ userId: `{{${userId}_id}}`
 const expense = (extra = {}) => ({ description: 'Postman regression {{run_id}}', category: 'Food', amount: 10001, currency: 'INR', date: '{{date}}', splitType: 'EQUAL', participants: [participant('owner', extra.amount ?? 10001), participant('friend', 0)], ...extra });
 const settlement = (extra = {}) => ({ fromUserId: '{{friend_id}}', toUserId: '{{owner_id}}', amount: 5000, currency: 'INR', method: 'CASH', date: '{{date}}', ...extra });
 const remember = key => `if (pm.response.code === 201) pm.collectionVariables.set('${key}', pm.response.json().data.id); pm.test('Created resource ID', () => pm.expect(pm.response.json().data.id).to.be.a('string'));`;
-const create = (folder, name, variable, extra = {}, role = 'owner') => add(folder, name, 'POST', '/api/expenses/create', { body: expense(extra), status: 201, role, key: `{{run_id}}-${variable}`, code: remember(variable) });
+const create = (folder, name, variable, extra = {}, role = 'owner') => add(folder, name, 'POST', '/api/expenses', { body: expense(extra), status: 201, role, key: `{{run_id}}-${variable}`, code: remember(variable) });
 const balanced = `pm.test('Integer money and balanced participants', () => { const e = pm.response.json().data; pm.expect(Number.isSafeInteger(e.amount)).to.eql(true); pm.expect(e.participants.reduce((sum,p) => sum+p.paid,0)).to.eql(e.amount); pm.expect(e.participants.reduce((sum,p) => sum+p.owed,0)).to.eql(e.amount); e.participants.forEach(p => { pm.expect(Number.isSafeInteger(p.paid)).to.eql(true); pm.expect(Number.isSafeInteger(p.owed)).to.eql(true); }); });`;
 const edit = { version: 1, description: 'Edited by owner', splitType: 'EQUAL', participants: [participant('owner', 10001), participant('friend', 0)] };
 
@@ -47,7 +47,7 @@ add('01 Authentication', 'Malformed sign-in rejected', 'POST', '/api/auth/sign-i
 add('01 Authentication', 'Placeholder signup rejected', 'POST', '/api/auth/sign-up/email', { body: { name: 'Invalid placeholder', email: 'fixture@spendingdiary.invalid', password: 'NonCredential-Invalid-123' }, status: 400, role: 'anon', authResponse: true });
 add('01 Authentication', 'Untrusted signup origin rejected', 'POST', '/api/auth/sign-up/email', { body: {}, status: 403, role: 'anon', authResponse: true, headers: [{ key: 'Origin', value: 'https://untrusted.example' }] });
 
-for (const [method,path] of [['GET','/api/balances'],['POST','/api/expenses/create'],['GET','/api/expenses/pm-nonexistent'],['PATCH','/api/expenses/pm-nonexistent'],['DELETE','/api/expenses/pm-nonexistent'],['POST','/api/expenses/pm-nonexistent/restore'],['POST','/api/settlements'],['DELETE','/api/settlements/pm-nonexistent']]) {
+for (const [method,path] of [['GET','/api/balances'],['POST','/api/expenses'],['GET','/api/expenses/pm-nonexistent'],['PATCH','/api/expenses/pm-nonexistent'],['DELETE','/api/expenses/pm-nonexistent'],['POST','/api/expenses/pm-nonexistent/restore'],['POST','/api/settlements'],['DELETE','/api/settlements/pm-nonexistent']]) {
   add('02 Authentication boundaries', `${method} ${path} requires a session`, method, path, { role: 'anon', status: 401, ...(['POST','PATCH'].includes(method) ? { body: {} } : {}) });
 }
 
@@ -74,21 +74,21 @@ add('03 Expense lifecycle', 'Restore expense', 'POST', '/api/expenses/{{equal_id
 add('03 Expense lifecycle', 'Restored expense balances', 'GET', '/api/expenses/{{equal_id}}', {code:balanced});
 
 for(const [name,extra] of [['fractional amount',{amount:100.5}],['zero amount',{amount:0}],['negative amount',{amount:-1}],['missing description',{description:''}],['empty participants',{participants:[]}],['invalid split type',{splitType:'UNKNOWN'}],['negative payer',{participants:[participant('owner',-1)]}]]) {
-  add('04 Input validation', `Reject ${name}`, 'POST', '/api/expenses/create', {body:expense(extra),key:'{{run_id}}-invalid-'+name,status:400});
+  add('04 Input validation', `Reject ${name}`, 'POST', '/api/expenses', {body:expense(extra),key:'{{run_id}}-invalid-'+name,status:400});
 }
 for(const [name,extra] of [['invalid calendar date',{date:'2026-02-31'}],['integer overflow',{amount:2147483648,participants:[participant('owner',2147483648)]}],['duplicate participants',{participants:[participant('owner',5001),participant('owner',5000)]}],['unknown currency',{currency:'ZZZ'}]]) {
-  add('04 Input validation', `Reject ${name}`, 'POST', '/api/expenses/create', {body:expense(extra),key:'{{run_id}}-invalid-'+name,status:400});
+  add('04 Input validation', `Reject ${name}`, 'POST', '/api/expenses', {body:expense(extra),key:'{{run_id}}-invalid-'+name,status:400});
 }
-add('04 Input validation','Reject malformed JSON','POST','/api/expenses/create',{body:'{"amount":',raw:true,key:'{{run_id}}-malformed',status:400});
-add('04 Input validation','Missing expense idempotency key','POST','/api/expenses/create',{body:expense(),status:400});
+add('04 Input validation','Reject malformed JSON','POST','/api/expenses',{body:'{"amount":',raw:true,key:'{{run_id}}-malformed',status:400});
+add('04 Input validation','Missing expense idempotency key','POST','/api/expenses',{body:expense(),status:400});
 add('04 Input validation','Missing settlement idempotency key','POST','/api/settlements',{body:settlement(),status:400});
-add('04 Input validation','Unbalanced payments rejected','POST','/api/expenses/create',{body:expense({participants:[participant('owner',10000),participant('friend',0)]}),key:'{{run_id}}-unbalanced',status:422});
+add('04 Input validation','Unbalanced payments rejected','POST','/api/expenses',{body:expense({participants:[participant('owner',10000),participant('friend',0)]}),key:'{{run_id}}-unbalanced',status:422});
 add('04 Input validation','Self settlement rejected','POST','/api/settlements',{body:settlement({fromUserId:'{{owner_id}}'}),key:'{{run_id}}-self',status:400});
 add('04 Input validation','Metadata-only PATCH accepted','PATCH','/api/expenses/{{multi_id}}',{body:{version:1,description:'Metadata-only edit'}});
 
 create('05 Idempotency','Create idempotent expense','idem_id');
-add('05 Idempotency','Replay same expense key returns same ID','POST','/api/expenses/create',{body:expense(),status:201,key:'{{run_id}}-idem_id',code:`pm.test('Original ID reused',()=>pm.expect(pm.response.json().data.id).to.eql(pm.collectionVariables.get('idem_id')));`});
-add('05 Idempotency','Same expense key with changed body conflicts','POST','/api/expenses/create',{body:expense({description:'Conflicting body'}),status:409,key:'{{run_id}}-idem_id'});
+add('05 Idempotency','Replay same expense key returns same ID','POST','/api/expenses',{body:expense(),status:201,key:'{{run_id}}-idem_id',code:`pm.test('Original ID reused',()=>pm.expect(pm.response.json().data.id).to.eql(pm.collectionVariables.get('idem_id')));`});
+add('05 Idempotency','Same expense key with changed body conflicts','POST','/api/expenses',{body:expense({description:'Conflicting body'}),status:409,key:'{{run_id}}-idem_id'});
 add('05 Idempotency','Create idempotent settlement','POST','/api/settlements',{body:settlement(),status:201,key:'{{run_id}}-idem-settlement',code:remember('idem_settlement_id')});
 add('05 Idempotency','Replay settlement key returns same ID','POST','/api/settlements',{body:settlement(),status:201,key:'{{run_id}}-idem-settlement',code:`pm.test('Original settlement ID reused',()=>pm.expect(pm.response.json().data.id).to.eql(pm.collectionVariables.get('idem_settlement_id')));`});
 add('05 Idempotency','Same settlement key with changed body conflicts','POST','/api/settlements',{body:settlement({amount:1}),status:409,key:'{{run_id}}-idem-settlement'});
@@ -101,8 +101,8 @@ create('06 Object authorization','Create separate restore authorization target',
 add('06 Object authorization','Owner deletes restore authorization target','DELETE','/api/expenses/{{restore_private_id}}');
 add('06 Object authorization','Outsider cannot restore private expense','POST','/api/expenses/{{restore_private_id}}/restore',{role:'outsider',status:404});
 add('06 Object authorization','Outsider balances disclose no other pairs','GET','/api/balances',{role:'outsider',code:`pm.test('All balances involve viewer',()=>pm.response.json().data.forEach(r=>pm.expect([r.userLowId,r.userHighId]).to.include(pm.environment.get('outsider_id'))));`});
-add('06 Object authorization','Outsider cannot create expense in another group','POST','/api/expenses/create',{role:'outsider',body:expense({groupId:'{{group_id}}'}),key:'{{run_id}}-foreign-group',status:404});
-add('06 Object authorization','Outsider cannot assign expense to unrelated people','POST','/api/expenses/create',{role:'outsider',body:expense(),key:'{{run_id}}-foreign-participants',status:404});
+add('06 Object authorization','Outsider cannot create expense in another group','POST','/api/expenses',{role:'outsider',body:expense({groupId:'{{group_id}}'}),key:'{{run_id}}-foreign-group',status:404});
+add('06 Object authorization','Outsider cannot assign expense to unrelated people','POST','/api/expenses',{role:'outsider',body:expense(),key:'{{run_id}}-foreign-participants',status:404});
 add('06 Object authorization','Outsider cannot record another pair settlement','POST','/api/settlements',{role:'outsider',body:settlement(),key:'{{run_id}}-foreign-settlement',status:404});
 add('06 Object authorization','Outsider cannot delete another pair settlement','DELETE','/api/settlements/{{idem_settlement_id}}',{role:'outsider',status:404});
 
@@ -169,7 +169,7 @@ for(const route of inventory) {
   for(const method of route.methods) {
     const stub=route.status==='stub';
     const parameters=route.path.includes('{id}')?[{name:'id',in:'path',required:true,schema:{type:'string'}}]:[];
-    const createOperation=method==='POST'&&['/api/expenses/create','/api/settlements'].includes(route.path);
+    const createOperation=method==='POST'&&['/api/expenses','/api/settlements'].includes(route.path);
     if(createOperation)parameters.push({name:'Idempotency-Key',in:'header',required:true,schema:{type:'string',minLength:1,maxLength:200}});
     const operation={operationId:(method+'_'+route.path).replace(/[^a-zA-Z0-9]/g,'_'),summary:stub?'Legacy stub returns 501':method+' '+route.path,description:stub?'Not implemented in this checkout. Included for inventory completeness.':'Contract derived from the project rules and shared validation schemas; failing regression tests document implementation gaps.',tags:[stub?'Legacy':route.path.split('/')[2]],security:stub?[]:[{sessionCookie:[]}],...(parameters.length?{parameters}:{}),responses:stub?{'501':{description:'Not implemented',content:{'application/json':{schema:{$ref:'#/components/schemas/Error'}}}}}:{[createOperation?'201':'200']:{description:'Success envelope',content:{'application/json':{schema:{type:'object',required:['data'],properties:{data:{}}}}}},'400':{description:'Invalid input',content:{'application/json':{schema:{$ref:'#/components/schemas/Error'}}}},'401':{description:'Unauthenticated'},'404':{description:'Not found or not visible'},'409':{description:'Version or idempotency conflict'},'422':{description:'Domain invariant violated'}}};
     if(!stub&&(createOperation||method==='PATCH'))operation.requestBody={required:true,content:{'application/json':{schema:{$ref:'#/components/schemas/'+(method==='PATCH'?'EditExpense':route.path==='/api/settlements'?'CreateSettlement':'CreateExpense')}}}};

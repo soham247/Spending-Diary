@@ -2,7 +2,7 @@
 "name": "Record placeholder expense"
 "order": 16000
 "method": "POST"
-"url": "{{base_url}}/api/expenses/create"
+"url": "{{base_url}}/api/expenses"
 "settings":
   "followRedirects": false
 "headers":

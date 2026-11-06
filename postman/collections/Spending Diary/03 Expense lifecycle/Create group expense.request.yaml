@@ -2,7 +2,7 @@
 "name": "Create group expense"
 "order": 14000
 "method": "POST"
-"url": "{{base_url}}/api/expenses/create"
+"url": "{{base_url}}/api/expenses"
 "settings":
   "followRedirects": false
 "headers":

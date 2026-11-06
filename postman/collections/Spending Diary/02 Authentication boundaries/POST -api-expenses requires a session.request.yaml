@@ -1,8 +1,8 @@
 "$kind": "http-request"
-"name": "POST /api/expenses/create requires a session"
+"name": "POST /api/expenses requires a session"
 "order": 2000
 "method": "POST"
-"url": "{{base_url}}/api/expenses/create"
+"url": "{{base_url}}/api/expenses"
 "settings":
   "followRedirects": false
 "headers":

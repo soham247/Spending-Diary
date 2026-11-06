@@ -10,12 +10,12 @@
   add(folder,'Join group through invitation','POST','/api/invites/claim',{role:'outsider',body:{token:'{{group_token}}'}});
   add(folder,'Joined member sees group','GET','/api/groups/{{new_group_id}}',{role:'outsider',code:"pm.test('Member role',()=>pm.expect(pm.response.json().data.viewerRole).to.eql('MEMBER'));"});
   add(folder,'Member cannot change group settings','PATCH','/api/groups/{{new_group_id}}',{role:'outsider',body:{name:'Forged'},status:404});
-  add(folder,'Create shared group expense','POST','/api/expenses/create',{body:expense({groupId:'{{new_group_id}}',amount:1000,participants:[{userId:'{{owner_id}}',paid:1000},{userId:'{{outsider_id}}',paid:0}]}),key:'{{run_id}}-v2expense',status:201,code:remember('v2_expense_id')});
+  add(folder,'Create shared group expense','POST','/api/expenses',{body:expense({groupId:'{{new_group_id}}',amount:1000,participants:[{userId:'{{owner_id}}',paid:1000},{userId:'{{outsider_id}}',paid:0}]}),key:'{{run_id}}-v2expense',status:201,code:remember('v2_expense_id')});
   add(folder,'Archive group','PATCH','/api/groups/{{new_group_id}}',{body:{archived:true}});
-  add(folder,'Archived group rejects expense','POST','/api/expenses/create',{body:expense({groupId:'{{new_group_id}}'}),key:'{{run_id}}-archived',status:403});
+  add(folder,'Archived group rejects expense','POST','/api/expenses',{body:expense({groupId:'{{new_group_id}}'}),key:'{{run_id}}-archived',status:403});
   add(folder,'Unarchive group','PATCH','/api/groups/{{new_group_id}}',{body:{archived:false}});
   add(folder,'Create placeholder','POST','/api/friends',{body:{name:'Placeholder {{run_id}}'},key:'{{run_id}}-placeholder',status:201,code:remember('placeholder_id')});
-  add(folder,'Record placeholder expense','POST','/api/expenses/create',{body:expense({amount:1200,participants:[{userId:'{{owner_id}}',paid:1200},{userId:'{{placeholder_id}}',paid:0}]}),key:'{{run_id}}-placeholder-expense',status:201});
+  add(folder,'Record placeholder expense','POST','/api/expenses',{body:expense({amount:1200,participants:[{userId:'{{owner_id}}',paid:1200},{userId:'{{placeholder_id}}',paid:0}]}),key:'{{run_id}}-placeholder-expense',status:201});
   add(folder,'Create direct invitation','POST','/api/invites',{body:{type:'DIRECT',placeholderId:'{{placeholder_id}}'},key:'{{run_id}}-directinvite',status:201,code:"pm.collectionVariables.set('direct_token',pm.response.json().data.token);pm.collectionVariables.set('direct_invite_id',pm.response.json().data.id);"});
   add(folder,'Preview direct debt','GET','/api/invites/preview?token={{direct_token}}',{role:'anon',code:"pm.test('Placeholder owes 600',()=>pm.expect(pm.response.json().data.balances[0].net).to.eql(-600));"});
   add(folder,'Claim placeholder history','POST','/api/invites/claim',{role:'outsider',body:{token:'{{direct_token}}'}});
@@ -32,7 +32,7 @@
   add(folder,'Payment history has bounded integer amounts','GET','/api/settlements',{code:"pm.test('Bounded payment page',()=>{const d=pm.response.json().data;pm.expect(d.items.length).to.be.at.most(30);d.items.forEach(p=>pm.expect(Number.isSafeInteger(p.amount)).to.eql(true));});"});
   add(folder,'Maintenance needs authorization','GET','/api/cron/maintenance',{role:'anon',status:401});
   const payerOnly = expense({ amount: 9000, participants: [{ userId:'{{owner_id}}',paid:9000,includedInSplit:false },{ userId:'{{friend_id}}',paid:0 },{ userId:'{{outsider_id}}',paid:0 }] });
-  add(folder,'Payer can be outside an equal split','POST','/api/expenses/create',{body:payerOnly,key:'{{run_id}}-payeronly',status:201,code:remember('payer_only_id')});
+  add(folder,'Payer can be outside an equal split','POST','/api/expenses',{body:payerOnly,key:'{{run_id}}-payeronly',status:201,code:remember('payer_only_id')});
   const payerOnlyCheck = "pm.test('Payer owes zero and both consumers owe 4500',()=>{const e=pm.response.json().data;const payer=e.participants.find(p=>p.userId===pm.environment.get('owner_id'));pm.expect(payer.paid).to.eql(9000);pm.expect(payer.owed).to.eql(0);pm.expect(payer.includedInSplit).to.eql(false);pm.expect(e.participants.filter(p=>p.userId!==payer.userId).map(p=>p.owed)).to.eql([4500,4500]);});";
   add(folder,'Read payer-only allocation','GET','/api/expenses/{{payer_only_id}}',{code:payerOnlyCheck});
   add(folder,'Edit payer-only expense description','PATCH','/api/expenses/{{payer_only_id}}',{body:{version:1,description:'Payer-only edited'}});

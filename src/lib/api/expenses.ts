@@ -17,7 +17,7 @@ export function apiListExpenses(input: ExpenseListInput = {}) {
 }
 export const apiGetExpense = (id: string) => fetch("/api/expenses/" + encodeURIComponent(id)).then(responseData<ExpenseDetail>);
 export const apiCreateExpense = (input: CreateExpenseInput, idempotencyKey: string) =>
-  fetch("/api/expenses/create", { method: "POST", headers: { "Content-Type": "application/json", "Idempotency-Key": idempotencyKey }, body: JSON.stringify(input) }).then(responseData<{ id: string }>);
+  fetch("/api/expenses", { method: "POST", headers: { "Content-Type": "application/json", "Idempotency-Key": idempotencyKey }, body: JSON.stringify(input) }).then(responseData<{ id: string }>);
 export const apiEditExpense = (id: string, input: EditExpenseInput) =>
   fetch("/api/expenses/" + encodeURIComponent(id), { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(input) }).then(responseData<{ id: string }>);
 export const apiDeleteExpense = (id: string) => fetch("/api/expenses/" + encodeURIComponent(id), { method: "DELETE" }).then(responseData<{ id: string }>);

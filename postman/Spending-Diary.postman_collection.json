@@ -310,10 +310,10 @@
           ]
         },
         {
-          "name": "POST /api/expenses/create requires a session",
+          "name": "POST /api/expenses requires a session",
           "request": {
             "method": "POST",
-            "url": "{{base_url}}/api/expenses/create",
+            "url": "{{base_url}}/api/expenses",
             "header": [
               {
                 "key": "Cookie",
@@ -710,7 +710,7 @@
           "name": "Create equal split with remainder",
           "request": {
             "method": "POST",
-            "url": "{{base_url}}/api/expenses/create",
+            "url": "{{base_url}}/api/expenses",
             "header": [
               {
                 "key": "Cookie",
@@ -796,7 +796,7 @@
           "name": "Create EXACT split",
           "request": {
             "method": "POST",
-            "url": "{{base_url}}/api/expenses/create",
+            "url": "{{base_url}}/api/expenses",
             "header": [
               {
                 "key": "Cookie",
@@ -881,7 +881,7 @@
           "name": "Create PERCENTAGE split",
           "request": {
             "method": "POST",
-            "url": "{{base_url}}/api/expenses/create",
+            "url": "{{base_url}}/api/expenses",
             "header": [
               {
                 "key": "Cookie",
@@ -966,7 +966,7 @@
           "name": "Create SHARES split",
           "request": {
             "method": "POST",
-            "url": "{{base_url}}/api/expenses/create",
+            "url": "{{base_url}}/api/expenses",
             "header": [
               {
                 "key": "Cookie",
@@ -1051,7 +1051,7 @@
           "name": "Create multiple payer expense",
           "request": {
             "method": "POST",
-            "url": "{{base_url}}/api/expenses/create",
+            "url": "{{base_url}}/api/expenses",
             "header": [
               {
                 "key": "Cookie",
@@ -1136,7 +1136,7 @@
           "name": "Create personal expense",
           "request": {
             "method": "POST",
-            "url": "{{base_url}}/api/expenses/create",
+            "url": "{{base_url}}/api/expenses",
             "header": [
               {
                 "key": "Cookie",
@@ -1187,7 +1187,7 @@
           "name": "Create group expense",
           "request": {
             "method": "POST",
-            "url": "{{base_url}}/api/expenses/create",
+            "url": "{{base_url}}/api/expenses",
             "header": [
               {
                 "key": "Cookie",
@@ -1508,7 +1508,7 @@
           "name": "Reject fractional amount",
           "request": {
             "method": "POST",
-            "url": "{{base_url}}/api/expenses/create",
+            "url": "{{base_url}}/api/expenses",
             "header": [
               {
                 "key": "Cookie",
@@ -1559,7 +1559,7 @@
           "name": "Reject zero amount",
           "request": {
             "method": "POST",
-            "url": "{{base_url}}/api/expenses/create",
+            "url": "{{base_url}}/api/expenses",
             "header": [
               {
                 "key": "Cookie",
@@ -1610,7 +1610,7 @@
           "name": "Reject negative amount",
           "request": {
             "method": "POST",
-            "url": "{{base_url}}/api/expenses/create",
+            "url": "{{base_url}}/api/expenses",
             "header": [
               {
                 "key": "Cookie",
@@ -1661,7 +1661,7 @@
           "name": "Reject missing description",
           "request": {
             "method": "POST",
-            "url": "{{base_url}}/api/expenses/create",
+            "url": "{{base_url}}/api/expenses",
             "header": [
               {
                 "key": "Cookie",
@@ -1712,7 +1712,7 @@
           "name": "Reject empty participants",
           "request": {
             "method": "POST",
-            "url": "{{base_url}}/api/expenses/create",
+            "url": "{{base_url}}/api/expenses",
             "header": [
               {
                 "key": "Cookie",
@@ -1763,7 +1763,7 @@
           "name": "Reject invalid split type",
           "request": {
             "method": "POST",
-            "url": "{{base_url}}/api/expenses/create",
+            "url": "{{base_url}}/api/expenses",
             "header": [
               {
                 "key": "Cookie",
@@ -1814,7 +1814,7 @@
           "name": "Reject negative payer",
           "request": {
             "method": "POST",
-            "url": "{{base_url}}/api/expenses/create",
+            "url": "{{base_url}}/api/expenses",
             "header": [
               {
                 "key": "Cookie",
@@ -1865,7 +1865,7 @@
           "name": "Reject invalid calendar date",
           "request": {
             "method": "POST",
-            "url": "{{base_url}}/api/expenses/create",
+            "url": "{{base_url}}/api/expenses",
             "header": [
               {
                 "key": "Cookie",
@@ -1916,7 +1916,7 @@
           "name": "Reject integer overflow",
           "request": {
             "method": "POST",
-            "url": "{{base_url}}/api/expenses/create",
+            "url": "{{base_url}}/api/expenses",
             "header": [
               {
                 "key": "Cookie",
@@ -1967,7 +1967,7 @@
           "name": "Reject duplicate participants",
           "request": {
             "method": "POST",
-            "url": "{{base_url}}/api/expenses/create",
+            "url": "{{base_url}}/api/expenses",
             "header": [
               {
                 "key": "Cookie",
@@ -2018,7 +2018,7 @@
           "name": "Reject unknown currency",
           "request": {
             "method": "POST",
-            "url": "{{base_url}}/api/expenses/create",
+            "url": "{{base_url}}/api/expenses",
             "header": [
               {
                 "key": "Cookie",
@@ -2069,7 +2069,7 @@
           "name": "Reject malformed JSON",
           "request": {
             "method": "POST",
-            "url": "{{base_url}}/api/expenses/create",
+            "url": "{{base_url}}/api/expenses",
             "header": [
               {
                 "key": "Cookie",
@@ -2120,7 +2120,7 @@
           "name": "Missing expense idempotency key",
           "request": {
             "method": "POST",
-            "url": "{{base_url}}/api/expenses/create",
+            "url": "{{base_url}}/api/expenses",
             "header": [
               {
                 "key": "Cookie",
@@ -2214,7 +2214,7 @@
           "name": "Unbalanced payments rejected",
           "request": {
             "method": "POST",
-            "url": "{{base_url}}/api/expenses/create",
+            "url": "{{base_url}}/api/expenses",
             "header": [
               {
                 "key": "Cookie",
@@ -2368,7 +2368,7 @@
           "name": "Create idempotent expense",
           "request": {
             "method": "POST",
-            "url": "{{base_url}}/api/expenses/create",
+            "url": "{{base_url}}/api/expenses",
             "header": [
               {
                 "key": "Cookie",
@@ -2419,7 +2419,7 @@
           "name": "Replay same expense key returns same ID",
           "request": {
             "method": "POST",
-            "url": "{{base_url}}/api/expenses/create",
+            "url": "{{base_url}}/api/expenses",
             "header": [
               {
                 "key": "Cookie",
@@ -2470,7 +2470,7 @@
           "name": "Same expense key with changed body conflicts",
           "request": {
             "method": "POST",
-            "url": "{{base_url}}/api/expenses/create",
+            "url": "{{base_url}}/api/expenses",
             "header": [
               {
                 "key": "Cookie",
@@ -2679,7 +2679,7 @@
           "name": "Create private expense for authorization checks",
           "request": {
             "method": "POST",
-            "url": "{{base_url}}/api/expenses/create",
+            "url": "{{base_url}}/api/expenses",
             "header": [
               {
                 "key": "Cookie",
@@ -2845,7 +2845,7 @@
           "name": "Create separate restore authorization target",
           "request": {
             "method": "POST",
-            "url": "{{base_url}}/api/expenses/create",
+            "url": "{{base_url}}/api/expenses",
             "header": [
               {
                 "key": "Cookie",
@@ -2998,7 +2998,7 @@
           "name": "Outsider cannot create expense in another group",
           "request": {
             "method": "POST",
-            "url": "{{base_url}}/api/expenses/create",
+            "url": "{{base_url}}/api/expenses",
             "header": [
               {
                 "key": "Cookie",
@@ -3049,7 +3049,7 @@
           "name": "Outsider cannot assign expense to unrelated people",
           "request": {
             "method": "POST",
-            "url": "{{base_url}}/api/expenses/create",
+            "url": "{{base_url}}/api/expenses",
             "header": [
               {
                 "key": "Cookie",
@@ -3190,7 +3190,7 @@
           "name": "Create isolated group debt",
           "request": {
             "method": "POST",
-            "url": "{{base_url}}/api/expenses/create",
+            "url": "{{base_url}}/api/expenses",
             "header": [
               {
                 "key": "Cookie",
@@ -3467,7 +3467,7 @@
           "name": "Create currency edit target",
           "request": {
             "method": "POST",
-            "url": "{{base_url}}/api/expenses/create",
+            "url": "{{base_url}}/api/expenses",
             "header": [
               {
                 "key": "Cookie",
@@ -3638,7 +3638,7 @@
           "name": "Create concurrency target",
           "request": {
             "method": "POST",
-            "url": "{{base_url}}/api/expenses/create",
+            "url": "{{base_url}}/api/expenses",
             "header": [
               {
                 "key": "Cookie",
@@ -4614,7 +4614,7 @@
           "name": "Create shared group expense",
           "request": {
             "method": "POST",
-            "url": "{{base_url}}/api/expenses/create",
+            "url": "{{base_url}}/api/expenses",
             "header": [
               {
                 "key": "Cookie",
@@ -4712,7 +4712,7 @@
           "name": "Archived group rejects expense",
           "request": {
             "method": "POST",
-            "url": "{{base_url}}/api/expenses/create",
+            "url": "{{base_url}}/api/expenses",
             "header": [
               {
                 "key": "Cookie",
@@ -4861,7 +4861,7 @@
           "name": "Record placeholder expense",
           "request": {
             "method": "POST",
-            "url": "{{base_url}}/api/expenses/create",
+            "url": "{{base_url}}/api/expenses",
             "header": [
               {
                 "key": "Cookie",
@@ -5525,7 +5525,7 @@
           "name": "Payer can be outside an equal split",
           "request": {
             "method": "POST",
-            "url": "{{base_url}}/api/expenses/create",
+            "url": "{{base_url}}/api/expenses",
             "header": [
               {
                 "key": "Cookie",

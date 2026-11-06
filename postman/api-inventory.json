@@ -38,18 +38,11 @@
     "status": "implemented"
   },
   {
-    "file": "src/app/api/expenses/create/route.ts",
-    "path": "/api/expenses/create",
-    "methods": [
-      "POST"
-    ],
-    "status": "implemented"
-  },
-  {
     "file": "src/app/api/expenses/route.ts",
     "path": "/api/expenses",
     "methods": [
-      "GET"
+      "GET",
+      "POST"
     ],
     "status": "implemented"
   },

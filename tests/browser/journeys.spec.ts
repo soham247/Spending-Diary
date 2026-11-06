@@ -20,10 +20,19 @@ test("unauthenticated app pages redirect to sign-in", async ({ page }) => {
   await expect(page.getByRole("button",{ name: /Continue with Google/ })).toBeVisible();
 });
 
+test("retired pages and the expense creation URL are no longer served", async ({ request }) => {
+  for (const path of ["/expense", "/analytics", "/profile", "/pricing"]) {
+    const response = await request.get(path, { maxRedirects: 0 });
+    expect(response.status()).toBe(404);
+  }
+  const response = await request.post("/api/expenses/create", { data: {} });
+  expect(response.status()).toBe(405);
+});
+
 test("my spending defaults to month-to-date and supports date filters on mobile", async ({ page, context }) => {
   await login(context); await completeProfile(context.request);
   const description = "Spending date filter " + Date.now();
-  const response = await context.request.post("/api/expenses/create", { data: { ...expense(description), date: "2025-02-14" }, headers: { "Idempotency-Key": crypto.randomUUID() } });
+  const response = await context.request.post("/api/expenses", { data: { ...expense(description), date: "2025-02-14" }, headers: { "Idempotency-Key": crypto.randomUUID() } });
   expect(response.ok()).toBe(true);
   await page.goto("/expenses");
   await expect(page.getByRole("button", { name: "My spending", exact: true })).toHaveAttribute("aria-pressed", "true");
@@ -74,7 +83,7 @@ test("personal expense create, edit, delete and undo work on mobile", async ({ p
 });
 test("an edit conflict preserves the draft until latest is loaded", async ({ page,context }) => {
   await login(context); await completeProfile(context.request);
-  const response = await context.request.post("/api/expenses/create",{ data: expense("Browser conflict"),headers: { "Idempotency-Key": crypto.randomUUID() } });
+  const response = await context.request.post("/api/expenses",{ data: expense("Browser conflict"),headers: { "Idempotency-Key": crypto.randomUUID() } });
   const { data } = await response.json() as { data: { id: string } };
   await page.goto("/expenses/"+data.id+"/edit");
   await page.getByLabel("What was it for?").fill("Unsaved browser draft");
@@ -89,7 +98,7 @@ test("a signed-in invite claim brings placeholder history into the browser", asy
   await login(context);
   const response = await context.request.post("/api/friends",{ data: { name: "Browser placeholder" },headers: { "Idempotency-Key": crypto.randomUUID() } });
   const placeholder = (await response.json()).data.id as string;
-  expect((await context.request.post("/api/expenses/create",{ data: { ...expense("Browser placeholder history"),participants: [{ userId: values.owner_id,paid: 12345 },{ userId: placeholder,paid: 0 }] },headers: { "Idempotency-Key": crypto.randomUUID() } })).ok()).toBe(true);
+  expect((await context.request.post("/api/expenses",{ data: { ...expense("Browser placeholder history"),participants: [{ userId: values.owner_id,paid: 12345 },{ userId: placeholder,paid: 0 }] },headers: { "Idempotency-Key": crypto.randomUUID() } })).ok()).toBe(true);
   const invitation = await context.request.post("/api/invites",{ data: { type: "DIRECT",placeholderId: placeholder },headers: { "Idempotency-Key": crypto.randomUUID() } });
   const token = (await invitation.json()).data.token as string;
   const other = await browser.newContext({ baseURL: base }); await login(other,"friend"); await completeProfile(other.request);
@@ -199,7 +208,7 @@ test("home shows net balances beside people and groups", async ({ page, context 
   for (const input of [
     { ...expense("Home direct debt"), amount: 9000, participants: [{ userId: values.owner_id, paid: 9000 }, { userId: friendId, paid: 0 }] },
     { ...expense("Home group debt"), groupId, amount: 3000, participants: [{ userId: values.owner_id, paid: 0 }, { userId: friendId, paid: 3000 }] },
-  ]) expect((await context.request.post("/api/expenses/create", { data: input, headers: { "Idempotency-Key": crypto.randomUUID() } })).ok()).toBe(true);
+  ]) expect((await context.request.post("/api/expenses", { data: input, headers: { "Idempotency-Key": crypto.randomUUID() } })).ok()).toBe(true);
   await page.goto("/home");
   const personRow = page.getByRole("link").filter({ hasText: personName });
   await expect(personRow.getByText("Owed to you", { exact: true })).toBeVisible();
@@ -252,7 +261,7 @@ test("settlements need explicit UPI confirmation and cash records only the remai
   const group=(await (await owner.request.post("/api/groups",{ data: { name: "Browser settlement" },headers: { "Idempotency-Key": crypto.randomUUID() } })).json()).data.id as string;
   const token=(await (await owner.request.post("/api/invites",{ data: { type: "GROUP_LINK",groupId: group },headers: { "Idempotency-Key": crypto.randomUUID() } })).json()).data.token as string;
   expect((await friend.request.post("/api/invites/claim",{ data: { token } })).ok()).toBe(true);
-  expect((await owner.request.post("/api/expenses/create",{ data: { ...expense("Browser settlement debt"),groupId: group,amount: 10000,participants: [{ userId: values.owner_id,paid: 10000 },{ userId: values.friend_id,paid: 0 }] },headers: { "Idempotency-Key": crypto.randomUUID() } })).ok()).toBe(true);
+  expect((await owner.request.post("/api/expenses",{ data: { ...expense("Browser settlement debt"),groupId: group,amount: 10000,participants: [{ userId: values.owner_id,paid: 10000 },{ userId: values.friend_id,paid: 0 }] },headers: { "Idempotency-Key": crypto.randomUUID() } })).ok()).toBe(true);
   async function debt() {
     const rows=(await (await friend.request.get("/api/balances")).json()).data as { scopeId: string; amount: number }[];
     return Math.abs(rows.find(row=>row.scopeId===group)?.amount ?? 0);
@@ -331,7 +340,7 @@ test("removed members can repay without overpaying and delete or undo after reac
   const group = (await (await owner.request.post("/api/groups", { data: { name: "Former member payment" }, headers: { "Idempotency-Key": crypto.randomUUID() } })).json()).data.id as string;
   const token = (await (await owner.request.post("/api/invites", { data: { type: "GROUP_LINK", groupId: group }, headers: { "Idempotency-Key": crypto.randomUUID() } })).json()).data.token as string;
   expect((await friend.request.post("/api/invites/claim", { data: { token } })).ok()).toBe(true);
-  expect((await owner.request.post("/api/expenses/create", { data: { ...expense("Former debt"), groupId: group, amount: 10000, participants: [{ userId: values.owner_id, paid: 10000 }, { userId: values.friend_id, paid: 0 }] }, headers: { "Idempotency-Key": crypto.randomUUID() } })).ok()).toBe(true);
+  expect((await owner.request.post("/api/expenses", { data: { ...expense("Former debt"), groupId: group, amount: 10000, participants: [{ userId: values.owner_id, paid: 10000 }, { userId: values.friend_id, paid: 0 }] }, headers: { "Idempotency-Key": crypto.randomUUID() } })).ok()).toBe(true);
   expect((await owner.request.post("/api/groups/" + group + "/members", { data: { action: "REMOVE", userId: values.friend_id, confirmOutstandingBalance: true } })).ok()).toBe(true);
   const page = await friend.newPage(); await page.goto("/groups/" + group);
   await expect(page.getByRole("link", { name: "Add expense", exact: true })).toHaveCount(0);

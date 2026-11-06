@@ -192,60 +192,6 @@
           "description": "Version or idempotency conflict"
         "422":
           "description": "Domain invariant violated"
-  "/api/expenses/create":
-    "post":
-      "operationId": "POST__api_expenses_create"
-      "summary": "POST /api/expenses/create"
-      "description": "Contract derived from the project rules and shared validation schemas; failing regression tests document implementation gaps."
-      "tags":
-        -
-          "expenses"
-      "security":
-        -
-          "sessionCookie":
-            []
-      "parameters":
-        -
-          "name": "Idempotency-Key"
-          "in": "header"
-          "required": true
-          "schema":
-            "type": "string"
-            "minLength": 1
-            "maxLength": 200
-      "responses":
-        "201":
-          "description": "Success envelope"
-          "content":
-            "application/json":
-              "schema":
-                "type": "object"
-                "required":
-                  -
-                    "data"
-                "properties":
-                  "data":
-                    {}
-        "400":
-          "description": "Invalid input"
-          "content":
-            "application/json":
-              "schema":
-                "$ref": "#/components/schemas/Error"
-        "401":
-          "description": "Unauthenticated"
-        "404":
-          "description": "Not found or not visible"
-        "409":
-          "description": "Version or idempotency conflict"
-        "422":
-          "description": "Domain invariant violated"
-      "requestBody":
-        "required": true
-        "content":
-          "application/json":
-            "schema":
-              "$ref": "#/components/schemas/CreateExpense"
   "/api/expenses":
     "get":
       "operationId": "listExpenses"
@@ -378,6 +324,59 @@
           "schema":
             "type": "string"
             "format": "date"
+    "post":
+      "operationId": "POST__api_expenses"
+      "summary": "POST /api/expenses"
+      "description": "Contract derived from the project rules and shared validation schemas; failing regression tests document implementation gaps."
+      "tags":
+        -
+          "expenses"
+      "security":
+        -
+          "sessionCookie":
+            []
+      "parameters":
+        -
+          "name": "Idempotency-Key"
+          "in": "header"
+          "required": true
+          "schema":
+            "type": "string"
+            "minLength": 1
+            "maxLength": 200
+      "responses":
+        "201":
+          "description": "Success envelope"
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "required":
+                  -
+                    "data"
+                "properties":
+                  "data":
+                    {}
+        "400":
+          "description": "Invalid input"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/Error"
+        "401":
+          "description": "Unauthenticated"
+        "404":
+          "description": "Not found or not visible"
+        "409":
+          "description": "Version or idempotency conflict"
+        "422":
+          "description": "Domain invariant violated"
+      "requestBody":
+        "required": true
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "#/components/schemas/CreateExpense"
   "/api/expenses/{id}/restore":
     "post":
       "operationId": "POST__api_expenses__id__restore"
