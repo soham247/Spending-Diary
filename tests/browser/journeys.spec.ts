@@ -52,6 +52,22 @@ test("my spending defaults to month-to-date and supports date filters on mobile"
   await page.getByRole("button", { name: "This month", exact: true }).click();
   await expect(page.getByRole("heading", { name: "You spent this month" })).toBeVisible();
 });
+test("insights renders the upgraded spending chart on mobile", async ({ page, context }) => {
+  await login(context);
+  await completeProfile(context.request);
+  const response = await context.request.post("/api/expenses", {
+    data: { ...expense("Browser chart compatibility"), date: "2025-03-12" },
+    headers: { "Idempotency-Key": crypto.randomUUID() },
+  });
+  expect(response.ok()).toBe(true);
+  await page.goto("/insights");
+  await page.getByLabel("Month", { exact: true }).fill("2025-03");
+  await expect(page.getByText(/You spent/)).toContainText("123.45");
+  await expect(page.locator(".recharts-pie-sector").first()).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  await page.screenshot({ path: ".postman/local/dependencies-insights-mobile.png", fullPage: true });
+});
+
 test("onboarding saves name and optional UPI ID", async ({ page,context }) => {
   await login(context,"friend");
   await page.goto("/home");

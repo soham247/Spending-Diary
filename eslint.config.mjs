@@ -1,12 +1,11 @@
-import { dirname } from "node:path";
-import { fileURLToPath } from "node:url";
-import { FlatCompat } from "@eslint/eslintrc";
+import nextVitals from "eslint-config-next/core-web-vitals";
+import nextTypescript from "eslint-config-next/typescript";
 
-const compat = new FlatCompat({ baseDirectory: dirname(fileURLToPath(import.meta.url)) });
 const databaseImports = [{ group: ["drizzle-orm", "drizzle-orm/*", "pg", "@/lib/db/*"], message: "Use domain services or lib/api server query wrappers." }];
 const config = [
   { ignores: [".next/**", ".postman/**", "postman/results/**", "next-env.d.ts"] },
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
+  ...nextVitals,
+  ...nextTypescript,
   {
     files: ["src/app/**/*.{ts,tsx}", "src/components/**/*.{ts,tsx}"],
     rules: { "no-restricted-imports": ["error", { patterns: databaseImports }] },

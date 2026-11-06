@@ -8,6 +8,8 @@ The application supports personal and shared expenses, four split modes, multipl
 
 Use Node 24, npm and PostgreSQL. Copy .env.example to .env and configure the pooled DATABASE_URL, direct DIRECT_URL, Better Auth secret, application URL and SMTP. Google OAuth and Web Push require their corresponding settings.
 
+Dependency updates use stable npm releases with compatible peer requirements. TypeScript stays on 6.0.x while the ESLint parser requires versions below 6.1; ESLint stays on 9.x while its React/import plugins exclude 10. Node typings match the Node 24 runtime. Next.js 16 uses src/proxy.ts for request redirects; authorization remains in session/domain guards.
+
 Install dependencies with npm ci. Apply reviewed migrations with npm run db:migrate through DIRECT_URL, then start npm run dev. Test migrations on a disposable database first. Never reset shared application data or use drizzle-kit push against a shared database.
 
 ## Checks

@@ -1,5 +1,5 @@
 ﻿import "server-only";
-import webpush from "web-push";
+import * as webpush from "web-push";
 import { and, eq, isNull, ne, gt } from "drizzle-orm";
 import { db } from "@/lib/db/client";
 import { activityRecipients, activities, users, pushSubscriptions } from "@/lib/db/schema";
