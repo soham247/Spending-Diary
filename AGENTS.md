@@ -218,7 +218,7 @@ End with a short summary:
 drizzle.config.ts            Drizzle Kit config (uses DIRECT_URL for migrations)
 drizzle/                     generated SQL migrations + custom trigger migrations
 src/
-  middleware.ts              redirects only; real authorization is in guards
+  proxy.ts                   redirects only; real authorization is in guards
   app/
     (auth)/
       login/                 sign in and create account, Google + email/password
@@ -285,7 +285,7 @@ shadcn's CLI writes to `@/components` and `@/lib/utils` by default — confirm
 
 Routes reachable without a session: `/login`, `/verify-email`,
 `/forgot-password`, `/reset-password`, `/j/[token]`, `/api/auth/*`, static
-assets, and the push service worker. Keep the middleware matcher in sync.
+assets, and the push service worker. Keep the proxy matcher in sync.
 
 ## Conventions
 

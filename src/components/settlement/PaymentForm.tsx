@@ -48,7 +48,7 @@ export function PaymentForm({ viewerId, other, net, scopeId, scopes, onRecorded 
   function launchUpi() {
     if (!draft || !person?.upiId || !values.viewerPays || scope?.currency !== "INR") return;
     setAwaitingUpi(true); setReturned(false);
-    window.location.href = upiLink(person.upiId, person.name, draft.input.amount);
+    window.location.assign(upiLink(person.upiId, person.name, draft.input.amount));
   }
   function submit(action: "record" | "upi") {
     if (!draft) return;

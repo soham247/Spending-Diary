@@ -5,7 +5,7 @@ import { safeRedirect } from "@/lib/utils/url";
 const SESSION_COOKIE = "better-auth.session_token";
 const SECURE_SESSION_COOKIE = "__Secure-better-auth.session_token";
 
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
   const { pathname, search } = req.nextUrl;
 
   const hasSession =

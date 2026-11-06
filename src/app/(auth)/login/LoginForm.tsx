@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Chrome } from "lucide-react";
+import { LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -97,7 +97,7 @@ export default function LoginForm({ callbackUrl, inviteToken }: Props) {
             onClick={handleGoogleSignIn}
             disabled={loading}
           >
-            <Chrome size={16} strokeWidth={1.75} />
+            <LogIn size={16} strokeWidth={1.75} />
             Continue with Google
           </Button>
 
@@ -169,7 +169,7 @@ export default function LoginForm({ callbackUrl, inviteToken }: Props) {
             onClick={handleGoogleSignIn}
             disabled={loading}
           >
-            <Chrome size={16} strokeWidth={1.75} />
+            <LogIn size={16} strokeWidth={1.75} />
             Continue with Google
           </Button>
 

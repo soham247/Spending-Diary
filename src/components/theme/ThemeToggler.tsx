@@ -3,15 +3,15 @@
 import { Moon, Sun } from "lucide-react"
 import { useTheme } from "next-themes"
 import { Button } from "@/components/ui/button"
-import { useEffect, useState } from "react"
+import { useSyncExternalStore } from "react"
+
+const subscribe = () => () => {}
+const clientSnapshot = () => true
+const serverSnapshot = () => false
 
 export function ModeToggle() {
   const { setTheme, theme } = useTheme()
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
+  const mounted = useSyncExternalStore(subscribe, clientSnapshot, serverSnapshot)
 
   if (!mounted) {
     return (
