@@ -1,0 +1,674 @@
+Running your collection...
+postman
+
+Spending Diary
+
+Folder 01 Authentication
+Sub-folder Anonymous session is empty
+
+  GET http://127.0.0.1:3100/api/auth/get-session [200 OK, 297 B, 296 ms]
+  Pass  HTTP 200
+  Pass  No session disclosed
+
+Sub-folder Owner session resolves
+
+  GET http://127.0.0.1:3100/api/auth/get-session [200 OK, 945 B, 35 ms]
+  Pass  HTTP 200
+  Pass  Session belongs to owner
+
+Sub-folder Malformed sign-in rejected
+
+  POST http://127.0.0.1:3100/api/auth/sign-in/email [400 400, 357 B, 32 ms]
+  Pass  HTTP 400
+
+Sub-folder Placeholder signup rejected
+
+  POST http://127.0.0.1:3100/api/auth/sign-up/email [400 BAD_REQUEST, 307 B, 127 ms]
+  Pass  HTTP 400
+
+Sub-folder Untrusted signup origin rejected
+
+  POST http://127.0.0.1:3100/api/auth/sign-up/email [403 FORBIDDEN, 309 B, 35 ms]
+  Pass  HTTP 403
+
+Folder 02 Authentication boundaries
+Sub-folder GET /api/balances requires a session
+
+  GET http://127.0.0.1:3100/api/balances [401 Unauthorized, 329 B, 816 ms]
+  Pass  HTTP 401
+  Pass  JSON response envelope
+
+Sub-folder POST /api/expenses/create requires a session
+
+  POST http://127.0.0.1:3100/api/expenses/create [401 Unauthorized, 329 B, 566 ms]
+  Pass  HTTP 401
+  Pass  JSON response envelope
+
+Sub-folder GET /api/expenses/pm-nonexistent requires a session
+
+  GET http://127.0.0.1:3100/api/expenses/pm-nonexistent [401 Unauthorized, 329 B, 1609 ms]
+  Pass  HTTP 401
+  Pass  JSON response envelope
+
+Sub-folder PATCH /api/expenses/pm-nonexistent requires a session
+
+  PATCH http://127.0.0.1:3100/api/expenses/pm-nonexistent [401 Unauthorized, 329 B, 294 ms]
+  Pass  HTTP 401
+  Pass  JSON response envelope
+
+Sub-folder DELETE /api/expenses/pm-nonexistent requires a session
+
+  DELETE http://127.0.0.1:3100/api/expenses/pm-nonexistent [401 Unauthorized, 329 B, 23 ms]
+  Pass  HTTP 401
+  Pass  JSON response envelope
+
+Sub-folder POST /api/expenses/pm-nonexistent/restore requires a session
+
+  POST http://127.0.0.1:3100/api/expenses/pm-nonexistent/restore [401 Unauthorized, 329 B, 1653 ms]
+  Pass  HTTP 401
+  Pass  JSON response envelope
+
+Sub-folder POST /api/settlements requires a session
+
+  POST http://127.0.0.1:3100/api/settlements [401 Unauthorized, 329 B, 521 ms]
+  Pass  HTTP 401
+  Pass  JSON response envelope
+
+Sub-folder DELETE /api/settlements/pm-nonexistent requires a session
+
+  DELETE http://127.0.0.1:3100/api/settlements/pm-nonexistent [401 Unauthorized, 329 B, 1587 ms]
+  Pass  HTTP 401
+  Pass  JSON response envelope
+
+Folder 03 Expense lifecycle
+Sub-folder Initial balances
+
+  GET http://127.0.0.1:3100/api/balances [200 OK, 261 B, 49 ms]
+  Pass  HTTP 200
+  Pass  JSON response envelope
+
+Sub-folder Create equal split with remainder
+
+  POST http://127.0.0.1:3100/api/expenses/create [201 Created, 297 B, 78 ms]
+  Pass  HTTP 201
+  Pass  JSON response envelope
+  Pass  Created resource ID
+
+Sub-folder Read equal split
+
+  GET http://127.0.0.1:3100/api/expenses/w0bj01l33sczucyu9me3hb3q [200 OK, 948 B, 305 ms]
+  Pass  HTTP 200
+  Pass  JSON response envelope
+  Pass  Integer money and balanced participants
+  Pass  Largest remainder stays within one paisa
+
+Sub-folder Create EXACT split
+
+  POST http://127.0.0.1:3100/api/expenses/create [201 Created, 297 B, 48 ms]
+  Pass  HTTP 201
+  Pass  JSON response envelope
+  Pass  Created resource ID
+
+Sub-folder Read EXACT split totals
+
+  GET http://127.0.0.1:3100/api/expenses/vox9a81v4eoob7ycyffwu22j [200 OK, 948 B, 29 ms]
+  Pass  HTTP 200
+  Pass  JSON response envelope
+  Pass  Integer money and balanced participants
+
+Sub-folder Create PERCENTAGE split
+
+  POST http://127.0.0.1:3100/api/expenses/create [201 Created, 297 B, 51 ms]
+  Pass  HTTP 201
+  Pass  JSON response envelope
+  Pass  Created resource ID
+
+Sub-folder Read PERCENTAGE split totals
+
+  GET http://127.0.0.1:3100/api/expenses/tqtokqh615n67fl847at5yay [200 OK, 968 B, 29 ms]
+  Pass  HTTP 200
+  Pass  JSON response envelope
+  Pass  Integer money and balanced participants
+
+Sub-folder Create SHARES split
+
+  POST http://127.0.0.1:3100/api/expenses/create [201 Created, 297 B, 45 ms]
+  Pass  HTTP 201
+  Pass  JSON response envelope
+  Pass  Created resource ID
+
+Sub-folder Read SHARES split totals
+
+  GET http://127.0.0.1:3100/api/expenses/qky92uk089z0ozm9oecv8nje [200 OK, 958 B, 34 ms]
+  Pass  HTTP 200
+  Pass  JSON response envelope
+  Pass  Integer money and balanced participants
+
+Sub-folder Create multiple payer expense
+
+  POST http://127.0.0.1:3100/api/expenses/create [201 Created, 297 B, 52 ms]
+  Pass  HTTP 201
+  Pass  JSON response envelope
+  Pass  Created resource ID
+
+Sub-folder Read multiple payer totals
+
+  GET http://127.0.0.1:3100/api/expenses/n321ul81d4i0kdnkvlkym5vc [200 OK, 950 B, 33 ms]
+  Pass  HTTP 200
+  Pass  JSON response envelope
+  Pass  Integer money and balanced participants
+
+Sub-folder Create personal expense
+
+  POST http://127.0.0.1:3100/api/expenses/create [201 Created, 297 B, 48 ms]
+  Pass  HTTP 201
+  Pass  JSON response envelope
+  Pass  Created resource ID
+
+Sub-folder Create group expense
+
+  POST http://127.0.0.1:3100/api/expenses/create [201 Created, 297 B, 59 ms]
+  Pass  HTTP 201
+  Pass  JSON response envelope
+  Pass  Created resource ID
+
+Sub-folder Edit metadata with version
+
+  PATCH http://127.0.0.1:3100/api/expenses/w0bj01l33sczucyu9me3hb3q [200 OK, 292 B, 69 ms]
+  Pass  HTTP 200
+  Pass  JSON response envelope
+
+Sub-folder Version increments after edit
+
+  GET http://127.0.0.1:3100/api/expenses/w0bj01l33sczucyu9me3hb3q [200 OK, 928 B, 35 ms]
+  Pass  HTTP 200
+  Pass  JSON response envelope
+  Pass  Integer money and balanced participants
+  Pass  Version incremented
+
+Sub-folder Stale version rejected
+
+  PATCH http://127.0.0.1:3100/api/expenses/w0bj01l33sczucyu9me3hb3q [409 Conflict, 335 B, 41 ms]
+  Pass  HTTP 409
+  Pass  JSON response envelope
+
+Sub-folder Soft delete expense
+
+  DELETE http://127.0.0.1:3100/api/expenses/w0bj01l33sczucyu9me3hb3q [200 OK, 292 B, 45 ms]
+  Pass  HTTP 200
+  Pass  JSON response envelope
+
+Sub-folder Deleted expense hidden
+
+  GET http://127.0.0.1:3100/api/expenses/w0bj01l33sczucyu9me3hb3q [404 Not Found, 336 B, 315 ms]
+  Pass  HTTP 404
+  Pass  JSON response envelope
+
+Sub-folder Restore expense
+
+  POST http://127.0.0.1:3100/api/expenses/w0bj01l33sczucyu9me3hb3q/restore [200 OK, 292 B, 343 ms]
+  Pass  HTTP 200
+  Pass  JSON response envelope
+
+Sub-folder Restored expense balances
+
+  GET http://127.0.0.1:3100/api/expenses/w0bj01l33sczucyu9me3hb3q [200 OK, 928 B, 33 ms]
+  Pass  HTTP 200
+  Pass  JSON response envelope
+  Pass  Integer money and balanced participants
+
+Folder 04 Input validation
+Sub-folder Reject fractional amount
+
+  POST http://127.0.0.1:3100/api/expenses/create [400 Bad Request, 459 B, 26 ms]
+  Pass  HTTP 400
+  Pass  JSON response envelope
+
+Sub-folder Reject zero amount
+
+  POST http://127.0.0.1:3100/api/expenses/create [400 Bad Request, 381 B, 24 ms]
+  Pass  HTTP 400
+  Pass  JSON response envelope
+
+Sub-folder Reject negative amount
+
+  POST http://127.0.0.1:3100/api/expenses/create [400 Bad Request, 442 B, 23 ms]
+  Pass  HTTP 400
+  Pass  JSON response envelope
+
+Sub-folder Reject missing description
+
+  POST http://127.0.0.1:3100/api/expenses/create [400 Bad Request, 400 B, 25 ms]
+  Pass  HTTP 400
+  Pass  JSON response envelope
+
+Sub-folder Reject empty participants
+
+  POST http://127.0.0.1:3100/api/expenses/create [400 Bad Request, 382 B, 27 ms]
+  Pass  HTTP 400
+  Pass  JSON response envelope
+
+Sub-folder Reject invalid split type
+
+  POST http://127.0.0.1:3100/api/expenses/create [400 Bad Request, 430 B, 27 ms]
+  Pass  HTTP 400
+  Pass  JSON response envelope
+
+Sub-folder Reject negative payer
+
+  POST http://127.0.0.1:3100/api/expenses/create [400 Bad Request, 443 B, 30 ms]
+  Pass  HTTP 400
+  Pass  JSON response envelope
+
+Sub-folder Reject invalid calendar date
+
+  POST http://127.0.0.1:3100/api/expenses/create [400 Bad Request, 360 B, 25 ms]
+  Pass  HTTP 400
+  Pass  JSON response envelope
+
+Sub-folder Reject integer overflow
+
+  POST http://127.0.0.1:3100/api/expenses/create [400 Bad Request, 457 B, 34 ms]
+  Pass  HTTP 400
+  Pass  JSON response envelope
+
+Sub-folder Reject duplicate participants
+
+  POST http://127.0.0.1:3100/api/expenses/create [400 Bad Request, 379 B, 29 ms]
+  Pass  HTTP 400
+  Pass  JSON response envelope
+
+Sub-folder Reject unknown currency
+
+  POST http://127.0.0.1:3100/api/expenses/create [400 Bad Request, 379 B, 26 ms]
+  Pass  HTTP 400
+  Pass  JSON response envelope
+
+Sub-folder Reject malformed JSON
+
+  POST http://127.0.0.1:3100/api/expenses/create [400 Bad Request, 324 B, 24 ms]
+  Pass  HTTP 400
+  Pass  JSON response envelope
+
+Sub-folder Missing expense idempotency key
+
+  POST http://127.0.0.1:3100/api/expenses/create [400 Bad Request, 357 B, 22 ms]
+  Pass  HTTP 400
+  Pass  JSON response envelope
+
+Sub-folder Missing settlement idempotency key
+
+  POST http://127.0.0.1:3100/api/settlements [400 Bad Request, 357 B, 26 ms]
+  Pass  HTTP 400
+  Pass  JSON response envelope
+
+Sub-folder Unbalanced payments rejected
+
+  POST http://127.0.0.1:3100/api/expenses/create [422 Unprocessable Entity, 387 B, 25 ms]
+  Pass  HTTP 422
+  Pass  JSON response envelope
+
+Sub-folder Self settlement rejected
+
+  POST http://127.0.0.1:3100/api/settlements [422 Unprocessable Entity, 349 B, 28 ms]
+  Pass  HTTP 422
+  Pass  JSON response envelope
+
+Sub-folder Metadata-only PATCH accepted
+
+  PATCH http://127.0.0.1:3100/api/expenses/n321ul81d4i0kdnkvlkym5vc [200 OK, 292 B, 293 ms]
+  Pass  HTTP 200
+  Pass  JSON response envelope
+
+Folder 05 Idempotency
+Sub-folder Create idempotent expense
+
+  POST http://127.0.0.1:3100/api/expenses/create [201 Created, 297 B, 41 ms]
+  Pass  HTTP 201
+  Pass  JSON response envelope
+  Pass  Created resource ID
+
+Sub-folder Replay same expense key returns same ID
+
+  POST http://127.0.0.1:3100/api/expenses/create [201 Created, 297 B, 34 ms]
+  Pass  HTTP 201
+  Pass  JSON response envelope
+  Pass  Original ID reused
+
+Sub-folder Same expense key with changed body conflicts
+
+  POST http://127.0.0.1:3100/api/expenses/create [409 Conflict, 355 B, 40 ms]
+  Pass  HTTP 409
+  Pass  JSON response envelope
+
+Sub-folder Create idempotent settlement
+
+  POST http://127.0.0.1:3100/api/settlements [201 Created, 297 B, 51 ms]
+  Pass  HTTP 201
+  Pass  JSON response envelope
+  Pass  Created resource ID
+
+Sub-folder Replay settlement key returns same ID
+
+  POST http://127.0.0.1:3100/api/settlements [201 Created, 297 B, 42 ms]
+  Pass  HTTP 201
+  Pass  JSON response envelope
+  Pass  Original settlement ID reused
+
+Sub-folder Same settlement key with changed body conflicts
+
+  POST http://127.0.0.1:3100/api/settlements [409 Conflict, 355 B, 37 ms]
+  Pass  HTTP 409
+  Pass  JSON response envelope
+
+Folder 06 Object authorization
+Sub-folder Create private expense for authorization checks
+
+  POST http://127.0.0.1:3100/api/expenses/create [201 Created, 297 B, 58 ms]
+  Pass  HTTP 201
+  Pass  JSON response envelope
+  Pass  Created resource ID
+
+Sub-folder Outsider cannot read private expense
+
+  GET http://127.0.0.1:3100/api/expenses/p45pd1feucabvj747wdw8j6e [404 Not Found, 336 B, 28 ms]
+  Pass  HTTP 404
+  Pass  JSON response envelope
+
+Sub-folder Outsider cannot edit private expense
+
+  PATCH http://127.0.0.1:3100/api/expenses/p45pd1feucabvj747wdw8j6e [404 Not Found, 336 B, 35 ms]
+  Pass  HTTP 404
+  Pass  JSON response envelope
+
+Sub-folder Outsider cannot delete private expense
+
+  DELETE http://127.0.0.1:3100/api/expenses/p45pd1feucabvj747wdw8j6e [404 Not Found, 336 B, 35 ms]
+  Pass  HTTP 404
+  Pass  JSON response envelope
+
+Sub-folder Create separate restore authorization target
+
+  POST http://127.0.0.1:3100/api/expenses/create [201 Created, 297 B, 40 ms]
+  Pass  HTTP 201
+  Pass  JSON response envelope
+  Pass  Created resource ID
+
+Sub-folder Owner deletes restore authorization target
+
+  DELETE http://127.0.0.1:3100/api/expenses/yj8zh5xrt0a6rer6scvokzu1 [200 OK, 292 B, 37 ms]
+  Pass  HTTP 200
+  Pass  JSON response envelope
+
+Sub-folder Outsider cannot restore private expense
+
+  POST http://127.0.0.1:3100/api/expenses/yj8zh5xrt0a6rer6scvokzu1/restore [404 Not Found, 336 B, 296 ms]
+  Pass  HTTP 404
+  Pass  JSON response envelope
+
+Sub-folder Outsider balances disclose no other pairs
+
+  GET http://127.0.0.1:3100/api/balances [200 OK, 261 B, 23 ms]
+  Pass  HTTP 200
+  Pass  JSON response envelope
+  Pass  All balances involve viewer
+
+Sub-folder Outsider cannot create expense in another group
+
+  POST http://127.0.0.1:3100/api/expenses/create [404 Not Found, 336 B, 32 ms]
+  Pass  HTTP 404
+  Pass  JSON response envelope
+
+Sub-folder Outsider cannot assign expense to unrelated people
+
+  POST http://127.0.0.1:3100/api/expenses/create [404 Not Found, 336 B, 30 ms]
+  Pass  HTTP 404
+  Pass  JSON response envelope
+
+Sub-folder Outsider cannot record another pair settlement
+
+  POST http://127.0.0.1:3100/api/settlements [404 Not Found, 336 B, 28 ms]
+  Pass  HTTP 404
+  Pass  JSON response envelope
+
+Sub-folder Outsider cannot delete another pair settlement
+
+  DELETE http://127.0.0.1:3100/api/settlements/v0rz75luzxgr5jew4a7bz38v [404 Not Found, 336 B, 299 ms]
+  Pass  HTTP 404
+  Pass  JSON response envelope
+
+Folder 07 Settlement accounting
+Sub-folder Create isolated group debt
+
+  POST http://127.0.0.1:3100/api/expenses/create [201 Created, 297 B, 58 ms]
+  Pass  HTTP 201
+  Pass  JSON response envelope
+  Pass  Created resource ID
+
+Sub-folder Read original debt
+
+  GET http://127.0.0.1:3100/api/balances [200 OK, 862 B, 32 ms]
+  Pass  HTTP 200
+  Pass  JSON response envelope
+  Pass  Debt is 5000 minor units
+
+Sub-folder Record payment toward debt
+
+  POST http://127.0.0.1:3100/api/settlements [201 Created, 297 B, 61 ms]
+  Pass  HTTP 201
+  Pass  JSON response envelope
+  Pass  Created resource ID
+
+Sub-folder Payment reduces debt
+
+  GET http://127.0.0.1:3100/api/balances [200 OK, 862 B, 32 ms]
+  Pass  HTTP 200
+  Pass  JSON response envelope
+  Pass  Settlement reduces debt from 5000 to 3000
+
+Sub-folder Delete settlement
+
+  DELETE http://127.0.0.1:3100/api/settlements/duhw5r88wv4p4sd5ssbj6683 [200 OK, 292 B, 50 ms]
+  Pass  HTTP 200
+  Pass  JSON response envelope
+
+Sub-folder Voiding restores debt
+
+  GET http://127.0.0.1:3100/api/balances [200 OK, 862 B, 29 ms]
+  Pass  HTTP 200
+  Pass  JSON response envelope
+  Pass  Debt restored to 5000
+
+Folder 08 Currency integrity
+Sub-folder Create currency edit target
+
+  POST http://127.0.0.1:3100/api/expenses/create [201 Created, 297 B, 49 ms]
+  Pass  HTTP 201
+  Pass  JSON response envelope
+  Pass  Created resource ID
+
+Sub-folder Unsupported currency edit is rejected
+
+  PATCH http://127.0.0.1:3100/api/expenses/x3xgw3dnnrrm7tc17du8wz7f [400 Bad Request, 379 B, 282 ms]
+  Pass  HTTP 400
+  Pass  JSON response envelope
+
+Sub-folder Read unchanged currency
+
+  GET http://127.0.0.1:3100/api/expenses/x3xgw3dnnrrm7tc17du8wz7f [200 OK, 951 B, 31 ms]
+  Pass  HTTP 200
+  Pass  JSON response envelope
+  Pass  Rejected currency edit leaves INR unchanged
+
+Sub-folder Balances retain supported currency
+
+  GET http://127.0.0.1:3100/api/balances [200 OK, 862 B, 25 ms]
+  Pass  HTTP 200
+  Pass  JSON response envelope
+  Pass  Rejected currency edit creates no EUR balance
+
+Folder 09 Concurrency
+Sub-folder Create concurrency target
+
+  POST http://127.0.0.1:3100/api/expenses/create [201 Created, 297 B, 59 ms]
+  Pass  HTTP 201
+  Pass  JSON response envelope
+  Pass  Created resource ID
+
+Sub-folder Read then race two edits with the same version
+
+  GET http://127.0.0.1:3100/api/expenses/saqp96h9qw1ya6gu70uh0ura [200 OK, 947 B, 35 ms]
+  Pass  HTTP 200
+  Pass  JSON response envelope
+  PATCH http://127.0.0.1:3100/api/expenses/saqp96h9qw1ya6gu70uh0ura   PATCH http://127.0.0.1:3100/api/expenses/saqp96h9qw1ya6gu70uh0ura [errored]
+     Could not read response data.
+[errored]
+     Could not read response data.
+  Pass  One concurrent edit succeeds and one conflicts
+
+Folder 10 Legacy endpoint status
+Sub-folder GET /api/analytics/monthly-spending is currently a stub
+
+  GET http://127.0.0.1:3100/api/analytics/monthly-spending [501 Not Implemented, 345 B, 444 ms]
+  Pass  HTTP 501
+  Pass  JSON response envelope
+
+Sub-folder POST /api/analytics/monthly-spending is currently a stub
+
+  POST http://127.0.0.1:3100/api/analytics/monthly-spending [501 Not Implemented, 345 B, 19 ms]
+  Pass  HTTP 501
+  Pass  JSON response envelope
+
+Sub-folder GET /api/expenses/delete is currently a stub
+
+  GET http://127.0.0.1:3100/api/expenses/delete [501 Not Implemented, 345 B, 353 ms]
+  Pass  HTTP 501
+  Pass  JSON response envelope
+
+Sub-folder POST /api/expenses/delete is currently a stub
+
+  POST http://127.0.0.1:3100/api/expenses/delete [501 Not Implemented, 345 B, 19 ms]
+  Pass  HTTP 501
+  Pass  JSON response envelope
+
+Sub-folder GET /api/expenses/userExpenses is currently a stub
+
+  GET http://127.0.0.1:3100/api/expenses/userExpenses [501 Not Implemented, 345 B, 359 ms]
+  Pass  HTTP 501
+  Pass  JSON response envelope
+
+Sub-folder POST /api/expenses/userExpenses is currently a stub
+
+  POST http://127.0.0.1:3100/api/expenses/userExpenses [501 Not Implemented, 345 B, 21 ms]
+  Pass  HTTP 501
+  Pass  JSON response envelope
+
+Sub-folder GET /api/friends/addFriend is currently a stub
+
+  GET http://127.0.0.1:3100/api/friends/addFriend [501 Not Implemented, 345 B, 335 ms]
+  Pass  HTTP 501
+  Pass  JSON response envelope
+
+Sub-folder POST /api/friends/addFriend is currently a stub
+
+  POST http://127.0.0.1:3100/api/friends/addFriend [501 Not Implemented, 345 B, 16 ms]
+  Pass  HTTP 501
+  Pass  JSON response envelope
+
+Sub-folder GET /api/friends/get is currently a stub
+
+  GET http://127.0.0.1:3100/api/friends/get [501 Not Implemented, 345 B, 355 ms]
+  Pass  HTTP 501
+  Pass  JSON response envelope
+
+Sub-folder POST /api/friends/get is currently a stub
+
+  POST http://127.0.0.1:3100/api/friends/get [501 Not Implemented, 345 B, 13 ms]
+  Pass  HTTP 501
+  Pass  JSON response envelope
+
+Sub-folder GET /api/friends/settle is currently a stub
+
+  GET http://127.0.0.1:3100/api/friends/settle [501 Not Implemented, 345 B, 344 ms]
+  Pass  HTTP 501
+  Pass  JSON response envelope
+
+Sub-folder POST /api/friends/settle is currently a stub
+
+  POST http://127.0.0.1:3100/api/friends/settle [501 Not Implemented, 345 B, 17 ms]
+  Pass  HTTP 501
+  Pass  JSON response envelope
+
+Sub-folder GET /api/payments/order is currently a stub
+
+  GET http://127.0.0.1:3100/api/payments/order [501 Not Implemented, 345 B, 373 ms]
+  Pass  HTTP 501
+  Pass  JSON response envelope
+
+Sub-folder POST /api/payments/order is currently a stub
+
+  POST http://127.0.0.1:3100/api/payments/order [501 Not Implemented, 345 B, 17 ms]
+  Pass  HTTP 501
+  Pass  JSON response envelope
+
+Sub-folder GET /api/payments/validate is currently a stub
+
+  GET http://127.0.0.1:3100/api/payments/validate [501 Not Implemented, 345 B, 345 ms]
+  Pass  HTTP 501
+  Pass  JSON response envelope
+
+Sub-folder POST /api/payments/validate is currently a stub
+
+  POST http://127.0.0.1:3100/api/payments/validate [501 Not Implemented, 345 B, 18 ms]
+  Pass  HTTP 501
+  Pass  JSON response envelope
+
+Sub-folder GET /api/users/currentUser is currently a stub
+
+  GET http://127.0.0.1:3100/api/users/currentUser [501 Not Implemented, 345 B, 397 ms]
+  Pass  HTTP 501
+  Pass  JSON response envelope
+
+Sub-folder POST /api/users/currentUser is currently a stub
+
+  POST http://127.0.0.1:3100/api/users/currentUser [501 Not Implemented, 345 B, 17 ms]
+  Pass  HTTP 501
+  Pass  JSON response envelope
+
+Sub-folder GET /api/users/getUser/phone is currently a stub
+
+  GET http://127.0.0.1:3100/api/users/getUser/phone [501 Not Implemented, 345 B, 395 ms]
+  Pass  HTTP 501
+  Pass  JSON response envelope
+
+Sub-folder GET /api/users/signup is currently a stub
+
+  GET http://127.0.0.1:3100/api/users/signup [501 Not Implemented, 345 B, 440 ms]
+  Pass  HTTP 501
+  Pass  JSON response envelope
+
+Sub-folder POST /api/users/signup is currently a stub
+
+  POST http://127.0.0.1:3100/api/users/signup [501 Not Implemented, 345 B, 17 ms]
+  Pass  HTTP 501
+  Pass  JSON response envelope
+
+--------------------------------------------------------------------------
+|                         |              executed |               failed |
+--------------------------+-----------------------+-----------------------
+|              iterations |                     1 |                    0 |
+--------------------------+-----------------------+-----------------------
+|                requests |                   101 |                    0 |
+--------------------------+-----------------------+-----------------------
+|            test-scripts |                   101 |                    0 |
+--------------------------+-----------------------+-----------------------
+|      prerequest-scripts |                     0 |                    0 |
+--------------------------+-----------------------+-----------------------
+|              assertions |                   232 |                    0 |
+--------------------------------------------------------------------------
+| total run duration: 18.3 s                                             |
+--------------------------------------------------------------------------
+| total data received: 15.7 KB (approx)                                  |
+--------------------------------------------------------------------------
+| average response time: 161 ms [min: 13 ms, max: 1653 ms, s.d.: 298 ms] |
+--------------------------------------------------------------------------

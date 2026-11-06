@@ -1,0 +1,40 @@
+"$kind": "collection"
+"name": "Spending Diary"
+"description": "Local API regression and security tests. Run using node postman/scripts/run-local.mjs against an isolated database. Security assertions enforce the remediated authorization and money invariants; legacy 501 responses are documented separately. No credentials are stored in this collection."
+"variables":
+  -
+    "key": "base_url"
+    "value": "http://localhost:3000"
+  -
+    "key": "run_id"
+    "value": ""
+  -
+    "key": "date"
+    "value": ""
+  -
+    "key": "owner_id"
+    "value": ""
+  -
+    "key": "friend_id"
+    "value": ""
+  -
+    "key": "outsider_id"
+    "value": ""
+  -
+    "key": "group_id"
+    "value": ""
+  -
+    "key": "settlement_group_id"
+    "value": ""
+  -
+    "key": "owner_cookie"
+    "value": ""
+  -
+    "key": "friend_cookie"
+    "value": ""
+  -
+    "key": "outsider_cookie"
+    "value": ""
+  -
+    "key": "anon_cookie"
+    "value": "better-auth.session_token=invalid"

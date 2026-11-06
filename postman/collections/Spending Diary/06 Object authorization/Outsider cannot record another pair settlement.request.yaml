@@ -1,0 +1,38 @@
+"$kind": "http-request"
+"name": "Outsider cannot record another pair settlement"
+"order": 11000
+"method": "POST"
+"url": "{{base_url}}/api/settlements"
+"settings":
+  "followRedirects": false
+"headers":
+  -
+    "key": "Cookie"
+    "value": "{{outsider_cookie}}"
+  -
+    "key": "Origin"
+    "value": "{{base_url}}"
+  -
+    "key": "Content-Type"
+    "value": "application/json"
+  -
+    "key": "Idempotency-Key"
+    "value": "{{run_id}}-foreign-settlement"
+"body":
+  "type": "json"
+  "content": |-
+    {
+      "fromUserId": "{{friend_id}}",
+      "toUserId": "{{owner_id}}",
+      "amount": 5000,
+      "currency": "INR",
+      "method": "CASH",
+      "date": "{{date}}"
+    }
+"scripts":
+  -
+    "type": "afterResponse"
+    "language": "text/javascript"
+    "code": |-
+      pm.test('HTTP 404', () => pm.response.to.have.status(404));
+      pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any -- TODO Step7: remove when page is rewritten with Better Auth */
 'use client'
 
 import { ArrowRight } from "lucide-react"
@@ -5,12 +6,12 @@ import { Button } from "./ui/button"
 import axios, { AxiosError } from "axios"
 import { toast } from "@/hooks/use-toast"
 import { useEffect } from "react"
-import { useSession } from "next-auth/react"
+// TODO Step7: replace with Better Auth client
 import { useRouter } from "next/navigation"
 
 function SubscribeBtn() {
     const router = useRouter()
-    const {data, update} = useSession()
+    const data = null as any; const update = (() => {}) as any;
     
     useEffect(() => {
         const script = document.createElement("script");
@@ -130,3 +131,6 @@ function SubscribeBtn() {
 }
 
 export default SubscribeBtn
+
+
+

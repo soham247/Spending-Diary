@@ -1,0 +1,23 @@
+"$kind": "http-request"
+"name": "Read equal split"
+"order": 3000
+"method": "GET"
+"url": "{{base_url}}/api/expenses/{{equal_id}}"
+"settings":
+  "followRedirects": false
+"headers":
+  -
+    "key": "Cookie"
+    "value": "{{owner_cookie}}"
+  -
+    "key": "Origin"
+    "value": "{{base_url}}"
+"scripts":
+  -
+    "type": "afterResponse"
+    "language": "text/javascript"
+    "code": |-
+      pm.test('HTTP 200', () => pm.response.to.have.status(200));
+      pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });
+      pm.test('Integer money and balanced participants', () => { const e = pm.response.json().data; pm.expect(Number.isSafeInteger(e.amount)).to.eql(true); pm.expect(e.participants.reduce((sum,p) => sum+p.paid,0)).to.eql(e.amount); pm.expect(e.participants.reduce((sum,p) => sum+p.owed,0)).to.eql(e.amount); e.participants.forEach(p => { pm.expect(Number.isSafeInteger(p.paid)).to.eql(true); pm.expect(Number.isSafeInteger(p.owed)).to.eql(true); }); });
+      pm.test('Largest remainder stays within one paisa', () => { const p=pm.response.json().data.participants; pm.expect(Math.abs(p[0].owed-p[1].owed)).to.be.at.most(1); });

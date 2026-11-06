@@ -1,15 +1,4 @@
-import { NextRequest } from "next/server";
-import jwt, { JwtPayload } from "jsonwebtoken";
-
-export const getDataFromToken = (request: NextRequest) => {
-    try {
-        const token = request.cookies.get("token")?.value || "";
-        const decodedToken = jwt.verify(token, process.env.NEXT_TOKEN_SECRET!) as JwtPayload;
-        return decodedToken.id;
-    } catch (error) {
-        if (error instanceof Error) {
-            throw new Error(error.message);
-        }
-        throw new Error("An unknown error occurred");
-    }
-}
+// This helper used the old jsonwebtoken-based auth.
+// It is no longer used since sessions are now handled by Better Auth.
+// Kept as an empty file to avoid breaking any imports during migration.
+export {};

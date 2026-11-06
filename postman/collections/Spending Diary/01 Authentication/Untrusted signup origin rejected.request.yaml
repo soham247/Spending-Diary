@@ -1,0 +1,29 @@
+"$kind": "http-request"
+"name": "Untrusted signup origin rejected"
+"order": 5000
+"method": "POST"
+"url": "{{base_url}}/api/auth/sign-up/email"
+"settings":
+  "followRedirects": false
+"headers":
+  -
+    "key": "Cookie"
+    "value": "{{anon_cookie}}"
+  -
+    "key": "Origin"
+    "value": "{{base_url}}"
+  -
+    "key": "Content-Type"
+    "value": "application/json"
+  -
+    "key": "Origin"
+    "value": "https://untrusted.example"
+"body":
+  "type": "json"
+  "content": "{}"
+"scripts":
+  -
+    "type": "afterResponse"
+    "language": "text/javascript"
+    "code": |-
+      pm.test('HTTP 403', () => pm.response.to.have.status(403));

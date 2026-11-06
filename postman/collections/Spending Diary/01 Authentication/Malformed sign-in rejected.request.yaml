@@ -1,0 +1,29 @@
+"$kind": "http-request"
+"name": "Malformed sign-in rejected"
+"order": 3000
+"method": "POST"
+"url": "{{base_url}}/api/auth/sign-in/email"
+"settings":
+  "followRedirects": false
+"headers":
+  -
+    "key": "Cookie"
+    "value": "{{anon_cookie}}"
+  -
+    "key": "Origin"
+    "value": "{{base_url}}"
+  -
+    "key": "Content-Type"
+    "value": "application/json"
+"body":
+  "type": "json"
+  "content": |-
+    {
+      "email": "not-an-email"
+    }
+"scripts":
+  -
+    "type": "afterResponse"
+    "language": "text/javascript"
+    "code": |-
+      pm.test('HTTP 400', () => pm.response.to.have.status(400));

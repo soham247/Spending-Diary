@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any -- TODO Step7: remove when page is rewritten with Better Auth */
 "use client";
 
 import { useEffect, useState } from "react";
@@ -23,7 +24,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useSession } from "next-auth/react";
+// TODO Step7: replace with Better Auth client;
 import FriendsTableRow from "@/components/friends/FriendsTableRow";
 import FriendsCard from "@/components/friends/FriendsCard";
 
@@ -33,7 +34,7 @@ export default function FriendsPage() {
   const [error, setError] = useState<string | null>(null);
   const [showAddFriends, setShowAddFriends] = useState<boolean>(false);
   const { toast } = useToast();
-  const session = useSession();
+  const session = null as any;
 
   const getFriends = async () => {
     try {
@@ -212,3 +213,7 @@ export default function FriendsPage() {
     </div>
   );
 }
+
+
+
+

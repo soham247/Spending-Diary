@@ -1,0 +1,49 @@
+"$kind": "http-request"
+"name": "Create idempotent expense"
+"order": 1000
+"method": "POST"
+"url": "{{base_url}}/api/expenses/create"
+"settings":
+  "followRedirects": false
+"headers":
+  -
+    "key": "Cookie"
+    "value": "{{owner_cookie}}"
+  -
+    "key": "Origin"
+    "value": "{{base_url}}"
+  -
+    "key": "Content-Type"
+    "value": "application/json"
+  -
+    "key": "Idempotency-Key"
+    "value": "{{run_id}}-idem_id"
+"body":
+  "type": "json"
+  "content": |-
+    {
+      "description": "Postman regression {{run_id}}",
+      "category": "Food",
+      "amount": 10001,
+      "currency": "INR",
+      "date": "{{date}}",
+      "splitType": "EQUAL",
+      "participants": [
+        {
+          "userId": "{{owner_id}}",
+          "paid": 10001
+        },
+        {
+          "userId": "{{friend_id}}",
+          "paid": 0
+        }
+      ]
+    }
+"scripts":
+  -
+    "type": "afterResponse"
+    "language": "text/javascript"
+    "code": |-
+      pm.test('HTTP 201', () => pm.response.to.have.status(201));
+      pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });
+      if (pm.response.code === 201) pm.collectionVariables.set('idem_id', pm.response.json().data.id); pm.test('Created resource ID', () => pm.expect(pm.response.json().data.id).to.be.a('string'));

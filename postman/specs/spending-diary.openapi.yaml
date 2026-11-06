@@ -1,0 +1,1041 @@
+"openapi": "3.0.3"
+"info":
+  "title": "Spending Diary API"
+  "version": "1.0.0"
+  "description": "Contract and route inventory for the local checkout. Money uses integer minor units. Authentication is managed by Better Auth; OAuth, verification and reset token flows require separate end-to-end tests."
+"servers":
+  -
+    "url": "http://localhost:3000"
+    "description": "Local development application"
+"paths":
+  "/api/analytics/monthly-spending":
+    "get":
+      "operationId": "GET__api_analytics_monthly_spending"
+      "summary": "Legacy stub returns 501"
+      "description": "Not implemented in this checkout. Included for inventory completeness."
+      "tags":
+        -
+          "Legacy"
+      "security":
+        []
+      "responses":
+        "501":
+          "description": "Not implemented"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/Error"
+    "post":
+      "operationId": "POST__api_analytics_monthly_spending"
+      "summary": "Legacy stub returns 501"
+      "description": "Not implemented in this checkout. Included for inventory completeness."
+      "tags":
+        -
+          "Legacy"
+      "security":
+        []
+      "responses":
+        "501":
+          "description": "Not implemented"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/Error"
+  "/api/balances":
+    "get":
+      "operationId": "GET__api_balances"
+      "summary": "GET /api/balances"
+      "description": "Contract derived from the project rules and shared validation schemas; failing regression tests document implementation gaps."
+      "tags":
+        -
+          "balances"
+      "security":
+        -
+          "sessionCookie":
+            []
+      "responses":
+        "200":
+          "description": "Success envelope"
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "required":
+                  -
+                    "data"
+                "properties":
+                  "data":
+                    {}
+        "400":
+          "description": "Invalid input"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/Error"
+        "401":
+          "description": "Unauthenticated"
+        "404":
+          "description": "Not found or not visible"
+        "409":
+          "description": "Version or idempotency conflict"
+        "422":
+          "description": "Domain invariant violated"
+  "/api/expenses/create":
+    "post":
+      "operationId": "POST__api_expenses_create"
+      "summary": "POST /api/expenses/create"
+      "description": "Contract derived from the project rules and shared validation schemas; failing regression tests document implementation gaps."
+      "tags":
+        -
+          "expenses"
+      "security":
+        -
+          "sessionCookie":
+            []
+      "parameters":
+        -
+          "name": "Idempotency-Key"
+          "in": "header"
+          "required": true
+          "schema":
+            "type": "string"
+            "minLength": 1
+            "maxLength": 200
+      "responses":
+        "201":
+          "description": "Success envelope"
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "required":
+                  -
+                    "data"
+                "properties":
+                  "data":
+                    {}
+        "400":
+          "description": "Invalid input"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/Error"
+        "401":
+          "description": "Unauthenticated"
+        "404":
+          "description": "Not found or not visible"
+        "409":
+          "description": "Version or idempotency conflict"
+        "422":
+          "description": "Domain invariant violated"
+      "requestBody":
+        "required": true
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "#/components/schemas/CreateExpense"
+  "/api/expenses/delete":
+    "get":
+      "operationId": "GET__api_expenses_delete"
+      "summary": "Legacy stub returns 501"
+      "description": "Not implemented in this checkout. Included for inventory completeness."
+      "tags":
+        -
+          "Legacy"
+      "security":
+        []
+      "responses":
+        "501":
+          "description": "Not implemented"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/Error"
+    "post":
+      "operationId": "POST__api_expenses_delete"
+      "summary": "Legacy stub returns 501"
+      "description": "Not implemented in this checkout. Included for inventory completeness."
+      "tags":
+        -
+          "Legacy"
+      "security":
+        []
+      "responses":
+        "501":
+          "description": "Not implemented"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/Error"
+  "/api/expenses/userExpenses":
+    "get":
+      "operationId": "GET__api_expenses_userExpenses"
+      "summary": "Legacy stub returns 501"
+      "description": "Not implemented in this checkout. Included for inventory completeness."
+      "tags":
+        -
+          "Legacy"
+      "security":
+        []
+      "responses":
+        "501":
+          "description": "Not implemented"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/Error"
+    "post":
+      "operationId": "POST__api_expenses_userExpenses"
+      "summary": "Legacy stub returns 501"
+      "description": "Not implemented in this checkout. Included for inventory completeness."
+      "tags":
+        -
+          "Legacy"
+      "security":
+        []
+      "responses":
+        "501":
+          "description": "Not implemented"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/Error"
+  "/api/expenses/{id}/restore":
+    "post":
+      "operationId": "POST__api_expenses__id__restore"
+      "summary": "POST /api/expenses/{id}/restore"
+      "description": "Contract derived from the project rules and shared validation schemas; failing regression tests document implementation gaps."
+      "tags":
+        -
+          "expenses"
+      "security":
+        -
+          "sessionCookie":
+            []
+      "parameters":
+        -
+          "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+      "responses":
+        "200":
+          "description": "Success envelope"
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "required":
+                  -
+                    "data"
+                "properties":
+                  "data":
+                    {}
+        "400":
+          "description": "Invalid input"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/Error"
+        "401":
+          "description": "Unauthenticated"
+        "404":
+          "description": "Not found or not visible"
+        "409":
+          "description": "Version or idempotency conflict"
+        "422":
+          "description": "Domain invariant violated"
+  "/api/expenses/{id}":
+    "get":
+      "operationId": "GET__api_expenses__id_"
+      "summary": "GET /api/expenses/{id}"
+      "description": "Contract derived from the project rules and shared validation schemas; failing regression tests document implementation gaps."
+      "tags":
+        -
+          "expenses"
+      "security":
+        -
+          "sessionCookie":
+            []
+      "parameters":
+        -
+          "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+      "responses":
+        "200":
+          "description": "Success envelope"
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "required":
+                  -
+                    "data"
+                "properties":
+                  "data":
+                    {}
+        "400":
+          "description": "Invalid input"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/Error"
+        "401":
+          "description": "Unauthenticated"
+        "404":
+          "description": "Not found or not visible"
+        "409":
+          "description": "Version or idempotency conflict"
+        "422":
+          "description": "Domain invariant violated"
+    "patch":
+      "operationId": "PATCH__api_expenses__id_"
+      "summary": "PATCH /api/expenses/{id}"
+      "description": "Contract derived from the project rules and shared validation schemas; failing regression tests document implementation gaps."
+      "tags":
+        -
+          "expenses"
+      "security":
+        -
+          "sessionCookie":
+            []
+      "parameters":
+        -
+          "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+      "responses":
+        "200":
+          "description": "Success envelope"
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "required":
+                  -
+                    "data"
+                "properties":
+                  "data":
+                    {}
+        "400":
+          "description": "Invalid input"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/Error"
+        "401":
+          "description": "Unauthenticated"
+        "404":
+          "description": "Not found or not visible"
+        "409":
+          "description": "Version or idempotency conflict"
+        "422":
+          "description": "Domain invariant violated"
+      "requestBody":
+        "required": true
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "#/components/schemas/EditExpense"
+    "delete":
+      "operationId": "DELETE__api_expenses__id_"
+      "summary": "DELETE /api/expenses/{id}"
+      "description": "Contract derived from the project rules and shared validation schemas; failing regression tests document implementation gaps."
+      "tags":
+        -
+          "expenses"
+      "security":
+        -
+          "sessionCookie":
+            []
+      "parameters":
+        -
+          "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+      "responses":
+        "200":
+          "description": "Success envelope"
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "required":
+                  -
+                    "data"
+                "properties":
+                  "data":
+                    {}
+        "400":
+          "description": "Invalid input"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/Error"
+        "401":
+          "description": "Unauthenticated"
+        "404":
+          "description": "Not found or not visible"
+        "409":
+          "description": "Version or idempotency conflict"
+        "422":
+          "description": "Domain invariant violated"
+  "/api/friends/addFriend":
+    "get":
+      "operationId": "GET__api_friends_addFriend"
+      "summary": "Legacy stub returns 501"
+      "description": "Not implemented in this checkout. Included for inventory completeness."
+      "tags":
+        -
+          "Legacy"
+      "security":
+        []
+      "responses":
+        "501":
+          "description": "Not implemented"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/Error"
+    "post":
+      "operationId": "POST__api_friends_addFriend"
+      "summary": "Legacy stub returns 501"
+      "description": "Not implemented in this checkout. Included for inventory completeness."
+      "tags":
+        -
+          "Legacy"
+      "security":
+        []
+      "responses":
+        "501":
+          "description": "Not implemented"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/Error"
+  "/api/friends/get":
+    "get":
+      "operationId": "GET__api_friends_get"
+      "summary": "Legacy stub returns 501"
+      "description": "Not implemented in this checkout. Included for inventory completeness."
+      "tags":
+        -
+          "Legacy"
+      "security":
+        []
+      "responses":
+        "501":
+          "description": "Not implemented"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/Error"
+    "post":
+      "operationId": "POST__api_friends_get"
+      "summary": "Legacy stub returns 501"
+      "description": "Not implemented in this checkout. Included for inventory completeness."
+      "tags":
+        -
+          "Legacy"
+      "security":
+        []
+      "responses":
+        "501":
+          "description": "Not implemented"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/Error"
+  "/api/friends/settle":
+    "get":
+      "operationId": "GET__api_friends_settle"
+      "summary": "Legacy stub returns 501"
+      "description": "Not implemented in this checkout. Included for inventory completeness."
+      "tags":
+        -
+          "Legacy"
+      "security":
+        []
+      "responses":
+        "501":
+          "description": "Not implemented"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/Error"
+    "post":
+      "operationId": "POST__api_friends_settle"
+      "summary": "Legacy stub returns 501"
+      "description": "Not implemented in this checkout. Included for inventory completeness."
+      "tags":
+        -
+          "Legacy"
+      "security":
+        []
+      "responses":
+        "501":
+          "description": "Not implemented"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/Error"
+  "/api/payments/order":
+    "get":
+      "operationId": "GET__api_payments_order"
+      "summary": "Legacy stub returns 501"
+      "description": "Not implemented in this checkout. Included for inventory completeness."
+      "tags":
+        -
+          "Legacy"
+      "security":
+        []
+      "responses":
+        "501":
+          "description": "Not implemented"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/Error"
+    "post":
+      "operationId": "POST__api_payments_order"
+      "summary": "Legacy stub returns 501"
+      "description": "Not implemented in this checkout. Included for inventory completeness."
+      "tags":
+        -
+          "Legacy"
+      "security":
+        []
+      "responses":
+        "501":
+          "description": "Not implemented"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/Error"
+  "/api/payments/validate":
+    "get":
+      "operationId": "GET__api_payments_validate"
+      "summary": "Legacy stub returns 501"
+      "description": "Not implemented in this checkout. Included for inventory completeness."
+      "tags":
+        -
+          "Legacy"
+      "security":
+        []
+      "responses":
+        "501":
+          "description": "Not implemented"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/Error"
+    "post":
+      "operationId": "POST__api_payments_validate"
+      "summary": "Legacy stub returns 501"
+      "description": "Not implemented in this checkout. Included for inventory completeness."
+      "tags":
+        -
+          "Legacy"
+      "security":
+        []
+      "responses":
+        "501":
+          "description": "Not implemented"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/Error"
+  "/api/settlements":
+    "post":
+      "operationId": "POST__api_settlements"
+      "summary": "POST /api/settlements"
+      "description": "Contract derived from the project rules and shared validation schemas; failing regression tests document implementation gaps."
+      "tags":
+        -
+          "settlements"
+      "security":
+        -
+          "sessionCookie":
+            []
+      "parameters":
+        -
+          "name": "Idempotency-Key"
+          "in": "header"
+          "required": true
+          "schema":
+            "type": "string"
+            "minLength": 1
+            "maxLength": 200
+      "responses":
+        "201":
+          "description": "Success envelope"
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "required":
+                  -
+                    "data"
+                "properties":
+                  "data":
+                    {}
+        "400":
+          "description": "Invalid input"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/Error"
+        "401":
+          "description": "Unauthenticated"
+        "404":
+          "description": "Not found or not visible"
+        "409":
+          "description": "Version or idempotency conflict"
+        "422":
+          "description": "Domain invariant violated"
+      "requestBody":
+        "required": true
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "#/components/schemas/CreateSettlement"
+  "/api/settlements/{id}":
+    "delete":
+      "operationId": "DELETE__api_settlements__id_"
+      "summary": "DELETE /api/settlements/{id}"
+      "description": "Contract derived from the project rules and shared validation schemas; failing regression tests document implementation gaps."
+      "tags":
+        -
+          "settlements"
+      "security":
+        -
+          "sessionCookie":
+            []
+      "parameters":
+        -
+          "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+      "responses":
+        "200":
+          "description": "Success envelope"
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "required":
+                  -
+                    "data"
+                "properties":
+                  "data":
+                    {}
+        "400":
+          "description": "Invalid input"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/Error"
+        "401":
+          "description": "Unauthenticated"
+        "404":
+          "description": "Not found or not visible"
+        "409":
+          "description": "Version or idempotency conflict"
+        "422":
+          "description": "Domain invariant violated"
+  "/api/users/currentUser":
+    "get":
+      "operationId": "GET__api_users_currentUser"
+      "summary": "Legacy stub returns 501"
+      "description": "Not implemented in this checkout. Included for inventory completeness."
+      "tags":
+        -
+          "Legacy"
+      "security":
+        []
+      "responses":
+        "501":
+          "description": "Not implemented"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/Error"
+    "post":
+      "operationId": "POST__api_users_currentUser"
+      "summary": "Legacy stub returns 501"
+      "description": "Not implemented in this checkout. Included for inventory completeness."
+      "tags":
+        -
+          "Legacy"
+      "security":
+        []
+      "responses":
+        "501":
+          "description": "Not implemented"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/Error"
+  "/api/users/getUser/phone":
+    "get":
+      "operationId": "GET__api_users_getUser_phone"
+      "summary": "Legacy stub returns 501"
+      "description": "Not implemented in this checkout. Included for inventory completeness."
+      "tags":
+        -
+          "Legacy"
+      "security":
+        []
+      "responses":
+        "501":
+          "description": "Not implemented"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/Error"
+  "/api/users/signup":
+    "get":
+      "operationId": "GET__api_users_signup"
+      "summary": "Legacy stub returns 501"
+      "description": "Not implemented in this checkout. Included for inventory completeness."
+      "tags":
+        -
+          "Legacy"
+      "security":
+        []
+      "responses":
+        "501":
+          "description": "Not implemented"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/Error"
+    "post":
+      "operationId": "POST__api_users_signup"
+      "summary": "Legacy stub returns 501"
+      "description": "Not implemented in this checkout. Included for inventory completeness."
+      "tags":
+        -
+          "Legacy"
+      "security":
+        []
+      "responses":
+        "501":
+          "description": "Not implemented"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/Error"
+  "/api/auth/get-session":
+    "get":
+      "operationId": "getAuthSession"
+      "summary": "Read Better Auth session"
+      "description": "Better Auth uses its native response format, not the application data envelope."
+      "tags":
+        -
+          "Authentication"
+      "responses":
+        "200":
+          "description": "Session and user, or null for no valid session"
+"components":
+  "securitySchemes":
+    "sessionCookie":
+      "type": "apiKey"
+      "in": "cookie"
+      "name": "better-auth.session_token"
+  "schemas":
+    "Money":
+      "type": "integer"
+      "format": "int32"
+      "minimum": 1
+      "maximum": 2147483647
+      "description": "Integer minor units; INR amounts are paise."
+    "Participant":
+      "type": "object"
+      "required":
+        -
+          "userId"
+        -
+          "paid"
+      "properties":
+        "userId":
+          "type": "string"
+          "minLength": 1
+        "paid":
+          "type": "integer"
+          "format": "int32"
+          "minimum": 0
+          "maximum": 2147483647
+          "description": "Integer minor units; INR amounts are paise."
+        "owed":
+          "type": "integer"
+          "format": "int32"
+          "minimum": 0
+          "maximum": 2147483647
+          "description": "Integer minor units; INR amounts are paise."
+        "percentage":
+          "type": "number"
+          "minimum": 0
+          "exclusiveMinimum": true
+          "maximum": 100
+        "shares":
+          "type": "integer"
+          "minimum": 1
+    "CreateExpense":
+      "type": "object"
+      "required":
+        -
+          "description"
+        -
+          "category"
+        -
+          "amount"
+        -
+          "currency"
+        -
+          "date"
+        -
+          "splitType"
+        -
+          "participants"
+      "properties":
+        "groupId":
+          "type": "string"
+          "nullable": true
+        "description":
+          "type": "string"
+          "minLength": 1
+          "maxLength": 255
+        "category":
+          "type": "string"
+          "minLength": 1
+          "maxLength": 100
+        "notes":
+          "type": "string"
+          "nullable": true
+          "maxLength": 2000
+        "amount":
+          "type": "integer"
+          "format": "int32"
+          "minimum": 1
+          "maximum": 2147483647
+          "description": "Integer minor units; INR amounts are paise."
+        "currency":
+          "type": "string"
+          "enum":
+            -
+              "INR"
+        "date":
+          "type": "string"
+          "format": "date"
+        "splitType":
+          "type": "string"
+          "enum":
+            -
+              "EQUAL"
+            -
+              "EXACT"
+            -
+              "PERCENTAGE"
+            -
+              "SHARES"
+        "participants":
+          "type": "array"
+          "minItems": 1
+          "maxItems": 100
+          "items":
+            "type": "object"
+            "required":
+              -
+                "userId"
+              -
+                "paid"
+            "properties":
+              "userId":
+                "type": "string"
+                "minLength": 1
+              "paid":
+                "type": "integer"
+                "format": "int32"
+                "minimum": 0
+                "maximum": 2147483647
+                "description": "Integer minor units; INR amounts are paise."
+              "owed":
+                "type": "integer"
+                "format": "int32"
+                "minimum": 0
+                "maximum": 2147483647
+                "description": "Integer minor units; INR amounts are paise."
+              "percentage":
+                "type": "number"
+                "minimum": 0
+                "exclusiveMinimum": true
+                "maximum": 100
+              "shares":
+                "type": "integer"
+                "minimum": 1
+    "EditExpense":
+      "type": "object"
+      "required":
+        -
+          "version"
+      "properties":
+        "version":
+          "type": "integer"
+          "minimum": 1
+        "description":
+          "type": "string"
+          "minLength": 1
+          "maxLength": 255
+        "category":
+          "type": "string"
+          "minLength": 1
+          "maxLength": 100
+        "notes":
+          "type": "string"
+          "nullable": true
+          "maxLength": 2000
+        "amount":
+          "type": "integer"
+          "format": "int32"
+          "minimum": 1
+          "maximum": 2147483647
+          "description": "Integer minor units; INR amounts are paise."
+        "currency":
+          "type": "string"
+          "enum":
+            -
+              "INR"
+        "date":
+          "type": "string"
+          "format": "date"
+        "splitType":
+          "type": "string"
+          "enum":
+            -
+              "EQUAL"
+            -
+              "EXACT"
+            -
+              "PERCENTAGE"
+            -
+              "SHARES"
+        "participants":
+          "type": "array"
+          "minItems": 1
+          "maxItems": 100
+          "items":
+            "type": "object"
+            "required":
+              -
+                "userId"
+              -
+                "paid"
+            "properties":
+              "userId":
+                "type": "string"
+                "minLength": 1
+              "paid":
+                "type": "integer"
+                "format": "int32"
+                "minimum": 0
+                "maximum": 2147483647
+                "description": "Integer minor units; INR amounts are paise."
+              "owed":
+                "type": "integer"
+                "format": "int32"
+                "minimum": 0
+                "maximum": 2147483647
+                "description": "Integer minor units; INR amounts are paise."
+              "percentage":
+                "type": "number"
+                "minimum": 0
+                "exclusiveMinimum": true
+                "maximum": 100
+              "shares":
+                "type": "integer"
+                "minimum": 1
+    "CreateSettlement":
+      "type": "object"
+      "required":
+        -
+          "fromUserId"
+        -
+          "toUserId"
+        -
+          "amount"
+        -
+          "currency"
+        -
+          "method"
+        -
+          "date"
+      "properties":
+        "groupId":
+          "type": "string"
+          "nullable": true
+        "fromUserId":
+          "type": "string"
+          "minLength": 1
+        "toUserId":
+          "type": "string"
+          "minLength": 1
+        "amount":
+          "type": "integer"
+          "format": "int32"
+          "minimum": 1
+          "maximum": 2147483647
+          "description": "Integer minor units; INR amounts are paise."
+        "currency":
+          "type": "string"
+          "enum":
+            -
+              "INR"
+        "method":
+          "type": "string"
+          "enum":
+            -
+              "CASH"
+            -
+              "UPI"
+            -
+              "OTHER"
+        "date":
+          "type": "string"
+          "format": "date"
+        "note":
+          "type": "string"
+          "nullable": true
+          "maxLength": 2000
+    "Error":
+      "type": "object"
+      "required":
+        -
+          "error"
+      "properties":
+        "error":
+          "type": "object"
+          "required":
+            -
+              "code"
+            -
+              "message"
+          "properties":
+            "code":
+              "type": "string"
+            "message":
+              "type": "string"
+            "fields":
+              "type": "object"
+              "additionalProperties":
+                "type": "string"

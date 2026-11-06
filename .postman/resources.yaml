@@ -1,0 +1,12 @@
+cloudResources:
+  collections:
+    ../postman/collections/Spending Diary: 38782113-d1b06f20-b87e-46f1-9448-fa0781d13873
+  environments:
+    ../postman/environments/Local.template.environment.yaml: 38782113-404160d9-ae23-4ae4-9dd9-b0d5630ee5fb
+  specs:
+    ../postman/specs/spending-diary.openapi.yaml: 6f846da0-2177-4772-8043-d748d04e61a8
+resourceNameMappings:
+  specs:
+    - ../postman/specs/spending-diary.openapi.yaml: spending-diary.openapi.yaml
+workspace:
+  id: 647509c6-4fa4-4830-8c9b-d38227647bf0
