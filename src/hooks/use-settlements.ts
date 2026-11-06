@@ -1,9 +1,10 @@
 "use client";
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/query-keys";
-import { apiCreateSettlement, apiDeleteSettlement } from "@/lib/api/settlements";
-import type { CreateSettlementInput } from "@/lib/validation/settlement";
+import { apiCreateSettlement, apiDeleteSettlement, apiRestoreSettlement, apiListSettlements, apiPaymentContext } from "@/lib/api/settlements";
+import type { CreateSettlementInput, SettlementListInput } from "@/lib/validation/settlement";
+export function usePaymentContext() { return useQuery({ queryKey: queryKeys.paymentContext(), queryFn: apiPaymentContext }); }
 
 export function useCreateSettlement() {
   const qc = useQueryClient();
@@ -33,3 +34,9 @@ export function useDeleteSettlement() {
     },
   });
 }
+export function useRestoreSettlement() {
+  const qc = useQueryClient();
+  return useMutation({ mutationFn: apiRestoreSettlement, onSuccess: async () => { await Promise.all(queryKeys.money.roots().map(queryKey => qc.invalidateQueries({ queryKey }))); } });
+}
+
+export function useSettlements(filters: Omit<SettlementListInput,"cursor"> = {}) { return useInfiniteQuery({ queryKey: queryKeys.settlements.list(filters),initialPageParam: undefined as string|undefined,queryFn: ({ pageParam })=>apiListSettlements({ ...filters,cursor: pageParam }),getNextPageParam: page=>page.nextCursor ?? undefined }); }

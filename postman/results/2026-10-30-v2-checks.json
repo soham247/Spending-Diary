@@ -1,0 +1,56 @@
+{
+  "date": "2026-10-30",
+  "target": "Local production build and disposable loopback PostgreSQL databases",
+  "checks": {
+    "unitAndIntegration": {
+      "files": 17,
+      "passed": 151,
+      "failed": 0
+    },
+    "postman": {
+      "requests": 118,
+      "assertions": 281,
+      "failed": 0,
+      "exitCode": 0
+    },
+    "chromium": {
+      "journeys": 8,
+      "passed": 8,
+      "failed": 0
+    },
+    "typescript": "passed",
+    "eslint": "passed",
+    "productionBuild": "passed",
+    "postmanArtifactLint": "passed",
+    "drizzleGenerate": "No schema changes, nothing to migrate",
+    "drizzleCheck": "passed",
+    "npmAudit": {
+      "vulnerabilities": 0
+    }
+  },
+  "migrations": {
+    "new": [
+      "0003_sad_beast.sql",
+      "0004_busy_leo.sql",
+      "0005_superb_colossus.sql"
+    ],
+    "testedOnScratchDatabase": true,
+    "appliedToSharedDatabase": true,
+    "sharedDatabaseVerification": {
+      "date": "2026-10-30",
+      "historyEntries": 6,
+      "pending": 0,
+      "digestsMatch": true,
+      "applicationRowCountsUnchanged": true,
+      "balanceTriggersVerified": true,
+      "pooledRuntimeVerified": true
+    }
+  },
+  "limitations": [
+    "Live Google OAuth and SMTP delivery",
+    "Physical-device UPI payment/return",
+    "Live Web Push delivery",
+    "PWA install behavior and representative mobile-network latency",
+    "Deployment and cloud publication"
+  ]
+}

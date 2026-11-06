@@ -1,3 +1,4 @@
+import { schedulePush } from "@/lib/push/schedule";
 import { requireSession } from "@/lib/auth/guards";
 import { mapError } from "@/lib/api/route-handler";
 import { deleteSettlement } from "@/lib/domain/settlements";
@@ -8,6 +9,7 @@ export async function DELETE(req: Request, ctx: Ctx) {
     const session = await requireSession(req);
     const { id } = await ctx.params;
     await deleteSettlement(session.userId, id);
+    schedulePush();
     return Response.json({ data: { id } });
   } catch (error) { return mapError(error); }
 }

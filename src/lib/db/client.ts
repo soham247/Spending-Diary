@@ -18,7 +18,7 @@ function getPool(): Pool {
     connectionString: process.env.DATABASE_URL,
     max: isProduction ? 2 : 10,
     idleTimeoutMillis: 5000,
-    connectionTimeoutMillis: 5000,
+    connectionTimeoutMillis: 15000,
   });
 
   if (!isProduction) {

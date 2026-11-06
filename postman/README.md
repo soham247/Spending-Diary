@@ -1,8 +1,8 @@
 # Spending Diary API regression suite
 
-The [Spending Diary collection](https://go.postman.co/workspace/647509c6-4fa4-4830-8c9b-d38227647bf0/collection/38782113-d1b06f20-b87e-46f1-9448-fa0781d13873) is bound to your personal My Workspace. It has 101 requests covering auth boundaries, expense lifecycle, splits, multiple payers, validation, authorization, idempotency, settlements, currency integrity and concurrency.
+The [Spending Diary collection](https://go.postman.co/workspace/647509c6-4fa4-4830-8c9b-d38227647bf0/collection/38782113-d1b06f20-b87e-46f1-9448-fa0781d13873) is bound to your personal My Workspace. The local V2 collection has 122 requests covering auth boundaries, expense lifecycle, splits, multiple payers, payer-only participants, validation, authorization, idempotency, settlements, currency integrity and concurrency.
 
-Current result: **232/232 Postman assertions and 113 unit/integration tests pass. Full npm audit: zero vulnerabilities.** See [the security remediation](SECURITY-REVIEW.md) for scope and deployment steps.
+Current local V2 result (2026-10-31): **292/292 Postman assertions, 173 unit/integration tests and eleven Chromium journeys pass.** The full npm audit on 2026-10-30 reported zero vulnerabilities. See [the security remediation](SECURITY-REVIEW.md) for scope and deployment steps. Local changes have not been published to the shared collection.
 
 ## URLs
 
@@ -52,9 +52,16 @@ Review `postman workspace diff --push-strategy default` before `postman workspac
 
 ## Evidence
 
-- [Current passing run](results/2026-10-29-remediation-run.txt)
+- [Current V2 verification summary](results/2026-10-30-v2-checks.json)
+- [Historical remediation run](results/2026-10-29-remediation-run.txt)
 - [Baseline failing run](results/2026-10-29-run.txt)
-- [Current dependency audit](results/dependency-audit.json)
+- [Historical dependency audit](results/dependency-audit.json)
 - [Security remediation and rollout notes](SECURITY-REVIEW.md)
 
-The suite includes 21 checks of legacy 501 responses. These document 11 stub route files and do not count as implemented features. Standard CLI execution was used; no Enterprise report-export feature is required.
+The local collection no longer includes legacy 501 requests: the 11 stub route files and their callers have been retired. The cloud collection link above describes the last published version; local V2 artifacts have not been pushed. Standard CLI execution was used; no Enterprise report-export feature is required.
+
+## Browser acceptance
+
+Install Chromium with npx playwright install chromium, then run npm run test:browser. This mode builds and starts an isolated production app with the test origin before running the HTTP collection and eight browser journeys. It saves transcripts, failure traces and mobile preview screenshots in ignored .postman/local/. It does not use the shared database or publish results to a cloud workspace.
+
+The earlier results/ remediation reports are historical. See the repository [README](../README.md#deployment) for deployment checks and live-provider verification limits.

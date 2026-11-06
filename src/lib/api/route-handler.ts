@@ -1,9 +1,10 @@
+import { schedulePush } from "@/lib/push/schedule";
 import { ZodError } from "zod";
 import { AppError, ValidationError } from "@/lib/utils/errors";
 
 export function routeHandler(fn: (req: Request) => Promise<Response>): (req: Request) => Promise<Response> {
   return async req => {
-    try { return await fn(req); } catch (error) { return mapError(error); }
+    try { const response = await fn(req); if (response.ok && req.method !== "GET") schedulePush(); return response; } catch (error) { return mapError(error); }
   };
 }
 export function mapError(error: unknown): Response {

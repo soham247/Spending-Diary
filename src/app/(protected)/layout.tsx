@@ -1,15 +1,1 @@
-"use client"
-
-import BottomNavigation from "@/components/BottomNavigation"
-
-const Layout = ({ children }: {children: React.ReactNode}) => {
-
-    return(
-        <div className="pb-5 md:pb-0 mt-20">
-            {children}
-            <BottomNavigation />
-        </div>
-    )
-}
-
-export default Layout
+﻿export default function LegacyLayout({ children }: { children: React.ReactNode }) { return children; }

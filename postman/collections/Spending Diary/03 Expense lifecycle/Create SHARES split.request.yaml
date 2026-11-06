@@ -1,6 +1,6 @@
 "$kind": "http-request"
 "name": "Create SHARES split"
-"order": 8000
+"order": 9000
 "method": "POST"
 "url": "{{base_url}}/api/expenses/create"
 "settings":

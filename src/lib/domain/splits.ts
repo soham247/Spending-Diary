@@ -77,3 +77,24 @@ export function computeLedgerEdges(participants: Participant[]): LedgerEdge[] {
   }
   return edges;
 }
+export function resolveShares(input: import("@/lib/validation/expense").CreateExpenseInput): Map<string, number> {
+  const included = input.participants.filter(p => p.includedInSplit !== false);
+  if (!included.length) throw new Error("Choose at least one person to share the cost");
+  const shares = new Map(input.participants.map(p => [p.userId, 0]));
+  let allocated: Map<string, number>;
+  switch (input.splitType) {
+    case "EQUAL": allocated = splitEqual(included.map(p => p.userId), input.amount); break;
+    case "EXACT": allocated = splitExact(input.participants.filter(p => p.includedInSplit !== false), input.amount); break;
+    case "PERCENTAGE": allocated = splitPercentage(input.participants.filter(p => p.includedInSplit !== false), input.amount); break;
+    case "SHARES": allocated = splitShares(input.participants.filter(p => p.includedInSplit !== false), input.amount); break;
+  }
+  for (const [userId, owed] of allocated) shares.set(userId, owed);
+  return shares;
+}
+export function isIncludedInSplit(splitInput: string | null): boolean { return splitInput === null || Number(splitInput) !== 0; }
+export function splitRemainders(total: number, paid: number[], owed?: number[]) {
+  validateTotal(total);
+  paid.forEach(validateTotal);
+  owed?.forEach(validateTotal);
+  return { paid: total - paid.reduce((sum,value) => sum+value,0), owed: owed ? total - owed.reduce((sum,value) => sum+value,0) : null };
+}

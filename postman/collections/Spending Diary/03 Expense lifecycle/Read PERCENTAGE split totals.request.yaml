@@ -1,6 +1,6 @@
 "$kind": "http-request"
 "name": "Read PERCENTAGE split totals"
-"order": 7000
+"order": 8000
 "method": "GET"
 "url": "{{base_url}}/api/expenses/{{percentage_id}}"
 "settings":

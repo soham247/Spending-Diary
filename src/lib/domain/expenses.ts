@@ -1,11 +1,12 @@
 import "server-only";
+import { recordActivity } from "./activity";
 import { and, eq } from "drizzle-orm";
 import { db, type DbTx } from "@/lib/db/client";
 import { expenses, expenseParticipants } from "@/lib/db/schema";
 import { assertCanEditExpense, assertExpenseParticipants } from "@/lib/auth/guards";
 import { createExpenseSchema, editExpenseSchema, type CreateExpenseInput, type EditExpenseInput } from "@/lib/validation/expense";
 import { ConflictError, DomainError, NotFoundError } from "@/lib/utils/errors";
-import { splitEqual, splitExact, splitPercentage, splitShares, computeLedgerEdges } from "./splits";
+import { resolveShares, computeLedgerEdges, isIncludedInSplit } from "./splits";
 import { writeLedgerEntries, voidLedgerEntries } from "./ledger";
 import { reserveIdempotency } from "./idempotency";
 
@@ -15,12 +16,7 @@ export type ParticipantInput = NonNullable<EditExpenseInput["participants"]>[num
 
 function resolveOwed(input: CreateExpenseInput): Map<string, number> {
   try {
-    switch (input.splitType) {
-      case "EQUAL": return splitEqual(input.participants.map(p => p.userId), input.amount);
-      case "EXACT": return splitExact(input.participants, input.amount);
-      case "PERCENTAGE": return splitPercentage(input.participants, input.amount);
-      case "SHARES": return splitShares(input.participants, input.amount);
-    }
+    return resolveShares(input);
   } catch (error) {
     throw new DomainError(error instanceof Error ? error.message : "Invalid split");
   }
@@ -29,7 +25,7 @@ function participantRows(expenseId: string, input: CreateExpenseInput) {
   const owed = resolveOwed(input);
   return input.participants.map(p => ({
     expenseId, userId: p.userId, paid: p.paid, owed: owed.get(p.userId)!,
-    splitInput: "percentage" in p ? String(p.percentage) : "shares" in p ? String(p.shares) : null,
+    splitInput: p.includedInSplit === false ? "0" : "percentage" in p ? String(p.percentage) : "shares" in p ? String(p.shares) : null,
   }));
 }
 export async function createExpense(viewerId: string, raw: CreateExpenseInput, key: string): Promise<string> {
@@ -51,6 +47,7 @@ export async function createExpenseTx(viewerId: string, tx: DbTx, input: CreateE
   const rows = participantRows(id, input);
   await tx.insert(expenseParticipants).values(rows);
   await writeLedgerEntries(tx, computeLedgerEdges(rows), groupId ?? "direct", input.currency, { expenseId: id });
+  await recordActivity(tx, viewerId, { type: "EXPENSE_CREATED", groupId, expenseId: id, recipientIds: rows.map(p => p.userId), metadata: { description: input.description, amount: input.amount, currency: input.currency, after: { ...input, participants: rows } } });
   return id;
 }
 async function lockedExpense(tx: DbTx, id: string) {
@@ -70,7 +67,7 @@ export async function editExpense(viewerId: string, expenseId: string, raw: Edit
     const merged = createExpenseSchema.parse({
       ...row, ...input,
       participants: input.participants ?? oldParticipants.map(p => ({
-        userId: p.userId, paid: p.paid, owed: p.owed,
+        userId: p.userId, paid: p.paid, owed: p.owed, includedInSplit: isIncludedInSplit(p.splitInput) || (row.splitType === "EXACT" && p.owed > 0),
         ...(row.splitType === "PERCENTAGE" ? { percentage: Number(p.splitInput) } : {}),
         ...(row.splitType === "SHARES" ? { shares: Number(p.splitInput) } : {}),
       })),
@@ -88,6 +85,7 @@ export async function editExpense(viewerId: string, expenseId: string, raw: Edit
       amount: merged.amount, currency: merged.currency, splitType: merged.splitType, date: merged.date,
       version: row.version + 1, updatedAt: new Date(),
     }).where(and(eq(expenses.id, expenseId), eq(expenses.version, input.version)));
+    await recordActivity(tx, viewerId, { type: "EXPENSE_UPDATED", groupId: row.groupId, expenseId, recipientIds: [...oldParticipants.map(p => p.userId), ...merged.participants.map(p => p.userId)], metadata: { description: merged.description, amount: merged.amount, currency: merged.currency, before: { ...row, participants: oldParticipants }, after: merged } });
   });
 }
 export async function deleteExpense(viewerId: string, expenseId: string): Promise<void> {
@@ -95,6 +93,8 @@ export async function deleteExpense(viewerId: string, expenseId: string): Promis
     const row = await lockedExpense(tx, expenseId);
     await assertCanEditExpense(viewerId, row, tx);
     if (row.deletedAt) throw new NotFoundError();
+    const participants = await tx.select().from(expenseParticipants).where(eq(expenseParticipants.expenseId, expenseId));
+    await recordActivity(tx, viewerId, { type: "EXPENSE_DELETED", groupId: row.groupId, expenseId, recipientIds: participants.map(p => p.userId), metadata: { description: row.description, amount: row.amount, currency: row.currency } });
     await voidLedgerEntries(tx, { expenseId });
     await tx.update(expenses).set({ deletedAt: new Date(), version: row.version + 1, updatedAt: new Date() }).where(eq(expenses.id, expenseId));
   });
@@ -107,6 +107,7 @@ export async function restoreExpense(viewerId: string, expenseId: string): Promi
     const rows = await tx.select().from(expenseParticipants).where(eq(expenseParticipants.expenseId, expenseId));
     await assertExpenseParticipants(viewerId, row.groupId, rows.map(p => p.userId), row.currency, tx);
     await writeLedgerEntries(tx, computeLedgerEdges(rows), row.groupId ?? "direct", row.currency, { expenseId });
+    await recordActivity(tx, viewerId, { type: "EXPENSE_RESTORED", groupId: row.groupId, expenseId, recipientIds: rows.map(p => p.userId), metadata: { description: row.description, amount: row.amount, currency: row.currency } });
     await tx.update(expenses).set({ deletedAt: null, version: row.version + 1, updatedAt: new Date() }).where(eq(expenses.id, expenseId));
   });
 }

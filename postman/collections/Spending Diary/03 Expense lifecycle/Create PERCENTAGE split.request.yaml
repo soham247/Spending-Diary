@@ -1,6 +1,6 @@
 "$kind": "http-request"
 "name": "Create PERCENTAGE split"
-"order": 6000
+"order": 7000
 "method": "POST"
 "url": "{{base_url}}/api/expenses/create"
 "settings":

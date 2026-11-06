@@ -1,43 +1,24 @@
-import type { CreateExpenseInput, EditExpenseInput } from "@/lib/validation/expense";
+import type { CreateExpenseInput, EditExpenseInput, ExpenseListInput, ExpenseCategory } from "@/lib/validation/expense";
+import { responseData } from "./client";
 
-const BASE = "/api/expenses";
-
-async function handleResponse<T>(res: Response): Promise<T> {
-  const body = await res.json();
-  if (!res.ok) throw new Error(body?.error?.message ?? "Request failed");
-  return body.data as T;
+export interface Expense {
+  id: string; groupId: string | null; kind: "PERSONAL" | "SHARED"; description: string;
+  category: ExpenseCategory; notes: string | null; amount: number; currency: "INR"; date: string;
+  splitType: "EQUAL" | "EXACT" | "PERCENTAGE" | "SHARES"; version: number; deletedAt: string | null;
 }
-
-export async function apiCreateExpense(
-  input: CreateExpenseInput,
-  idempotencyKey: string,
-) {
-  const res = await fetch(`${BASE}/create`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "Idempotency-Key": idempotencyKey },
-    body: JSON.stringify(input),
-  });
-  return handleResponse<{ id: string }>(res);
+export interface ExpenseDetail extends Expense {
+  canEdit: boolean;
+  participants: { userId: string; name: string; paid: number; owed: number; splitInput: string | null; includedInSplit: boolean }[];
 }
-
-export async function apiEditExpense(
-  id: string,
-  input: EditExpenseInput,
-) {
-  const res = await fetch(`${BASE}/${id}`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(input),
-  });
-  return handleResponse<{ id: string }>(res);
+export interface ExpensePage { items: (Expense & { yourShare: number | null })[]; nextCursor: string | null; spendingTotals?: { currency: string; amount: number }[] }
+export function apiListExpenses(input: ExpenseListInput = {}) {
+  const params = new URLSearchParams(Object.entries(input).filter((entry): entry is [string, string] => entry[1] !== undefined));
+  return fetch("/api/expenses?" + params).then(responseData<ExpensePage>);
 }
-
-export async function apiDeleteExpense(id: string) {
-  const res = await fetch(`${BASE}/${id}`, { method: "DELETE" });
-  return handleResponse<{ id: string }>(res);
-}
-
-export async function apiRestoreExpense(id: string) {
-  const res = await fetch(`${BASE}/${id}/restore`, { method: "POST" });
-  return handleResponse<{ id: string }>(res);
-}
+export const apiGetExpense = (id: string) => fetch("/api/expenses/" + encodeURIComponent(id)).then(responseData<ExpenseDetail>);
+export const apiCreateExpense = (input: CreateExpenseInput, idempotencyKey: string) =>
+  fetch("/api/expenses/create", { method: "POST", headers: { "Content-Type": "application/json", "Idempotency-Key": idempotencyKey }, body: JSON.stringify(input) }).then(responseData<{ id: string }>);
+export const apiEditExpense = (id: string, input: EditExpenseInput) =>
+  fetch("/api/expenses/" + encodeURIComponent(id), { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(input) }).then(responseData<{ id: string }>);
+export const apiDeleteExpense = (id: string) => fetch("/api/expenses/" + encodeURIComponent(id), { method: "DELETE" }).then(responseData<{ id: string }>);
+export const apiRestoreExpense = (id: string) => fetch("/api/expenses/" + encodeURIComponent(id) + "/restore", { method: "POST" }).then(responseData<{ id: string }>);

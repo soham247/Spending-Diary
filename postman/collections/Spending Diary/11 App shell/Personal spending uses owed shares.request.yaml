@@ -1,0 +1,32 @@
+"$kind": "http-request"
+"name": "Personal spending uses owed shares"
+"order": 9000
+"method": "GET"
+"url": "{{base_url}}/api/expenses?scope=mine&from=2000-01-01&to=2099-12-31"
+"queryParams":
+  -
+    "key": "scope"
+    "value": "mine"
+  -
+    "key": "from"
+    "value": "2000-01-01"
+  -
+    "key": "to"
+    "value": "2099-12-31"
+"settings":
+  "followRedirects": false
+"headers":
+  -
+    "key": "Cookie"
+    "value": "{{owner_cookie}}"
+  -
+    "key": "Origin"
+    "value": "{{base_url}}"
+"scripts":
+  -
+    "type": "afterResponse"
+    "language": "text/javascript"
+    "code": |-
+      pm.test('HTTP 200', () => pm.response.to.have.status(200));
+      pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });
+      pm.test('Own shares and currency totals',()=>{const d=pm.response.json().data;pm.expect(d.items.length).to.be.above(0);d.items.forEach(e=>{pm.expect(Number.isSafeInteger(e.yourShare)).to.eql(true);pm.expect(e.yourShare).to.be.above(0);});d.spendingTotals.forEach(t=>{pm.expect(Number.isSafeInteger(t.amount)).to.eql(true);pm.expect(t.currency).to.eql('INR');});});

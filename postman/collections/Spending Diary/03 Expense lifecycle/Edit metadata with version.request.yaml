@@ -1,6 +1,6 @@
 "$kind": "http-request"
 "name": "Edit metadata with version"
-"order": 14000
+"order": 15000
 "method": "PATCH"
 "url": "{{base_url}}/api/expenses/{{equal_id}}"
 "settings":

@@ -66,6 +66,7 @@ export function createAuth(overrides: Partial<BetterAuthOptions> = {}) {
     }) },
     user: { additionalFields: {
       status: { type: "string", input: false, defaultValue: "ACTIVE" },
+      onboardedAt: { type: "date", required: false, input: false },
       phone: { type: "string", required: false, input: false },
       upiId: { type: "string", required: false, input: false },
       defaultCurrency: { type: "string", input: false, defaultValue: "INR" },

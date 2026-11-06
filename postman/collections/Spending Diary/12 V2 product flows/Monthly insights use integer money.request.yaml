@@ -1,0 +1,26 @@
+"$kind": "http-request"
+"name": "Monthly insights use integer money"
+"order": 27000
+"method": "GET"
+"url": "{{base_url}}/api/insights?month=2026-10"
+"queryParams":
+  -
+    "key": "month"
+    "value": "2026-10"
+"settings":
+  "followRedirects": false
+"headers":
+  -
+    "key": "Cookie"
+    "value": "{{owner_cookie}}"
+  -
+    "key": "Origin"
+    "value": "{{base_url}}"
+"scripts":
+  -
+    "type": "afterResponse"
+    "language": "text/javascript"
+    "code": |-
+      pm.test('HTTP 200', () => pm.response.to.have.status(200));
+      pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });
+      pm.test('Category amounts equal total',()=>pm.response.json().data.forEach(r=>{pm.expect(Number.isSafeInteger(r.total)).to.eql(true);pm.expect(r.categories.reduce((sum,c)=>sum+c.amount,0)).to.eql(r.total);}));

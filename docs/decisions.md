@@ -114,3 +114,34 @@ Blocked friends may still record settlements for their existing debt. New expens
 ### D-025 · 2026-10-29 · Replace the legacy Supabase application data for V2
 
 The user confirmed that Supabase remains the database provider and that the old application data is not needed and may be replaced. Reuse the configured database, remove only the four identified legacy application tables (`Payer`, `expenses`, `friends`, `users`), and apply the repository's three Drizzle migrations through a verified direct connection. Keep the pooled runtime connection and all provider-managed schemas intact. This is a one-time authorized migration reset, not permission for future financial hard deletes.
+
+### D-026 · 2026-10-29 · Collapsed payments during a placeholder claim
+
+The user confirmed that if a placeholder and the claiming account are the two sides of the same settlement, the merge soft-deletes that settlement and voids its ledger entries. Original identities remain on these collapsed records for audit history, avoiding forbidden self-payments and self-edges. The placeholder row remains traceable through merged_into_id. Participant collisions combine paid and owed exactly; affected expenses reopen as exact splits so later edits preserve the merged allocations.
+
+### D-027 · 2026-10-29 · Wrong invitation claims are reported for manual review
+
+The user confirmed that Phase 1 records an inviter's wrong-claim report for manual review. Reporting does not reverse the identity merge or alter financial history. Automatic reversal requires a separately designed recovery policy.
+
+### D-028 · 2026-10-31 · Payers may be outside the cost split
+
+The user requested A paying INR 90 while B and C each owe INR 45. Participants are the union of payers and people sharing the cost. A payer may have owed = 0 and still counts as participating for authorization. The form checkboxes select cost sharing, independently of payment inputs. API participants accept includedInSplit, defaulting to true when omitted. Excluded participants have zero owed and zero percentage/share weight. The existing numeric split_input stores zero for excluded participants; included equal/exact participants retain null, and included percentage/share participants retain their positive weight. This preserves selection on edits without a migration, including tiny rounded shares of zero.
+
+### D-029 · 2026-11-06 · Custom payments and former-member repayment
+
+The user confirmed that payments remain separate settlements with no split or category and never count as spending. A payment belongs to Direct or exactly one group, without automatic allocation across scopes. Either party may record it. The form includes an optional note of up to 2,000 characters. For unrestricted parties, advances at zero balance, payments increasing existing debt and overpayments are allowed after confirmation showing the resulting balance; ordinary partial/full repayments need no extra confirmation. Existing payment-like expenses are not automatically converted, and payer-excluded expense splits remain valid.
+
+Group payment counterparties include active members and former members with any nonzero pairwise group balance, including offsetting debts with zero aggregate net. If either party is a former member, only repayment of the existing pairwise debt is allowed, without overpayment or new debt. Former members may record their own repayments and delete/undo their payments after reaching zero, without regaining expense or general group access. Restoration rechecks current repayment restrictions. Blocked-pair restrictions remain in effect and archived groups remain read-only.
+
+
+### D-030 - 2026-11-06 - Adopt the supplied shadcn theme and sidebar
+
+The user explicitly selected a new light/dark OKLCH palette, burnt-orange
+primary actions, matching chart colours, and the shadcn sidebar. Apply their
+supplied values exactly, including sidebar tokens and alpha border/input
+values. This supersedes the earlier green-grey surfaces, ink primary
+buttons, and mobile bottom navigation. Retain the existing credit/debit
+extension tokens and Money rendering so financial direction stays explicit.
+Use the official CLI-generated Tailwind v4 sidebar and primitives; desktop
+collapses to icons and mobile uses the sidebar Sheet. No financial or
+authorization behaviour changes.

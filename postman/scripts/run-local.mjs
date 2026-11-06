@@ -1,4 +1,5 @@
 import { spawn } from 'node:child_process';
+import { createWriteStream } from 'node:fs';
 import { randomBytes } from 'node:crypto';
 import { createRequire } from 'node:module';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
@@ -30,7 +31,9 @@ await mkdir(local, { recursive: true });
 function command(file, args, options = {}) {
   return new Promise((accept, reject) => {
     const { logPath, ...spawnOptions } = options;
-    const child = spawn(file, args, { cwd: root, stdio: logPath ? ['ignore', 'pipe', 'pipe'] : 'inherit', ...spawnOptions });
+    const childEnvironment = { ...process.env,...(spawnOptions.env ?? {}) };
+    if (childEnvironment.NO_COLOR !== undefined) delete childEnvironment.FORCE_COLOR;
+    const child = spawn(file, args, { cwd: root, stdio: logPath ? ['ignore', 'pipe', 'pipe'] : 'inherit', ...spawnOptions, env: childEnvironment });
     const output = [];
     if (logPath) {
       for (const stream of [child.stdout, child.stderr]) stream.on('data', chunk => { process.stdout.write(chunk); output.push(chunk); });
@@ -63,12 +66,13 @@ try {
   const schema = createRequire(import.meta.url)(schemaFile);
   const db = drizzle(pool, { schema });
   smtp = await createSmtpFixture();
-  server = spawn(process.execPath, ['node_modules/next/dist/bin/next', 'dev', '--hostname', '127.0.0.1', '--port', String(port)], {
-    cwd: root, stdio: ['ignore', 'ignore', 'ignore'],
-    env: { ...process.env, NODE_ENV: 'development', DATABASE_URL: databaseUrl, DIRECT_URL: databaseUrl,
-      BETTER_AUTH_SECRET: secret, NEXT_PUBLIC_APP_URL: baseUrl,
-      GOOGLE_CLIENT_ID: '', GOOGLE_CLIENT_SECRET: '', SMTP_HOST: '127.0.0.1', SMTP_PORT: String(smtp.port), SMTP_USER: '', SMTP_PASS: '' },
-  });
+  const production = process.argv.includes("--browser");
+  const appEnvironment = { ...process.env, NODE_ENV: production ? "production" : "development", DATABASE_URL: databaseUrl, DIRECT_URL: databaseUrl, BETTER_AUTH_SECRET: secret, NEXT_PUBLIC_APP_URL: baseUrl, GOOGLE_CLIENT_ID: "", GOOGLE_CLIENT_SECRET: "", SMTP_HOST: "127.0.0.1", SMTP_PORT: String(smtp.port), SMTP_USER: "", SMTP_PASS: "" };
+  if (appEnvironment.NO_COLOR !== undefined) delete appEnvironment.FORCE_COLOR;
+  if (production) { const built = await command(process.execPath,["node_modules/next/dist/bin/next","build"],{ env: appEnvironment }); if (built !== 0) throw new Error("Isolated production build failed"); }
+  server = spawn(process.execPath, ["node_modules/next/dist/bin/next", production ? "start" : "dev", "--hostname", "127.0.0.1", "--port", String(port)], { cwd: root, stdio: ["ignore","pipe","pipe"], env: appEnvironment });
+  const serverOutput = createWriteStream(resolve(local,"app-run.log"));
+  server.stdout.pipe(serverOutput,{ end: false }); server.stderr.pipe(serverOutput,{ end: false }); server.once("close",()=>serverOutput.end());
   server.once('error', error => { console.error(error.message); });
   let ready = false;
   for (let i = 0; i < 90; i++) {
@@ -116,6 +120,7 @@ try {
     '--no-report-events', '--ignore-redirects', '--timeout-request', '45000'];
   process.exitCode = await command(process.platform === 'win32' ? 'postman.exe' : 'postman', args, { shell: false, logPath: resolve(local, 'latest-run.txt') });
   console.log(`Postman exit code: ${process.exitCode}.`);
+  if (process.exitCode === 0 && process.argv.includes("--browser")) { process.exitCode = await command(process.execPath,["node_modules/@playwright/test/cli.js","test"], { logPath: resolve(local,"browser-run.txt") }); }
 } catch (error) {
   console.error(error.message);
   process.exitCode = 1;

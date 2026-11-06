@@ -1,0 +1,26 @@
+"$kind": "http-request"
+"name": "Payment history retains optional note"
+"order": 5000
+"method": "GET"
+"url": "{{base_url}}/api/settlements?groupId={{settlement_group_id}}"
+"queryParams":
+  -
+    "key": "groupId"
+    "value": "{{settlement_group_id}}"
+"settings":
+  "followRedirects": false
+"headers":
+  -
+    "key": "Cookie"
+    "value": "{{owner_cookie}}"
+  -
+    "key": "Origin"
+    "value": "{{base_url}}"
+"scripts":
+  -
+    "type": "afterResponse"
+    "language": "text/javascript"
+    "code": |-
+      pm.test('HTTP 200', () => pm.response.to.have.status(200));
+      pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });
+      pm.test('Payment preserves the optional note',()=>pm.expect(pm.response.json().data.items.find(row=>row.id===pm.collectionVariables.get('payment_id')).note).to.eql('Partial repayment note'));

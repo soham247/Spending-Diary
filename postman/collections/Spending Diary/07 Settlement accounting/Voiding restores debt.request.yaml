@@ -1,6 +1,6 @@
 "$kind": "http-request"
 "name": "Voiding restores debt"
-"order": 6000
+"order": 7000
 "method": "GET"
 "url": "{{base_url}}/api/balances"
 "settings":

@@ -1,8 +1,31 @@
 import "server-only";
-import { and, desc, eq, exists, isNull, lt, or } from "drizzle-orm";
+import { and, desc, eq, exists, isNull, isNotNull, lt, or, gte, lte, gt, sum, getTableColumns } from "drizzle-orm";
 import { db } from "@/lib/db/client";
-import { expenses, expenseParticipants, groupMembers } from "@/lib/db/schema";
+import { expenses, expenseParticipants, groupMembers, groups, users, contacts } from "@/lib/db/schema";
 import { ValidationError } from "@/lib/utils/errors";
+import { isIncludedInSplit } from "@/lib/domain/splits";
+import { expenseListSchema, type ExpenseListInput } from "@/lib/validation/expense";
+import { toSafeNumber } from "@/lib/utils/to-safe-number";
+
+export async function listExpenses(viewerId: string, raw: ExpenseListInput = {}) {
+  const input = expenseListSchema.parse(raw);
+  const filter = and(visible(viewerId), input.groupId ? eq(expenses.groupId, input.groupId) : undefined, input.friendId ? and(exists(db.select({ id: expenseParticipants.userId }).from(expenseParticipants).where(and(eq(expenseParticipants.expenseId, expenses.id), eq(expenseParticipants.userId, input.friendId)))), exists(db.select({ id: expenseParticipants.userId }).from(expenseParticipants).where(and(eq(expenseParticipants.expenseId, expenses.id), eq(expenseParticipants.userId, viewerId))))) : undefined, input.deleted === "true" ? isNotNull(expenses.deletedAt) : isNull(expenses.deletedAt), input.kind ? eq(expenses.kind, input.kind) : undefined);
+  const rangeFilter = and(filter,
+    input.from ? gte(expenses.date, input.from) : undefined,
+    input.to ? lte(expenses.date, input.to) : undefined,
+    input.scope === "mine" ? exists(db.select({ id: expenseParticipants.userId }).from(expenseParticipants).where(and(eq(expenseParticipants.expenseId, expenses.id), eq(expenseParticipants.userId, viewerId), gt(expenseParticipants.owed, 0)))) : undefined);
+  const totals = input.scope === "mine" ? await db.select({ currency: expenses.currency, amount: sum(expenseParticipants.owed) }).from(expenses)
+    .innerJoin(expenseParticipants, and(eq(expenseParticipants.expenseId, expenses.id), eq(expenseParticipants.userId, viewerId)))
+    .where(and(rangeFilter, isNull(expenses.deletedAt))).groupBy(expenses.currency).orderBy(expenses.currency) : undefined;
+  const spendingTotals = totals?.map(row => ({ currency: row.currency, amount: toSafeNumber(BigInt(row.amount ?? "0")) }));
+  const [anchor] = input.cursor ? await db.select().from(expenses).where(and(rangeFilter, eq(expenses.id, input.cursor))) : [];
+  if (input.cursor && !anchor) return { items: [], nextCursor: null, spendingTotals };
+  const rows = await db.select({ ...getTableColumns(expenses), yourShare: expenseParticipants.owed }).from(expenses)
+    .leftJoin(expenseParticipants, and(eq(expenseParticipants.expenseId, expenses.id), eq(expenseParticipants.userId, viewerId)))
+    .where(and(rangeFilter, anchor ? or(lt(expenses.date, anchor.date), and(eq(expenses.date, anchor.date), lt(expenses.id, anchor.id))) : undefined))
+    .orderBy(desc(expenses.date), desc(expenses.id)).limit(31);
+  return { items: rows.slice(0, 30), nextCursor: rows.length > 30 ? rows[29]!.id : null, spendingTotals };
+}
 
 function visible(viewerId: string) {
   return or(
@@ -13,8 +36,11 @@ function visible(viewerId: string) {
 export async function getExpenseById(viewerId: string, expenseId: string) {
   const [row] = await db.select().from(expenses).where(and(eq(expenses.id, expenseId), isNull(expenses.deletedAt), visible(viewerId)));
   if (!row) return null;
-  const participants = await db.select().from(expenseParticipants).where(eq(expenseParticipants.expenseId, expenseId));
-  return { ...row, participants };
+  const participantRows = await db.select({ userId: expenseParticipants.userId, paid: expenseParticipants.paid, owed: expenseParticipants.owed, splitInput: expenseParticipants.splitInput, name: users.name, nickname: contacts.nickname }).from(expenseParticipants).innerJoin(users,eq(users.id,expenseParticipants.userId)).leftJoin(contacts,and(eq(contacts.userId,expenseParticipants.userId),eq(contacts.ownerId,viewerId))).where(eq(expenseParticipants.expenseId,expenseId));
+  const participants = participantRows.map(({ nickname,...person }) => ({ ...person,name: nickname || person.name, includedInSplit: row.splitType === "EXACT" ? isIncludedInSplit(person.splitInput) || person.owed > 0 : isIncludedInSplit(person.splitInput) }));
+  const [membership] = row.groupId ? await db.select({ role: groupMembers.role, archivedAt: groups.archivedAt }).from(groupMembers).innerJoin(groups, eq(groups.id, groupMembers.groupId)).where(and(eq(groupMembers.groupId, row.groupId), eq(groupMembers.userId, viewerId), eq(groupMembers.status, "ACTIVE"))) : [];
+  const canEdit = (participants.some(p => p.userId === viewerId) || membership?.role === "ADMIN") && (!row.groupId || (!!membership && !membership.archivedAt));
+  return { ...row, participants, canEdit };
 }
 export async function getGroupExpenses(viewerId: string, groupId: string, limit = 30, cursor?: string) {
   if (!Number.isInteger(limit) || limit < 1 || limit > 100) throw new ValidationError("Invalid page size");

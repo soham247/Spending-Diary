@@ -1,6 +1,6 @@
 "$kind": "http-request"
 "name": "Stale version rejected"
-"order": 16000
+"order": 17000
 "method": "PATCH"
 "url": "{{base_url}}/api/expenses/{{equal_id}}"
 "settings":

@@ -1,5 +1,9 @@
 import { mkdir, writeFile, readdir, readFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
+import { productTests } from '../contracts/product-tests.mjs';
+import { productContract } from '../contracts/product.mjs';
+import { appShellContract } from '../contracts/app-shell.mjs';
+import { paymentContract } from '../contracts/payments.mjs';
 
 const directory = 'postman/collections/Spending Diary';
 const folders = new Map();
@@ -22,7 +26,7 @@ async function save(path, object) { await mkdir(dirname(path), { recursive: true
 function add(folder, name, method, path, { body, status = 200, role = 'owner', key, code = '', raw = false, authResponse = false, headers = [] } = {}) {
   if (!folders.has(folder)) folders.set(folder, []);
   folders.get(folder).push({ $kind: 'http-request', name, order: (folders.get(folder).length + 1) * 1000,
-    method, url: `{{base_url}}${path}`, settings: { followRedirects: false },
+    method, url: `{{base_url}}${path}`, ...(path.includes('?') ? { queryParams: [...new URLSearchParams(path.split('?')[1])].map(([key,value])=>({key,value})) } : {}), settings: { followRedirects: false },
     headers: [{ key: 'Cookie', value: `{{${role}_cookie}}` }, { key: 'Origin', value: '{{base_url}}' },
       ...(body !== undefined ? [{ key: 'Content-Type', value: 'application/json' }] : []),
       ...(key ? [{ key: 'Idempotency-Key', value: key }] : []), ...headers],
@@ -47,7 +51,9 @@ for (const [method,path] of [['GET','/api/balances'],['POST','/api/expenses/crea
   add('02 Authentication boundaries', `${method} ${path} requires a session`, method, path, { role: 'anon', status: 401, ...(['POST','PATCH'].includes(method) ? { body: {} } : {}) });
 }
 
+add('02 Authentication boundaries', 'Payment context requires a session', 'GET', '/api/settlements/context', { role: 'anon', status: 401 });
 add('03 Expense lifecycle', 'Initial balances', 'GET', '/api/balances');
+add('03 Expense lifecycle', 'Payment context exposes typed scopes', 'GET', '/api/settlements/context', { code: `pm.test('Scopes have integer balances and repayment restrictions', () => { for (const scope of pm.response.json().data) { pm.expect(scope.currency).to.eql('INR'); for (const person of scope.people) { pm.expect(Number.isSafeInteger(person.net)).to.eql(true); pm.expect(person.restricted).to.be.a('boolean'); } } });` });
 create('03 Expense lifecycle', 'Create equal split with remainder', 'equal_id');
 add('03 Expense lifecycle', 'Read equal split', 'GET', '/api/expenses/{{equal_id}}', { code: balanced + `\npm.test('Largest remainder stays within one paisa', () => { const p=pm.response.json().data.participants; pm.expect(Math.abs(p[0].owed-p[1].owed)).to.be.at.most(1); });` });
 for (const [type,inputs] of [['EXACT',[{owed:5001},{owed:5000}]],['PERCENTAGE',[{percentage:60},{percentage:40}]],['SHARES',[{shares:2},{shares:1}]]]) {
@@ -77,7 +83,7 @@ add('04 Input validation','Reject malformed JSON','POST','/api/expenses/create',
 add('04 Input validation','Missing expense idempotency key','POST','/api/expenses/create',{body:expense(),status:400});
 add('04 Input validation','Missing settlement idempotency key','POST','/api/settlements',{body:settlement(),status:400});
 add('04 Input validation','Unbalanced payments rejected','POST','/api/expenses/create',{body:expense({participants:[participant('owner',10000),participant('friend',0)]}),key:'{{run_id}}-unbalanced',status:422});
-add('04 Input validation','Self settlement rejected','POST','/api/settlements',{body:settlement({fromUserId:'{{owner_id}}'}),key:'{{run_id}}-self',status:422});
+add('04 Input validation','Self settlement rejected','POST','/api/settlements',{body:settlement({fromUserId:'{{owner_id}}'}),key:'{{run_id}}-self',status:400});
 add('04 Input validation','Metadata-only PATCH accepted','PATCH','/api/expenses/{{multi_id}}',{body:{version:1,description:'Metadata-only edit'}});
 
 create('05 Idempotency','Create idempotent expense','idem_id');
@@ -102,8 +108,9 @@ add('06 Object authorization','Outsider cannot delete another pair settlement','
 
 create('07 Settlement accounting','Create isolated group debt','settle_expense_id',{groupId:'{{settlement_group_id}}',amount:10000});
 add('07 Settlement accounting','Read original debt','GET','/api/balances',{code:`const row=pm.response.json().data.find(r=>r.currency==='INR'&&r.scopeId===pm.environment.get('settlement_group_id')); pm.test('Debt is 5000 minor units',()=>pm.expect(Math.abs(row.amount)).to.eql(5000)); pm.collectionVariables.set('debt_before',row.amount);`});
-add('07 Settlement accounting','Record payment toward debt','POST','/api/settlements',{body:settlement({groupId:'{{settlement_group_id}}',amount:2000}),status:201,key:'{{run_id}}-payment',code:remember('payment_id')});
+add('07 Settlement accounting','Record payment toward debt','POST','/api/settlements',{body:settlement({groupId:'{{settlement_group_id}}',amount:2000,note:'Partial repayment note'}),status:201,key:'{{run_id}}-payment',code:remember('payment_id')});
 add('07 Settlement accounting','Payment reduces debt','GET','/api/balances',{code:`pm.test('Settlement reduces debt from 5000 to 3000',()=>{const row=pm.response.json().data.find(r=>r.currency==='INR'&&r.scopeId===pm.environment.get('settlement_group_id'));pm.expect(Math.abs(row.amount)).to.eql(3000);});`});
+add('07 Settlement accounting','Payment history retains optional note','GET','/api/settlements?groupId={{settlement_group_id}}',{code:`pm.test('Payment preserves the optional note',()=>pm.expect(pm.response.json().data.items.find(row=>row.id===pm.collectionVariables.get('payment_id')).note).to.eql('Partial repayment note'));`});
 add('07 Settlement accounting','Delete settlement','DELETE','/api/settlements/{{payment_id}}');
 add('07 Settlement accounting','Voiding restores debt','GET','/api/balances',{code:`pm.test('Debt restored to 5000',()=>{const row=pm.response.json().data.find(r=>r.currency==='INR'&&r.scopeId===pm.environment.get('settlement_group_id'));pm.expect(row.amount).to.eql(pm.collectionVariables.get('debt_before'));});`});
 
@@ -126,6 +133,19 @@ for(const file of await walk('src/app/api')) {
 
 
 const variables=['base_url','run_id','date','owner_id','friend_id','outsider_id','group_id','settlement_group_id','owner_cookie','friend_cookie','outsider_cookie','anon_cookie'];
+add('11 App shell', 'Profile requires authentication', 'GET', '/api/me', { role: 'anon', status: 401 });
+add('11 App shell', 'Read own profile', 'GET', '/api/me', { code: `pm.test('Only own profile',()=>pm.expect(pm.response.json().data.id).to.eql(pm.environment.get('owner_id')));` });
+add('11 App shell', 'Reject profile privilege escalation', 'PATCH', '/api/me', { body: { status: 'ACTIVE', emailVerified: true }, status: 400 });
+add('11 App shell', 'Update profile', 'PATCH', '/api/me', { body: { name: 'Updated owner', upiId: 'owner@upi' }, code: `pm.test('Profile saved',()=>pm.expect(pm.response.json().data.upiId).to.eql('owner@upi'));` });
+add('11 App shell', 'Expense list requires authentication', 'GET', '/api/expenses', { role: 'anon', status: 401 });
+add('11 App shell', 'List visible expenses', 'GET', '/api/expenses', { code: `pm.test('Bounded cursor page',()=>{const d=pm.response.json().data;pm.expect(d.items.length).to.be.at.most(30);pm.expect(d).to.have.property('nextCursor');});` });
+add('11 App shell', 'Outsider sees no expenses', 'GET', '/api/expenses', { role: 'outsider', code: `pm.test('Private expenses stay private',()=>pm.expect(pm.response.json().data.items).to.eql([]));` });
+productTests(add, remember, expense);
+add('11 App shell', 'Personal spending requires authentication', 'GET', '/api/expenses?scope=mine', { role: 'anon', status: 401 });
+add('11 App shell', 'Personal spending uses owed shares', 'GET', '/api/expenses?scope=mine&from=2000-01-01&to=2099-12-31', { code: `pm.test('Own shares and currency totals',()=>{const d=pm.response.json().data;pm.expect(d.items.length).to.be.above(0);d.items.forEach(e=>{pm.expect(Number.isSafeInteger(e.yourShare)).to.eql(true);pm.expect(e.yourShare).to.be.above(0);});d.spendingTotals.forEach(t=>{pm.expect(Number.isSafeInteger(t.amount)).to.eql(true);pm.expect(t.currency).to.eql('INR');});});` });
+add('11 App shell', 'Spending rejects reversed dates', 'GET', '/api/expenses?scope=mine&from=2026-11-02&to=2026-11-01', { status: 400 });
+add('11 App shell', 'Spending rejects impossible dates', 'GET', '/api/expenses?scope=mine&from=2026-02-30', { status: 400 });
+add('11 App shell', 'Spending cannot select another viewer', 'GET', '/api/expenses?scope=mine&viewerId={{owner_id}}', { role: 'outsider', code: `pm.test('Session scopes spending',()=>{const d=pm.response.json().data;pm.expect(d.items).to.eql([]);pm.expect(d.spendingTotals).to.eql([]);});` });
 await save(`${directory}/.resources/definition.yaml`,{$kind:'collection',name:'Spending Diary',description:'Local API regression and security tests. Run using node postman/scripts/run-local.mjs against an isolated database. Security assertions enforce the remediated authorization and money invariants; legacy 501 responses are documented separately. No credentials are stored in this collection.',variables:variables.map(key=>({key,value:key==='base_url'?'http://localhost:3000':key==='anon_cookie'?'better-auth.session_token=invalid':''}))});
 for(const [folder,requests] of folders) {
   await save(`${directory}/${folder}/.resources/definition.yaml`,{$kind:'collection',name:folder,order:Number(folder.slice(0,2))*1000});
@@ -139,8 +159,8 @@ const v2={info:{name:'Spending Diary',schema:'https://schema.getpostman.com/json
 await writeFile('postman/Spending-Diary.postman_collection.json',JSON.stringify(v2,null,2)+'\n');
 await writeFile('postman/api-inventory.json',JSON.stringify(inventory,null,2)+'\n');
 const moneySchema={type:'integer',format:'int32',minimum:1,maximum:2147483647,description:'Integer minor units; INR amounts are paise.'};
-const participantSchema={type:'object',required:['userId','paid'],properties:{userId:{type:'string',minLength:1},paid:{...moneySchema,minimum:0},owed:{...moneySchema,minimum:0},percentage:{type:'number',minimum:0,exclusiveMinimum:true,maximum:100},shares:{type:'integer',minimum:1}}};
-const expenseProperties={groupId:{type:'string',nullable:true},description:{type:'string',minLength:1,maxLength:255},category:{type:'string',minLength:1,maxLength:100},notes:{type:'string',nullable:true,maxLength:2000},amount:moneySchema,currency:{type:'string',enum:['INR']},date:{type:'string',format:'date'},splitType:{type:'string',enum:['EQUAL','EXACT','PERCENTAGE','SHARES']},participants:{type:'array',minItems:1,maxItems:100,items:participantSchema}};
+const participantSchema={type:'object',required:['userId','paid'],properties:{userId:{type:'string',minLength:1},paid:{...moneySchema,minimum:0},includedInSplit:{type:'boolean',description:'Defaults to true when omitted. False retains a payer with zero owed; at least one participant must share the cost. Excluded participants must have zero owed, percentage or shares when supplied.'},owed:{...moneySchema,minimum:0},percentage:{type:'number',minimum:0,maximum:100},shares:{type:'integer',minimum:0}}};
+const expenseProperties={groupId:{type:'string',nullable:true},description:{type:'string',minLength:1,maxLength:255},category:{type:'string',enum:['Food','Groceries','Transport','Rent','Utilities','Shopping','Entertainment','Travel','Health','Other']},notes:{type:'string',nullable:true,maxLength:2000},amount:moneySchema,currency:{type:'string',enum:['INR']},date:{type:'string',format:'date'},splitType:{type:'string',enum:['EQUAL','EXACT','PERCENTAGE','SHARES']},participants:{type:'array',minItems:1,maxItems:100,items:participantSchema}};
 const schemas={Money:moneySchema,Participant:participantSchema,CreateExpense:{type:'object',required:['description','category','amount','currency','date','splitType','participants'],properties:expenseProperties},EditExpense:{type:'object',required:['version'],properties:{version:{type:'integer',minimum:1},...Object.fromEntries(Object.entries(expenseProperties).filter(([key])=>key!=='groupId'))}},CreateSettlement:{type:'object',required:['fromUserId','toUserId','amount','currency','method','date'],properties:{groupId:{type:'string',nullable:true},fromUserId:{type:'string',minLength:1},toUserId:{type:'string',minLength:1},amount:moneySchema,currency:{type:'string',enum:['INR']},method:{type:'string',enum:['CASH','UPI','OTHER']},date:{type:'string',format:'date'},note:{type:'string',nullable:true,maxLength:2000}}},Error:{type:'object',required:['error'],properties:{error:{type:'object',required:['code','message'],properties:{code:{type:'string'},message:{type:'string'},fields:{type:'object',additionalProperties:{type:'string'}}}}}}};
 const paths={};
 for(const route of inventory) {
@@ -157,5 +177,8 @@ for(const route of inventory) {
   }
 }
 paths['/api/auth/get-session']={get:{operationId:'getAuthSession',summary:'Read Better Auth session',description:'Better Auth uses its native response format, not the application data envelope.',tags:['Authentication'],responses:{'200':{description:'Session and user, or null for no valid session'}}}};
-await save('postman/specs/spending-diary.openapi.yaml',{openapi:'3.0.3',info:{title:'Spending Diary API',version:'1.0.0',description:'Contract and route inventory for the local checkout. Money uses integer minor units. Authentication is managed by Better Auth; OAuth, verification and reset token flows require separate end-to-end tests.'},servers:[{url:'http://localhost:3000',description:'Local development application'}],paths,components:{securitySchemes:{sessionCookie:{type:'apiKey',in:'cookie',name:'better-auth.session_token'}},schemas}});
+appShellContract(paths, schemas);
+productContract(paths, schemas);
+paymentContract(paths, schemas);
+await save('postman/specs/spending-diary.openapi.yaml',{openapi:'3.0.3',info:{title:'Spending Diary API',version:'1.0.0',description:'Contract and route inventory for the local checkout. Money uses integer minor units. Authentication is managed by Better Auth; OAuth, verification and reset token flows require separate end-to-end tests.'},servers:[{url:'http://localhost:3000',description:'Local development application'}],paths,components:{securitySchemes:{maintenanceBearer:{type:'http',scheme:'bearer',description:'CRON_SECRET maintenance authority; ordinary user sessions do not grant access.'},sessionCookie:{type:'apiKey',in:'cookie',name:'better-auth.session_token'}},schemas}});
 console.log(`Generated ${[...folders.values()].reduce((n,r)=>n+r.length,0)} requests across ${folders.size} folders; ${inventory.length} route files inventoried.`);

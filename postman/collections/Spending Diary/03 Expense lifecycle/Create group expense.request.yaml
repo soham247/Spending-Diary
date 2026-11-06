@@ -1,6 +1,6 @@
 "$kind": "http-request"
 "name": "Create group expense"
-"order": 13000
+"order": 14000
 "method": "POST"
 "url": "{{base_url}}/api/expenses/create"
 "settings":

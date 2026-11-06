@@ -1,6 +1,6 @@
 "$kind": "http-request"
 "name": "Soft delete expense"
-"order": 17000
+"order": 18000
 "method": "DELETE"
 "url": "{{base_url}}/api/expenses/{{equal_id}}"
 "settings":

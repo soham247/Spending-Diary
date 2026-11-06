@@ -598,6 +598,40 @@
               }
             }
           ]
+        },
+        {
+          "name": "Payment context requires a session",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/settlements/context",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{anon_cookie}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              }
+            ]
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "disableCookies": true
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
+                  ""
+                ]
+              }
+            }
+          ]
         }
       ]
     },
@@ -633,6 +667,40 @@
                   "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
                   "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
                   ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Payment context exposes typed scopes",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/settlements/context",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{owner_cookie}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              }
+            ]
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "disableCookies": true
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
+                  "pm.test('Scopes have integer balances and repayment restrictions', () => { for (const scope of pm.response.json().data) { pm.expect(scope.currency).to.eql('INR'); for (const person of scope.people) { pm.expect(Number.isSafeInteger(person.net)).to.eql(true); pm.expect(person.restricted).to.be.a('boolean'); } } });"
                 ]
               }
             }
@@ -2236,7 +2304,7 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('HTTP 422', () => pm.response.to.have.status(422));",
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
                   "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
                   ""
                 ]
@@ -3228,7 +3296,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"fromUserId\": \"{{friend_id}}\",\n  \"toUserId\": \"{{owner_id}}\",\n  \"amount\": 2000,\n  \"currency\": \"INR\",\n  \"method\": \"CASH\",\n  \"date\": \"{{date}}\",\n  \"groupId\": \"{{settlement_group_id}}\"\n}",
+              "raw": "{\n  \"fromUserId\": \"{{friend_id}}\",\n  \"toUserId\": \"{{owner_id}}\",\n  \"amount\": 2000,\n  \"currency\": \"INR\",\n  \"method\": \"CASH\",\n  \"date\": \"{{date}}\",\n  \"groupId\": \"{{settlement_group_id}}\",\n  \"note\": \"Partial repayment note\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -3283,6 +3351,40 @@
                   "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
                   "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
                   "pm.test('Settlement reduces debt from 5000 to 3000',()=>{const row=pm.response.json().data.find(r=>r.currency==='INR'&&r.scopeId===pm.environment.get('settlement_group_id'));pm.expect(Math.abs(row.amount)).to.eql(3000);});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Payment history retains optional note",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/settlements?groupId={{settlement_group_id}}",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{owner_cookie}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              }
+            ]
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "disableCookies": true
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
+                  "pm.test('Payment preserves the optional note',()=>pm.expect(pm.response.json().data.items.find(row=>row.id===pm.collectionVariables.get('payment_id')).note).to.eql('Partial repayment note'));"
                 ]
               }
             }
@@ -3620,13 +3722,13 @@
       ]
     },
     {
-      "name": "10 Legacy endpoint status",
+      "name": "11 App shell",
       "item": [
         {
-          "name": "GET /api/analytics/monthly-spending is currently a stub",
+          "name": "Profile requires authentication",
           "request": {
             "method": "GET",
-            "url": "{{base_url}}/api/analytics/monthly-spending",
+            "url": "{{base_url}}/api/me",
             "header": [
               {
                 "key": "Cookie",
@@ -3648,7 +3750,7 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('HTTP 501', () => pm.response.to.have.status(501));",
+                  "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
                   "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
                   ""
                 ]
@@ -3657,20 +3759,442 @@
           ]
         },
         {
-          "name": "POST /api/analytics/monthly-spending is currently a stub",
+          "name": "Read own profile",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/me",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{owner_cookie}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              }
+            ]
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "disableCookies": true
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
+                  "pm.test('Only own profile',()=>pm.expect(pm.response.json().data.id).to.eql(pm.environment.get('owner_id')));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reject profile privilege escalation",
+          "request": {
+            "method": "PATCH",
+            "url": "{{base_url}}/api/me",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{owner_cookie}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"ACTIVE\",\n  \"emailVerified\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "disableCookies": true
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update profile",
+          "request": {
+            "method": "PATCH",
+            "url": "{{base_url}}/api/me",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{owner_cookie}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated owner\",\n  \"upiId\": \"owner@upi\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "disableCookies": true
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
+                  "pm.test('Profile saved',()=>pm.expect(pm.response.json().data.upiId).to.eql('owner@upi'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Expense list requires authentication",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/expenses",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{anon_cookie}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              }
+            ]
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "disableCookies": true
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List visible expenses",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/expenses",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{owner_cookie}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              }
+            ]
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "disableCookies": true
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
+                  "pm.test('Bounded cursor page',()=>{const d=pm.response.json().data;pm.expect(d.items.length).to.be.at.most(30);pm.expect(d).to.have.property('nextCursor');});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Outsider sees no expenses",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/expenses",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{outsider_cookie}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              }
+            ]
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "disableCookies": true
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
+                  "pm.test('Private expenses stay private',()=>pm.expect(pm.response.json().data.items).to.eql([]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Personal spending requires authentication",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/expenses?scope=mine",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{anon_cookie}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              }
+            ]
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "disableCookies": true
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Personal spending uses owed shares",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/expenses?scope=mine&from=2000-01-01&to=2099-12-31",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{owner_cookie}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              }
+            ]
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "disableCookies": true
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
+                  "pm.test('Own shares and currency totals',()=>{const d=pm.response.json().data;pm.expect(d.items.length).to.be.above(0);d.items.forEach(e=>{pm.expect(Number.isSafeInteger(e.yourShare)).to.eql(true);pm.expect(e.yourShare).to.be.above(0);});d.spendingTotals.forEach(t=>{pm.expect(Number.isSafeInteger(t.amount)).to.eql(true);pm.expect(t.currency).to.eql('INR');});});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Spending rejects reversed dates",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/expenses?scope=mine&from=2026-11-02&to=2026-11-01",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{owner_cookie}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              }
+            ]
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "disableCookies": true
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Spending rejects impossible dates",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/expenses?scope=mine&from=2026-02-30",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{owner_cookie}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              }
+            ]
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "disableCookies": true
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Spending cannot select another viewer",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/expenses?scope=mine&viewerId={{owner_id}}",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{outsider_cookie}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              }
+            ]
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "disableCookies": true
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
+                  "pm.test('Session scopes spending',()=>{const d=pm.response.json().data;pm.expect(d.items).to.eql([]);pm.expect(d.spendingTotals).to.eql([]);});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "12 V2 product flows",
+      "item": [
+        {
+          "name": "Create group",
           "request": {
             "method": "POST",
-            "url": "{{base_url}}/api/analytics/monthly-spending",
+            "url": "{{base_url}}/api/groups",
             "header": [
               {
                 "key": "Cookie",
-                "value": "{{anon_cookie}}"
+                "value": "{{owner_cookie}}"
               },
               {
                 "key": "Origin",
                 "value": "{{base_url}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{run_id}}-newgroup"
               }
-            ]
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Contract trip {{run_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
           },
           "protocolProfileBehavior": {
             "followRedirects": false,
@@ -3682,63 +4206,46 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('HTTP 501', () => pm.response.to.have.status(501));",
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
                   "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
-                  ""
+                  "if (pm.response.code === 201) pm.collectionVariables.set('new_group_id', pm.response.json().data.id); pm.test('Created resource ID', () => pm.expect(pm.response.json().data.id).to.be.a('string'));"
                 ]
               }
             }
           ]
         },
         {
-          "name": "GET /api/expenses/delete is currently a stub",
-          "request": {
-            "method": "GET",
-            "url": "{{base_url}}/api/expenses/delete",
-            "header": [
-              {
-                "key": "Cookie",
-                "value": "{{anon_cookie}}"
-              },
-              {
-                "key": "Origin",
-                "value": "{{base_url}}"
-              }
-            ]
-          },
-          "protocolProfileBehavior": {
-            "followRedirects": false,
-            "disableCookies": true
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('HTTP 501', () => pm.response.to.have.status(501));",
-                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
-                  ""
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "POST /api/expenses/delete is currently a stub",
+          "name": "Replay group creation",
           "request": {
             "method": "POST",
-            "url": "{{base_url}}/api/expenses/delete",
+            "url": "{{base_url}}/api/groups",
             "header": [
               {
                 "key": "Cookie",
-                "value": "{{anon_cookie}}"
+                "value": "{{owner_cookie}}"
               },
               {
                 "key": "Origin",
                 "value": "{{base_url}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{run_id}}-newgroup"
               }
-            ]
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Contract trip {{run_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
           },
           "protocolProfileBehavior": {
             "followRedirects": false,
@@ -3750,63 +4257,46 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('HTTP 501', () => pm.response.to.have.status(501));",
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
                   "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
-                  ""
+                  "pm.test('Group ID reused',()=>pm.expect(pm.response.json().data.id).to.eql(pm.collectionVariables.get('new_group_id')));"
                 ]
               }
             }
           ]
         },
         {
-          "name": "GET /api/expenses/userExpenses is currently a stub",
-          "request": {
-            "method": "GET",
-            "url": "{{base_url}}/api/expenses/userExpenses",
-            "header": [
-              {
-                "key": "Cookie",
-                "value": "{{anon_cookie}}"
-              },
-              {
-                "key": "Origin",
-                "value": "{{base_url}}"
-              }
-            ]
-          },
-          "protocolProfileBehavior": {
-            "followRedirects": false,
-            "disableCookies": true
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('HTTP 501', () => pm.response.to.have.status(501));",
-                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
-                  ""
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "POST /api/expenses/userExpenses is currently a stub",
+          "name": "Group idempotency conflict",
           "request": {
             "method": "POST",
-            "url": "{{base_url}}/api/expenses/userExpenses",
+            "url": "{{base_url}}/api/groups",
             "header": [
               {
                 "key": "Cookie",
-                "value": "{{anon_cookie}}"
+                "value": "{{owner_cookie}}"
               },
               {
                 "key": "Origin",
                 "value": "{{base_url}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{run_id}}-newgroup"
               }
-            ]
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Different\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
           },
           "protocolProfileBehavior": {
             "followRedirects": false,
@@ -3818,7 +4308,7 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('HTTP 501', () => pm.response.to.have.status(501));",
+                  "pm.test('HTTP 409', () => pm.response.to.have.status(409));",
                   "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
                   ""
                 ]
@@ -3827,54 +4317,33 @@
           ]
         },
         {
-          "name": "GET /api/friends/addFriend is currently a stub",
-          "request": {
-            "method": "GET",
-            "url": "{{base_url}}/api/friends/addFriend",
-            "header": [
-              {
-                "key": "Cookie",
-                "value": "{{anon_cookie}}"
-              },
-              {
-                "key": "Origin",
-                "value": "{{base_url}}"
-              }
-            ]
-          },
-          "protocolProfileBehavior": {
-            "followRedirects": false,
-            "disableCookies": true
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('HTTP 501', () => pm.response.to.have.status(501));",
-                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
-                  ""
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "POST /api/friends/addFriend is currently a stub",
+          "name": "Group create needs a key",
           "request": {
             "method": "POST",
-            "url": "{{base_url}}/api/friends/addFriend",
+            "url": "{{base_url}}/api/groups",
             "header": [
               {
                 "key": "Cookie",
-                "value": "{{anon_cookie}}"
+                "value": "{{owner_cookie}}"
               },
               {
                 "key": "Origin",
                 "value": "{{base_url}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
               }
-            ]
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"No key\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
           },
           "protocolProfileBehavior": {
             "followRedirects": false,
@@ -3886,7 +4355,7 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('HTTP 501', () => pm.response.to.have.status(501));",
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
                   "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
                   ""
                 ]
@@ -3895,14 +4364,14 @@
           ]
         },
         {
-          "name": "GET /api/friends/get is currently a stub",
+          "name": "Outsider cannot read private group",
           "request": {
             "method": "GET",
-            "url": "{{base_url}}/api/friends/get",
+            "url": "{{base_url}}/api/groups/{{new_group_id}}",
             "header": [
               {
                 "key": "Cookie",
-                "value": "{{anon_cookie}}"
+                "value": "{{outsider_cookie}}"
               },
               {
                 "key": "Origin",
@@ -3920,7 +4389,7 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('HTTP 501', () => pm.response.to.have.status(501));",
+                  "pm.test('HTTP 404', () => pm.response.to.have.status(404));",
                   "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
                   ""
                 ]
@@ -3929,20 +4398,37 @@
           ]
         },
         {
-          "name": "POST /api/friends/get is currently a stub",
+          "name": "Create group invitation",
           "request": {
             "method": "POST",
-            "url": "{{base_url}}/api/friends/get",
+            "url": "{{base_url}}/api/invites",
             "header": [
               {
                 "key": "Cookie",
-                "value": "{{anon_cookie}}"
+                "value": "{{owner_cookie}}"
               },
               {
                 "key": "Origin",
                 "value": "{{base_url}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{run_id}}-groupinvite"
               }
-            ]
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"GROUP_LINK\",\n  \"groupId\": \"{{new_group_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
           },
           "protocolProfileBehavior": {
             "followRedirects": false,
@@ -3954,19 +4440,19 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('HTTP 501', () => pm.response.to.have.status(501));",
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
                   "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
-                  ""
+                  "pm.collectionVariables.set('group_token',pm.response.json().data.token);"
                 ]
               }
             }
           ]
         },
         {
-          "name": "GET /api/friends/settle is currently a stub",
+          "name": "Public group invitation hides balances",
           "request": {
             "method": "GET",
-            "url": "{{base_url}}/api/friends/settle",
+            "url": "{{base_url}}/api/invites/preview?token={{group_token}}",
             "header": [
               {
                 "key": "Cookie",
@@ -3988,29 +4474,42 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('HTTP 501', () => pm.response.to.have.status(501));",
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
                   "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
-                  ""
+                  "pm.test('No balances disclosed',()=>pm.expect(pm.response.json().data.balances).to.eql([]));"
                 ]
               }
             }
           ]
         },
         {
-          "name": "POST /api/friends/settle is currently a stub",
+          "name": "Join group through invitation",
           "request": {
             "method": "POST",
-            "url": "{{base_url}}/api/friends/settle",
+            "url": "{{base_url}}/api/invites/claim",
             "header": [
               {
                 "key": "Cookie",
-                "value": "{{anon_cookie}}"
+                "value": "{{outsider_cookie}}"
               },
               {
                 "key": "Origin",
                 "value": "{{base_url}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
               }
-            ]
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{group_token}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
           },
           "protocolProfileBehavior": {
             "followRedirects": false,
@@ -4022,7 +4521,7 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('HTTP 501', () => pm.response.to.have.status(501));",
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
                   "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
                   ""
                 ]
@@ -4031,14 +4530,14 @@
           ]
         },
         {
-          "name": "GET /api/payments/order is currently a stub",
+          "name": "Joined member sees group",
           "request": {
             "method": "GET",
-            "url": "{{base_url}}/api/payments/order",
+            "url": "{{base_url}}/api/groups/{{new_group_id}}",
             "header": [
               {
                 "key": "Cookie",
-                "value": "{{anon_cookie}}"
+                "value": "{{outsider_cookie}}"
               },
               {
                 "key": "Origin",
@@ -4056,7 +4555,54 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('HTTP 501', () => pm.response.to.have.status(501));",
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
+                  "pm.test('Member role',()=>pm.expect(pm.response.json().data.viewerRole).to.eql('MEMBER'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Member cannot change group settings",
+          "request": {
+            "method": "PATCH",
+            "url": "{{base_url}}/api/groups/{{new_group_id}}",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{outsider_cookie}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Forged\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "disableCookies": true
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', () => pm.response.to.have.status(404));",
                   "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
                   ""
                 ]
@@ -4065,20 +4611,37 @@
           ]
         },
         {
-          "name": "POST /api/payments/order is currently a stub",
+          "name": "Create shared group expense",
           "request": {
             "method": "POST",
-            "url": "{{base_url}}/api/payments/order",
+            "url": "{{base_url}}/api/expenses/create",
             "header": [
               {
                 "key": "Cookie",
-                "value": "{{anon_cookie}}"
+                "value": "{{owner_cookie}}"
               },
               {
                 "key": "Origin",
                 "value": "{{base_url}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{run_id}}-v2expense"
               }
-            ]
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Postman regression {{run_id}}\",\n  \"category\": \"Food\",\n  \"amount\": 1000,\n  \"currency\": \"INR\",\n  \"date\": \"{{date}}\",\n  \"splitType\": \"EQUAL\",\n  \"participants\": [\n    {\n      \"userId\": \"{{owner_id}}\",\n      \"paid\": 1000\n    },\n    {\n      \"userId\": \"{{outsider_id}}\",\n      \"paid\": 0\n    }\n  ],\n  \"groupId\": \"{{new_group_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
           },
           "protocolProfileBehavior": {
             "followRedirects": false,
@@ -4090,29 +4653,42 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('HTTP 501', () => pm.response.to.have.status(501));",
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
                   "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
-                  ""
+                  "if (pm.response.code === 201) pm.collectionVariables.set('v2_expense_id', pm.response.json().data.id); pm.test('Created resource ID', () => pm.expect(pm.response.json().data.id).to.be.a('string'));"
                 ]
               }
             }
           ]
         },
         {
-          "name": "GET /api/payments/validate is currently a stub",
+          "name": "Archive group",
           "request": {
-            "method": "GET",
-            "url": "{{base_url}}/api/payments/validate",
+            "method": "PATCH",
+            "url": "{{base_url}}/api/groups/{{new_group_id}}",
             "header": [
               {
                 "key": "Cookie",
-                "value": "{{anon_cookie}}"
+                "value": "{{owner_cookie}}"
               },
               {
                 "key": "Origin",
                 "value": "{{base_url}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
               }
-            ]
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"archived\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
           },
           "protocolProfileBehavior": {
             "followRedirects": false,
@@ -4124,7 +4700,7 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('HTTP 501', () => pm.response.to.have.status(501));",
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
                   "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
                   ""
                 ]
@@ -4133,88 +4709,37 @@
           ]
         },
         {
-          "name": "POST /api/payments/validate is currently a stub",
-          "request": {
-            "method": "POST",
-            "url": "{{base_url}}/api/payments/validate",
-            "header": [
-              {
-                "key": "Cookie",
-                "value": "{{anon_cookie}}"
-              },
-              {
-                "key": "Origin",
-                "value": "{{base_url}}"
-              }
-            ]
-          },
-          "protocolProfileBehavior": {
-            "followRedirects": false,
-            "disableCookies": true
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('HTTP 501', () => pm.response.to.have.status(501));",
-                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
-                  ""
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "GET /api/users/currentUser is currently a stub",
-          "request": {
-            "method": "GET",
-            "url": "{{base_url}}/api/users/currentUser",
-            "header": [
-              {
-                "key": "Cookie",
-                "value": "{{anon_cookie}}"
-              },
-              {
-                "key": "Origin",
-                "value": "{{base_url}}"
-              }
-            ]
-          },
-          "protocolProfileBehavior": {
-            "followRedirects": false,
-            "disableCookies": true
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('HTTP 501', () => pm.response.to.have.status(501));",
-                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
-                  ""
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "POST /api/users/currentUser is currently a stub",
+          "name": "Archived group rejects expense",
           "request": {
             "method": "POST",
-            "url": "{{base_url}}/api/users/currentUser",
+            "url": "{{base_url}}/api/expenses/create",
             "header": [
               {
                 "key": "Cookie",
-                "value": "{{anon_cookie}}"
+                "value": "{{owner_cookie}}"
               },
               {
                 "key": "Origin",
                 "value": "{{base_url}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{run_id}}-archived"
               }
-            ]
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Postman regression {{run_id}}\",\n  \"category\": \"Food\",\n  \"amount\": 10001,\n  \"currency\": \"INR\",\n  \"date\": \"{{date}}\",\n  \"splitType\": \"EQUAL\",\n  \"participants\": [\n    {\n      \"userId\": \"{{owner_id}}\",\n      \"paid\": 10001\n    },\n    {\n      \"userId\": \"{{friend_id}}\",\n      \"paid\": 0\n    }\n  ],\n  \"groupId\": \"{{new_group_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
           },
           "protocolProfileBehavior": {
             "followRedirects": false,
@@ -4226,7 +4751,7 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('HTTP 501', () => pm.response.to.have.status(501));",
+                  "pm.test('HTTP 403', () => pm.response.to.have.status(403));",
                   "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
                   ""
                 ]
@@ -4235,20 +4760,33 @@
           ]
         },
         {
-          "name": "GET /api/users/getUser/phone is currently a stub",
+          "name": "Unarchive group",
           "request": {
-            "method": "GET",
-            "url": "{{base_url}}/api/users/getUser/phone",
+            "method": "PATCH",
+            "url": "{{base_url}}/api/groups/{{new_group_id}}",
             "header": [
               {
                 "key": "Cookie",
-                "value": "{{anon_cookie}}"
+                "value": "{{owner_cookie}}"
               },
               {
                 "key": "Origin",
                 "value": "{{base_url}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
               }
-            ]
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"archived\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
           },
           "protocolProfileBehavior": {
             "followRedirects": false,
@@ -4260,7 +4798,7 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('HTTP 501', () => pm.response.to.have.status(501));",
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
                   "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
                   ""
                 ]
@@ -4269,44 +4807,163 @@
           ]
         },
         {
-          "name": "GET /api/users/signup is currently a stub",
-          "request": {
-            "method": "GET",
-            "url": "{{base_url}}/api/users/signup",
-            "header": [
-              {
-                "key": "Cookie",
-                "value": "{{anon_cookie}}"
-              },
-              {
-                "key": "Origin",
-                "value": "{{base_url}}"
-              }
-            ]
-          },
-          "protocolProfileBehavior": {
-            "followRedirects": false,
-            "disableCookies": true
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('HTTP 501', () => pm.response.to.have.status(501));",
-                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
-                  ""
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "POST /api/users/signup is currently a stub",
+          "name": "Create placeholder",
           "request": {
             "method": "POST",
-            "url": "{{base_url}}/api/users/signup",
+            "url": "{{base_url}}/api/friends",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{owner_cookie}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{run_id}}-placeholder"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Placeholder {{run_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "disableCookies": true
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
+                  "if (pm.response.code === 201) pm.collectionVariables.set('placeholder_id', pm.response.json().data.id); pm.test('Created resource ID', () => pm.expect(pm.response.json().data.id).to.be.a('string'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Record placeholder expense",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/expenses/create",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{owner_cookie}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{run_id}}-placeholder-expense"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Postman regression {{run_id}}\",\n  \"category\": \"Food\",\n  \"amount\": 1200,\n  \"currency\": \"INR\",\n  \"date\": \"{{date}}\",\n  \"splitType\": \"EQUAL\",\n  \"participants\": [\n    {\n      \"userId\": \"{{owner_id}}\",\n      \"paid\": 1200\n    },\n    {\n      \"userId\": \"{{placeholder_id}}\",\n      \"paid\": 0\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "disableCookies": true
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create direct invitation",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/invites",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{owner_cookie}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{run_id}}-directinvite"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"DIRECT\",\n  \"placeholderId\": \"{{placeholder_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "disableCookies": true
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
+                  "pm.collectionVariables.set('direct_token',pm.response.json().data.token);pm.collectionVariables.set('direct_invite_id',pm.response.json().data.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Preview direct debt",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/invites/preview?token={{direct_token}}",
             "header": [
               {
                 "key": "Cookie",
@@ -4328,9 +4985,703 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('HTTP 501', () => pm.response.to.have.status(501));",
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
+                  "pm.test('Placeholder owes 600',()=>pm.expect(pm.response.json().data.balances[0].net).to.eql(-600));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Claim placeholder history",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/invites/claim",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{outsider_cookie}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{direct_token}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "disableCookies": true
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
                   "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
                   ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Claim replay is safe",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/invites/claim",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{outsider_cookie}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{direct_token}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "disableCookies": true
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Different user cannot reuse claim",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/invites/claim",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{friend_cookie}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{direct_token}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "disableCookies": true
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', () => pm.response.to.have.status(404));",
+                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Report wrong claim without reversing history",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/invites/{{direct_invite_id}}/report",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{owner_cookie}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{run_id}}-claimreport"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Contract report\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "disableCookies": true
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Claimer cannot file inviter report",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/invites/{{direct_invite_id}}/report",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{outsider_cookie}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{run_id}}-forged-report"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Forged\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "disableCookies": true
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', () => pm.response.to.have.status(404));",
+                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Merged history appears in friend view",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/friends/{{outsider_id}}",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{owner_cookie}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              }
+            ]
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "disableCookies": true
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
+                  "pm.test('Merged expense visible',()=>pm.expect(pm.response.json().data.expenses.length).to.be.above(0));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Activity feed is paginated",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/activity",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{owner_cookie}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              }
+            ]
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "disableCookies": true
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
+                  "const d=pm.response.json().data;pm.test('Bounded activity page',()=>pm.expect(d.items.length).to.be.at.most(30));pm.collectionVariables.set('activity_id',d.items[0].id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Mark activity read",
+          "request": {
+            "method": "PATCH",
+            "url": "{{base_url}}/api/activity/{{activity_id}}",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{owner_cookie}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              }
+            ]
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "disableCookies": true
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Monthly insights use integer money",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/insights?month=2026-10",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{owner_cookie}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              }
+            ]
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "disableCookies": true
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
+                  "pm.test('Category amounts equal total',()=>pm.response.json().data.forEach(r=>{pm.expect(Number.isSafeInteger(r.total)).to.eql(true);pm.expect(r.categories.reduce((sum,c)=>sum+c.amount,0)).to.eql(r.total);}));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reject private push endpoint",
+          "request": {
+            "method": "PUT",
+            "url": "{{base_url}}/api/push/subscription",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{owner_cookie}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"endpoint\": \"https://127.0.0.1/push\",\n  \"keys\": {\n    \"p256dh\": \"invalid\",\n    \"auth\": \"invalid\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "disableCookies": true
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Payment history requires authentication",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/settlements",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{anon_cookie}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              }
+            ]
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "disableCookies": true
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Payment history has bounded integer amounts",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/settlements",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{owner_cookie}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              }
+            ]
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "disableCookies": true
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
+                  "pm.test('Bounded payment page',()=>{const d=pm.response.json().data;pm.expect(d.items.length).to.be.at.most(30);d.items.forEach(p=>pm.expect(Number.isSafeInteger(p.amount)).to.eql(true));});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Maintenance needs authorization",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/cron/maintenance",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{anon_cookie}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              }
+            ]
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "disableCookies": true
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Payer can be outside an equal split",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/expenses/create",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{owner_cookie}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{run_id}}-payeronly"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Postman regression {{run_id}}\",\n  \"category\": \"Food\",\n  \"amount\": 9000,\n  \"currency\": \"INR\",\n  \"date\": \"{{date}}\",\n  \"splitType\": \"EQUAL\",\n  \"participants\": [\n    {\n      \"userId\": \"{{owner_id}}\",\n      \"paid\": 9000,\n      \"includedInSplit\": false\n    },\n    {\n      \"userId\": \"{{friend_id}}\",\n      \"paid\": 0\n    },\n    {\n      \"userId\": \"{{outsider_id}}\",\n      \"paid\": 0\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "disableCookies": true
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
+                  "if (pm.response.code === 201) pm.collectionVariables.set('payer_only_id', pm.response.json().data.id); pm.test('Created resource ID', () => pm.expect(pm.response.json().data.id).to.be.a('string'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Read payer-only allocation",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/expenses/{{payer_only_id}}",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{owner_cookie}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              }
+            ]
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "disableCookies": true
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
+                  "pm.test('Payer owes zero and both consumers owe 4500',()=>{const e=pm.response.json().data;const payer=e.participants.find(p=>p.userId===pm.environment.get('owner_id'));pm.expect(payer.paid).to.eql(9000);pm.expect(payer.owed).to.eql(0);pm.expect(payer.includedInSplit).to.eql(false);pm.expect(e.participants.filter(p=>p.userId!==payer.userId).map(p=>p.owed)).to.eql([4500,4500]);});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Edit payer-only expense description",
+          "request": {
+            "method": "PATCH",
+            "url": "{{base_url}}/api/expenses/{{payer_only_id}}",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{owner_cookie}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"version\": 1,\n  \"description\": \"Payer-only edited\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "disableCookies": true
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Payer-only allocation survives editing",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/expenses/{{payer_only_id}}",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{owner_cookie}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              }
+            ]
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "disableCookies": true
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
+                  "pm.test('Payer owes zero and both consumers owe 4500',()=>{const e=pm.response.json().data;const payer=e.participants.find(p=>p.userId===pm.environment.get('owner_id'));pm.expect(payer.paid).to.eql(9000);pm.expect(payer.owed).to.eql(0);pm.expect(payer.includedInSplit).to.eql(false);pm.expect(e.participants.filter(p=>p.userId!==payer.userId).map(p=>p.owed)).to.eql([4500,4500]);});"
                 ]
               }
             }

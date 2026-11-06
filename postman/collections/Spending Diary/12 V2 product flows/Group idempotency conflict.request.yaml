@@ -1,0 +1,33 @@
+"$kind": "http-request"
+"name": "Group idempotency conflict"
+"order": 3000
+"method": "POST"
+"url": "{{base_url}}/api/groups"
+"settings":
+  "followRedirects": false
+"headers":
+  -
+    "key": "Cookie"
+    "value": "{{owner_cookie}}"
+  -
+    "key": "Origin"
+    "value": "{{base_url}}"
+  -
+    "key": "Content-Type"
+    "value": "application/json"
+  -
+    "key": "Idempotency-Key"
+    "value": "{{run_id}}-newgroup"
+"body":
+  "type": "json"
+  "content": |-
+    {
+      "name": "Different"
+    }
+"scripts":
+  -
+    "type": "afterResponse"
+    "language": "text/javascript"
+    "code": |-
+      pm.test('HTTP 409', () => pm.response.to.have.status(409));
+      pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });
