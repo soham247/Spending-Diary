@@ -14,6 +14,7 @@ Install dependencies with npm ci. Apply reviewed migrations with npm run db:migr
 
 Copy .env.test.example to .env.test and set TEST_DATABASE_URL to a disposable database ending in _test. Integration tests migrate and clear that database. Keep it separate from application data.
 
+- npm run preflight: run before pushing; includes typecheck, lint, unit/integration tests, Postman artifact lint, production builds, HTTP regression tests and Chromium acceptance journeys. Stops on the first failure. Requires the test databases, Postman CLI and installed Chromium described below.
 - npm run verify: TypeScript, ESLint, unit/integration tests, Postman artifact lint and production build.
 - npm run test:api: HTTP regression tests against a separate loopback database.
 - npm run test:browser: isolated production build, HTTP regression tests and Chromium acceptance journeys.

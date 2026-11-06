@@ -14,6 +14,7 @@
     "db:generate": "drizzle-kit generate",
     "db:check": "drizzle-kit check",
     "verify": "npm run typecheck && npm run lint && npm run test && npm run postman:lint && npm run build",
+    "preflight": "npm run verify && npm run test:browser",
     "postman:generate": "node postman/scripts/build-collection.mjs",
     "postman:lint": "postman collection lint \"postman/collections/Spending Diary\" --fail-severity warning && postman environment lint postman/environments --fail-severity warning && postman spec lint postman/specs/spending-diary.openapi.yaml --issueType syntax --no-report-events",
     "test:api": "node postman/scripts/run-local.mjs",
