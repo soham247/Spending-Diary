@@ -12,7 +12,7 @@ Shared [auth](http.md#auth), [body](http.md#request-body), and
 
 ## Request kinds
 
-`$kind` is required on these request kinds, and it is the *only* required field except on
+`$kind` is required on these request kinds, and it is the _only_ required field except on
 `mcp-request`, which also requires `transport`. So for every other kind a half-written
 request can pass structural checks without being executable. Only `*.request.yaml`
 files are discovered as requests; the right fields in a differently named file
@@ -32,22 +32,26 @@ There is **no `queryParams`** — put query-string parameters in the `url`.
 `schema` is one shape chosen by `source`:
 
 ```yaml
-schema: {source: none}
+schema: { source: none }
 ```
+
 ```yaml
-schema: {source: auto}
+schema: { source: auto }
 ```
+
 ```yaml
 schema:
   source: file
   location: ./schema.graphql
 ```
+
 ```yaml
 schema:
   source: api
   apiId: <id>
-  versionId: <id>          # releaseId optional
+  versionId: <id> # releaseId optional
 ```
+
 ```yaml
 schema:
   source: specification
@@ -99,7 +103,7 @@ in `settings`. Do not quote it — that is the opposite of `socket.io-request`, 
 ```yaml
 topics:
   - name: sensors/+/temp
-    qos: 1                 # a number: 0, 1 or 2
+    qos: 1 # a number: 0, 1 or 2
     subscribe: true
 lastWill:
   topic: status/client
@@ -120,21 +124,21 @@ lastWill:
 Requires `$kind` **and** `transport`, which selects the legal keys. Common to both:
 `message`, `auth`.
 
-| `transport` | Its keys | `settings` |
-|---|---|---|
-| `stdio` | `command`, `env` (`{key, value}` array entries) | `version`, `requestTimeout` |
-| `sse` | `url`, `headers` | `version`, `requestTimeout`, `strictSSL`, `sessionTimeout` |
+| `transport` | Its keys                                        | `settings`                                                 |
+| ----------- | ----------------------------------------------- | ---------------------------------------------------------- |
+| `stdio`     | `command`, `env` (`{key, value}` array entries) | `version`, `requestTimeout`                                |
+| `sse`       | `url`, `headers`                                | `version`, `requestTimeout`, `strictSSL`, `sessionTimeout` |
 
 There are no other transports. `message` is a JSON-RPC envelope as a **string**;
 `{{variables}}` interpolate inside it.
 
 ```yaml
 $kind: mcp-request
-transport: stdio           # command + env; no url
+transport: stdio # command + env; no url
 command: uvx some-mcp-server
 env:
   - key: API_KEY
-    value: '{{KEY}}'
+    value: "{{KEY}}"
 message: |-
   {"method": "tools/call", "params": {"name": "do_thing", "arguments": {}}}
 order: 1000
@@ -142,11 +146,11 @@ order: 1000
 
 ```yaml
 $kind: mcp-request
-transport: sse             # url + headers; no command
+transport: sse # url + headers; no command
 url: https://mcp.example.com/sse
 headers:
   - key: Authorization
-    value: 'Bearer {{KEY}}'
+    value: "Bearer {{KEY}}"
 message: |-
   {"method": "tools/list"}
 ```
@@ -172,7 +176,7 @@ shapes within the same request:
 
 ```yaml
 userPrompts:
-  - id: '1'
+  - id: "1"
     value: Summarise the last 10 orders
     timestamp: 1758412800000
     active: true
@@ -200,13 +204,13 @@ A `messages` directory holds `*.message.yaml` files. Each kind has different req
 fields; a valid WebSocket message is not automatically a valid MQTT message.
 
 ```yaml
-$kind: websocket-message      # requires content + contentType
+$kind: websocket-message # requires content + contentType
 content: '{"op":"subscribe"}'
-contentType: json             # text | json | xml | html | hex | base64
+contentType: json # text | json | xml | html | hex | base64
 ```
 
 ```yaml
-$kind: socket.io-message      # requires eventName + args
+$kind: socket.io-message # requires eventName + args
 eventName: chat:message
 acknowledgement: true
 args:
@@ -215,10 +219,10 @@ args:
 ```
 
 ```yaml
-$kind: mqtt-message           # requires content + contentType + topic
+$kind: mqtt-message # requires content + contentType + topic
 topic: sensors/1/temp
-content: '21.5'
-contentType: text             # text | json | hex | base64
+content: "21.5"
+contentType: text # text | json | hex | base64
 qos: 1
 retain: false
 ```

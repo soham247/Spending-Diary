@@ -17,13 +17,16 @@ For collection auditing, the Postman MCP Server must be connected. Local spec au
 Call `getWorkspaces` to get the user's workspace ID. If multiple workspaces exist, ask which to use.
 
 **Local spec:**
+
 - Search for `**/openapi.{json,yaml,yml}`, `**/swagger.{json,yaml,yml}`
 
 **Postman spec (via MCP):**
+
 - Call `getAllSpecs` with the workspace ID to find specs
 - Call `getSpecDefinition` for the full spec content
 
 **Postman collection (via MCP):**
+
 - Call `getCollections` with the `workspace` parameter
 - Call `getCollection` for full detail including auth config
 - Call `getEnvironment` to check for exposed secrets
@@ -31,6 +34,7 @@ Call `getWorkspaces` to get the user's workspace ID. If multiple workspaces exis
 ### Step 2: Run Security Checks
 
 **Authentication and Authorization:**
+
 - Security schemes defined (OAuth2, API Key, Bearer, etc.)
 - Security applied globally or per-endpoint
 - No endpoints accidentally unprotected
@@ -38,10 +42,12 @@ Call `getWorkspaces` to get the user's workspace ID. If multiple workspaces exis
 - Admin endpoints have elevated auth requirements
 
 **Transport Security:**
+
 - All server URLs use HTTPS
 - No mixed HTTP/HTTPS
 
 **Sensitive Data Exposure:**
+
 - No API keys, tokens, or passwords in example values
 - No secrets in query parameters (should be headers/body)
 - Password fields marked as `format: password`
@@ -49,6 +55,7 @@ Call `getWorkspaces` to get the user's workspace ID. If multiple workspaces exis
 - Postman environment variables checked for leaked secrets (via `getEnvironment`)
 
 **Input Validation:**
+
 - All parameters have defined types
 - String parameters have `maxLength`
 - Numeric parameters have `minimum`/`maximum`
@@ -57,17 +64,20 @@ Call `getWorkspaces` to get the user's workspace ID. If multiple workspaces exis
 - Request body has required field validation
 
 **Rate Limiting:**
+
 - Rate limits documented
 - Rate limit headers defined (X-RateLimit-Limit, X-RateLimit-Remaining)
 - 429 Too Many Requests response defined
 
 **Error Handling:**
+
 - Error responses don't leak stack traces
 - Error schemas don't expose internal field names
 - 401 and 403 responses properly defined
 - Error messages don't reveal implementation details
 
 **OWASP API Top 10 Alignment:**
+
 - API1: Broken Object Level Authorization
 - API2: Broken Authentication
 - API3: Broken Object Property Level Authorization
@@ -106,11 +116,13 @@ API Security Audit: pet-store-api.yaml
 ### Step 4: Fix
 
 For each finding:
+
 1. Explain the security risk in plain terms
 2. Show the exact spec change needed
 3. Apply the fix with user approval
 
 For Postman-specific issues:
+
 - Call `putEnvironment` to mark secrets properly
 - Call `updateCollectionRequest` to fix auth configuration
 - Call `updateCollectionResponse` to remove sensitive data from examples

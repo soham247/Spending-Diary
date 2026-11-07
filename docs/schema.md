@@ -65,19 +65,19 @@ User ─┬─< Account (credential or Google), Session   (Better Auth)
 
 ## 3. Conventions
 
-| Convention | Rule |
-|---|---|
-| IDs | cuid2 strings from `$defaultFn(() => createId())`. Ledger entries use `bigserial` for insert speed and natural ordering. Better Auth tables keep the IDs Better Auth generates. |
-| Table names | snake_case plural. Columns snake_case, declared as `text("created_at")` and so on, with camelCase TypeScript keys. |
-| Row amounts | `integer` (max ≈ ₹2.1 crore per row). |
-| Balance cache | `bigint({ mode: "bigint" })`, converted with `toSafeNumber()` at the API edge. |
-| Timestamps | `created_at`, `updated_at` on every mutable table, `timestamp({ withTimezone: true })`. |
-| Expense dates | `date(..., { mode: "string" })`, so they stay `YYYY-MM-DD` strings in local calendar terms. |
-| Pairs | `user_low_id < user_high_id`, always set via `orderPair()`, enforced by a `check()` in the schema. |
-| Scope | `scope_id` is the group ID, or the literal `"direct"` for non-group activity. Primary keys can't include NULL, so a sentinel keeps composite keys simple. |
-| Currency | ISO 4217 code, `char(3)`. |
-| Soft delete | `deleted_at` timestamp, nullable. Queries filter `isNull(deleted_at)` unless explicitly listing deleted items. |
-| Foreign keys | Money tables use `{ onDelete: "restrict" }`. |
+| Convention    | Rule                                                                                                                                                                            |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| IDs           | cuid2 strings from `$defaultFn(() => createId())`. Ledger entries use `bigserial` for insert speed and natural ordering. Better Auth tables keep the IDs Better Auth generates. |
+| Table names   | snake_case plural. Columns snake_case, declared as `text("created_at")` and so on, with camelCase TypeScript keys.                                                              |
+| Row amounts   | `integer` (max ≈ ₹2.1 crore per row).                                                                                                                                           |
+| Balance cache | `bigint({ mode: "bigint" })`, converted with `toSafeNumber()` at the API edge.                                                                                                  |
+| Timestamps    | `created_at`, `updated_at` on every mutable table, `timestamp({ withTimezone: true })`.                                                                                         |
+| Expense dates | `date(..., { mode: "string" })`, so they stay `YYYY-MM-DD` strings in local calendar terms.                                                                                     |
+| Pairs         | `user_low_id < user_high_id`, always set via `orderPair()`, enforced by a `check()` in the schema.                                                                              |
+| Scope         | `scope_id` is the group ID, or the literal `"direct"` for non-group activity. Primary keys can't include NULL, so a sentinel keeps composite keys simple.                       |
+| Currency      | ISO 4217 code, `char(3)`.                                                                                                                                                       |
+| Soft delete   | `deleted_at` timestamp, nullable. Queries filter `isNull(deleted_at)` unless explicitly listing deleted items.                                                                  |
+| Foreign keys  | Money tables use `{ onDelete: "restrict" }`.                                                                                                                                    |
 
 ## 4. Tables
 
@@ -88,12 +88,12 @@ app fields through `user.additionalFields` in `lib/auth/auth.ts` so the CLI and
 the schema stay in sync. After any change to Better Auth options or plugins,
 re-run the CLI `generate` and reconcile it with `src/lib/db/schema.ts`.
 
-| Table | Purpose |
-|---|---|
-| `users` | People, including placeholders. Core: `id`, `name`, `email` (unique, stored lowercased), `email_verified`, `image`. App fields below. |
-| `sessions` | Database sessions (90-day sliding). `token` unique. Listed in Settings → Devices. |
-| `accounts` | Sign-in methods. A password user has one row with provider `credential` and a nullable `password` (the hash). A Google user has a row with Google's tokens. One user can have both. |
-| `verifications` | Short-lived tokens for email verification and password reset. |
+| Table           | Purpose                                                                                                                                                                             |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `users`         | People, including placeholders. Core: `id`, `name`, `email` (unique, stored lowercased), `email_verified`, `image`. App fields below.                                               |
+| `sessions`      | Database sessions (90-day sliding). `token` unique. Listed in Settings → Devices.                                                                                                   |
+| `accounts`      | Sign-in methods. A password user has one row with provider `credential` and a nullable `password` (the hash). A Google user has a row with Google's tokens. One user can have both. |
+| `verifications` | Short-lived tokens for email verification and password reset.                                                                                                                       |
 
 `email_verified` must be true before a password user can sign in. A Google
 sign-in with the same verified email links to the existing user instead of
@@ -101,15 +101,15 @@ creating a second one.
 
 App fields on `users`:
 
-| Field | Type | Why |
-|---|---|---|
-| `status` | `ACTIVE \| INVITED \| DELETED` | `INVITED` = placeholder created by an inviter. Can't log in. |
-| `phone` | `text NULL`, not unique | Unverified contact info only. Unique would let anyone lock a number. |
-| `upi_id` | `text NULL` | Enables one-tap settle-up. |
-| `default_currency` | `char(3)` default `INR` | Default for new groups and personal expenses. |
-| `notification_prefs` | `jsonb` | Per-type switches, validated by Zod on read. |
-| `merged_into_id` | `text NULL` | Set when a placeholder is claimed; keeps merges traceable. |
-| `deleted_at` | `timestamptz NULL` | Account deletion anonymizes; the row stays for history. |
+| Field                | Type                           | Why                                                                  |
+| -------------------- | ------------------------------ | -------------------------------------------------------------------- |
+| `status`             | `ACTIVE \| INVITED \| DELETED` | `INVITED` = placeholder created by an inviter. Can't log in.         |
+| `phone`              | `text NULL`, not unique        | Unverified contact info only. Unique would let anyone lock a number. |
+| `upi_id`             | `text NULL`                    | Enables one-tap settle-up.                                           |
+| `default_currency`   | `char(3)` default `INR`        | Default for new groups and personal expenses.                        |
+| `notification_prefs` | `jsonb`                        | Per-type switches, validated by Zod on read.                         |
+| `merged_into_id`     | `text NULL`                    | Set when a placeholder is claimed; keeps merges traceable.           |
+| `deleted_at`         | `timestamptz NULL`             | Account deletion anonymizes; the row stays for history.              |
 
 Placeholders get `email = placeholder+<id>@spendingdiary.invalid`. The
 `.invalid` TLD is reserved and can never receive mail. The mail layer refuses
@@ -146,30 +146,30 @@ may still carry a balance. Groups are archived, never deleted.
 
 ### 4.5 `invites`
 
-| Field | Notes |
-|---|---|
-| `token_hash` | SHA-256 of the 128-bit token. The raw token exists only in the URL. |
-| `type` | `DIRECT` (claims a placeholder), `GROUP_LINK`, `PERSONAL` (add me as friend). |
-| `group_id NULL`, `inviter_id`, `invitee_user_id NULL` | `invitee_user_id` is the placeholder for `DIRECT`. |
-| `max_uses NULL`, `use_count` | `DIRECT` = 1, links = unlimited unless set. Incremented with a conditional update to prevent over-redemption. |
-| `expires_at NULL`, `revoked_at NULL` | Group links: 14 days. Direct: 30 days. Personal: none. |
-| `claimed_by_id NULL`, `claimed_at NULL` | Who claimed a direct invite, shown to the inviter. |
+| Field                                                 | Notes                                                                                                         |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `token_hash`                                          | SHA-256 of the 128-bit token. The raw token exists only in the URL.                                           |
+| `type`                                                | `DIRECT` (claims a placeholder), `GROUP_LINK`, `PERSONAL` (add me as friend).                                 |
+| `group_id NULL`, `inviter_id`, `invitee_user_id NULL` | `invitee_user_id` is the placeholder for `DIRECT`.                                                            |
+| `max_uses NULL`, `use_count`                          | `DIRECT` = 1, links = unlimited unless set. Incremented with a conditional update to prevent over-redemption. |
+| `expires_at NULL`, `revoked_at NULL`                  | Group links: 14 days. Direct: 30 days. Personal: none.                                                        |
+| `claimed_by_id NULL`, `claimed_at NULL`               | Who claimed a direct invite, shown to the inviter.                                                            |
 
 ### 4.6 `expenses`
 
-| Field | Notes |
-|---|---|
-| `group_id NULL` | NULL for direct and personal expenses. |
-| `kind` | `SHARED` or `PERSONAL`. Personal expenses have one participant and produce no ledger entries. |
-| `description`, `category`, `notes NULL` | `category` is a fixed enum-like string in Phase 1. |
-| `amount` | `Int`, minor units, `CHECK (amount > 0)`. |
-| `currency` | Must equal the group's currency in Phase 1. |
-| `split_type` | `EQUAL \| EXACT \| PERCENTAGE \| SHARES`. Stored so the edit form reopens the way it was entered. |
-| `date` | `date`. |
-| `created_by_id` | Explicit creator; never inferred from participant order. |
-| `version` | Starts at 1, incremented on every edit. Edits must send the version they read. |
-| `idempotency_key NULL` | `UNIQUE (created_by_id, idempotency_key)`. |
-| `deleted_at NULL` | Soft delete; restorable. |
+| Field                                   | Notes                                                                                             |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| `group_id NULL`                         | NULL for direct and personal expenses.                                                            |
+| `kind`                                  | `SHARED` or `PERSONAL`. Personal expenses have one participant and produce no ledger entries.     |
+| `description`, `category`, `notes NULL` | `category` is a fixed enum-like string in Phase 1.                                                |
+| `amount`                                | `Int`, minor units, `CHECK (amount > 0)`.                                                         |
+| `currency`                              | Must equal the group's currency in Phase 1.                                                       |
+| `split_type`                            | `EQUAL \| EXACT \| PERCENTAGE \| SHARES`. Stored so the edit form reopens the way it was entered. |
+| `date`                                  | `date`.                                                                                           |
+| `created_by_id`                         | Explicit creator; never inferred from participant order.                                          |
+| `version`                               | Starts at 1, incremented on every edit. Edits must send the version they read.                    |
+| `idempotency_key NULL`                  | `UNIQUE (created_by_id, idempotency_key)`.                                                        |
+| `deleted_at NULL`                       | Soft delete; restorable.                                                                          |
 
 ### 4.7 `expense_participants`
 
@@ -203,15 +203,15 @@ and Rahul the creditor, which cancels ₹500 of Rahul's debt.
 
 ### 4.9 `ledger_entries`
 
-| Field | Notes |
-|---|---|
-| `id` | `BigInt` autoincrement. |
-| `scope_id` | Group ID or `"direct"`. |
-| `debtor_id`, `creditor_id` | `CHECK (debtor_id <> creditor_id)`. |
-| `amount` | `Int`, `CHECK (amount > 0)`. |
-| `currency` | |
+| Field                                   | Notes                                                                      |
+| --------------------------------------- | -------------------------------------------------------------------------- |
+| `id`                                    | `BigInt` autoincrement.                                                    |
+| `scope_id`                              | Group ID or `"direct"`.                                                    |
+| `debtor_id`, `creditor_id`              | `CHECK (debtor_id <> creditor_id)`.                                        |
+| `amount`                                | `Int`, `CHECK (amount > 0)`.                                               |
+| `currency`                              |                                                                            |
 | `expense_id NULL`, `settlement_id NULL` | Exactly one is set: `CHECK (num_nonnulls(expense_id, settlement_id) = 1)`. |
-| `created_at`, `voided_at NULL` | Only non-voided entries count. |
+| `created_at`, `voided_at NULL`          | Only non-voided entries count.                                             |
 
 ### 4.10 `balances` (cache)
 
@@ -313,19 +313,19 @@ participants at all.
 
 ## 6. Indexes
 
-| Index | Serves |
-|---|---|
-| `expenses (group_id, date DESC, id DESC) WHERE deleted_at IS NULL` | Group expense list with cursor pagination |
-| `expenses (group_id) WHERE deleted_at IS NOT NULL` | "Deleted expenses" view |
-| `expense_participants (user_id, expense_id)` | "Expenses I'm in", friend page, insights |
-| `ledger_entries (scope_id, debtor_id, creditor_id) WHERE voided_at IS NULL` | Explaining a balance, rebuilds |
-| `ledger_entries (expense_id)`, `ledger_entries (settlement_id)` | Voiding on edit/delete |
-| `balances (user_high_id)` | Lookups where the viewer is the high ID (the PK covers the low side) |
-| `group_members (user_id, status)` | "My groups" |
-| `activity_recipients (user_id, activity_id DESC)` | Global activity feed |
-| `activities (group_id, created_at DESC)` | Group activity feed |
-| `settlements (from_user_id)`, `settlements (to_user_id)` | Friend page history |
-| `invites (token_hash)` unique | Invite lookup |
+| Index                                                                       | Serves                                                               |
+| --------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| `expenses (group_id, date DESC, id DESC) WHERE deleted_at IS NULL`          | Group expense list with cursor pagination                            |
+| `expenses (group_id) WHERE deleted_at IS NOT NULL`                          | "Deleted expenses" view                                              |
+| `expense_participants (user_id, expense_id)`                                | "Expenses I'm in", friend page, insights                             |
+| `ledger_entries (scope_id, debtor_id, creditor_id) WHERE voided_at IS NULL` | Explaining a balance, rebuilds                                       |
+| `ledger_entries (expense_id)`, `ledger_entries (settlement_id)`             | Voiding on edit/delete                                               |
+| `balances (user_high_id)`                                                   | Lookups where the viewer is the high ID (the PK covers the low side) |
+| `group_members (user_id, status)`                                           | "My groups"                                                          |
+| `activity_recipients (user_id, activity_id DESC)`                           | Global activity feed                                                 |
+| `activities (group_id, created_at DESC)`                                    | Group activity feed                                                  |
+| `settlements (from_user_id)`, `settlements (to_user_id)`                    | Friend page history                                                  |
+| `invites (token_hash)` unique                                               | Invite lookup                                                        |
 
 Partial indexes are declared in `schema.ts` with `.where(sql`deleted_at IS NULL`)`
 (or `IS NOT NULL`, or `voided_at IS NULL`) on the index definition, so they
@@ -493,18 +493,15 @@ The current app has `User`, `Friend` (with a running `amount`), `Expense`, and
    sign-in. Check whether those hashes exist before deciding.
 
 Imported users must still pass email verification unless their email was
-already verified in the old app.
-3. Friendships: collapse A→B and B→A rows into one canonical row.
-4. Balances: the old running amounts can't be traced back to expenses. For each
-   pair with a non-zero `Friend.amount`, create one direct `SHARED` expense
-   described as "Opening balance (imported)" with the payer and owed amounts
-   set to reproduce the balance, converted with `Math.round(amount * 100)`.
-   Its ledger entry and balance row follow from the normal create flow.
-5. Old expenses: import as history where the payer and participants can be
-   determined; otherwise keep them read-only in an archive table. Do not let
-   them generate ledger entries, or balances will be counted twice.
-6. Run the reconciliation query; totals must match the opening balances before
-   the old tables are dropped.
+already verified in the old app. 3. Friendships: collapse A→B and B→A rows into one canonical row. 4. Balances: the old running amounts can't be traced back to expenses. For each
+pair with a non-zero `Friend.amount`, create one direct `SHARED` expense
+described as "Opening balance (imported)" with the payer and owed amounts
+set to reproduce the balance, converted with `Math.round(amount * 100)`.
+Its ledger entry and balance row follow from the normal create flow. 5. Old expenses: import as history where the payer and participants can be
+determined; otherwise keep them read-only in an archive table. Do not let
+them generate ledger entries, or balances will be counted twice. 6. Run the reconciliation query; totals must match the opening balances before
+the old tables are dropped.
+
 ## V2 implementation additions (2026-10-30)
 
 Migrations 0003–0005 add an optional users.onboarded_at timestamp, activity_recipients.push_sent_at, and invite_claim_reports. The report table has an ID, a unique invite_id, reporter_id, reason and created_at; identity references restrict deletion. It records the inviter's manual-review report without reversing a merge.

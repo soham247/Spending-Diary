@@ -1,10 +1,39 @@
 ﻿import { responseData } from "./client";
 import type { JsonValue } from "./types";
 import type { listFriends, getFriend } from "@/lib/db/queries/friends";
-import type { PlaceholderInput, FriendUpdateInput } from "@/lib/validation/invite";
+import type {
+  PlaceholderInput,
+  FriendUpdateInput,
+} from "@/lib/validation/invite";
 export type FriendList = JsonValue<Awaited<ReturnType<typeof listFriends>>>;
 export type FriendDetail = JsonValue<Awaited<ReturnType<typeof getFriend>>>;
-export const apiListFriends = () => fetch("/api/friends").then(responseData<FriendList>);
-export const apiGetFriend = (id: string) => fetch("/api/friends/" + encodeURIComponent(id)).then(responseData<FriendDetail>);
-export const apiCreatePlaceholder = ({ input, key }: { input: PlaceholderInput; key: string }) => fetch("/api/friends", { method: "POST", headers: { "Content-Type": "application/json", "Idempotency-Key": key }, body: JSON.stringify(input) }).then(responseData<{ id: string }>);
-export const apiUpdateFriend = ({ id, input }: { id: string; input: FriendUpdateInput }) => fetch("/api/friends/" + encodeURIComponent(id), { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(input) }).then(responseData<{ id: string }>);
+export const apiListFriends = () =>
+  fetch("/api/friends").then(responseData<FriendList>);
+export const apiGetFriend = (id: string) =>
+  fetch("/api/friends/" + encodeURIComponent(id)).then(
+    responseData<FriendDetail>,
+  );
+export const apiCreatePlaceholder = ({
+  input,
+  key,
+}: {
+  input: PlaceholderInput;
+  key: string;
+}) =>
+  fetch("/api/friends", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Idempotency-Key": key },
+    body: JSON.stringify(input),
+  }).then(responseData<{ id: string }>);
+export const apiUpdateFriend = ({
+  id,
+  input,
+}: {
+  id: string;
+  input: FriendUpdateInput;
+}) =>
+  fetch("/api/friends/" + encodeURIComponent(id), {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  }).then(responseData<{ id: string }>);

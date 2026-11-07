@@ -24,7 +24,11 @@ export default function ForgotPasswordForm() {
       });
       setSent(true);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Something went wrong. Please try again.",
+      );
     } finally {
       setLoading(false);
     }
@@ -59,7 +63,10 @@ export default function ForgotPasswordForm() {
       </div>
 
       {error && (
-        <div role="alert" className="rounded-md bg-destructive/10 border border-destructive/20 px-4 py-3 text-sm text-destructive">
+        <div
+          role="alert"
+          className="rounded-md bg-destructive/10 border border-destructive/20 px-4 py-3 text-sm text-destructive"
+        >
           {error}
         </div>
       )}
@@ -79,13 +86,21 @@ export default function ForgotPasswordForm() {
             autoFocus
           />
         </div>
-        <Button id="btn-send-reset" type="submit" className="w-full" disabled={loading}>
+        <Button
+          id="btn-send-reset"
+          type="submit"
+          className="w-full"
+          disabled={loading}
+        >
           {loading ? "Sending…" : "Send reset link"}
         </Button>
       </form>
 
       <p className="text-center text-sm text-muted-foreground">
-        <Link href="/login" className="hover:text-foreground underline underline-offset-4">
+        <Link
+          href="/login"
+          className="hover:text-foreground underline underline-offset-4"
+        >
           Back to sign in
         </Link>
       </p>

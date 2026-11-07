@@ -75,18 +75,18 @@ Review and upgrade affected packages with their migration requirements; do not a
 
 ## Verification and scope
 
-| Check | Result |
-| --- | --- |
-| Postman collection lint | 101 request files, zero errors/warnings |
-| Postman environment lint | Pass, zero errors/warnings |
-| OpenAPI syntax lint | Pass |
-| HTTP regression/security suite | 101 requests, 232 assertions, 23 failed, exit 1 |
-| TypeScript | Pass |
-| ESLint | Exit 0 with four pre-existing React hook dependency warnings |
-| Vitest unit suite | 62 passed |
-| Vitest integration suite | Blocked before nine tests: existing setup reads a node-postgres QueryResult as an array and thinks the database name is empty |
-| Production build | Fails on existing `globals.css:109`: `@layer base` without matching `@tailwind base`; network font access was retried with permission |
-| Production dependency audit | 17 affected entries; exit 1 |
+| Check                          | Result                                                                                                                                |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
+| Postman collection lint        | 101 request files, zero errors/warnings                                                                                               |
+| Postman environment lint       | Pass, zero errors/warnings                                                                                                            |
+| OpenAPI syntax lint            | Pass                                                                                                                                  |
+| HTTP regression/security suite | 101 requests, 232 assertions, 23 failed, exit 1                                                                                       |
+| TypeScript                     | Pass                                                                                                                                  |
+| ESLint                         | Exit 0 with four pre-existing React hook dependency warnings                                                                          |
+| Vitest unit suite              | 62 passed                                                                                                                             |
+| Vitest integration suite       | Blocked before nine tests: existing setup reads a node-postgres QueryResult as an array and thinks the database name is empty         |
+| Production build               | Fails on existing `globals.css:109`: `@layer base` without matching `@tailwind base`; network font access was retried with permission |
+| Production dependency audit    | 17 affected entries; exit 1                                                                                                           |
 
 Startup fix: removed the retired `src/app/api/auth/[...nextauth]/route.ts` stub because it collided with Better Auth's `[...all]` route and prevented Next.js from starting. Application vulnerabilities above were preserved as findings; assertions were not weakened to hide them. No schema, migration, financial service or trigger was modified.
 

@@ -7,7 +7,10 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(configDirectory, "src"),
-      "server-only": path.resolve(configDirectory, "tests/stubs/server-only.ts"),
+      "server-only": path.resolve(
+        configDirectory,
+        "tests/stubs/server-only.ts",
+      ),
     },
   },
   test: {

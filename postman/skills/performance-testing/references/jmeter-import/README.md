@@ -64,7 +64,7 @@ Only on explicit user consent — and **never make the user paste a workspace ID
 
 - **If the current folder is already a connected workspace** (the usual headless case), use it — `postman workspace push` targets the workspace bound to this directory, no ID. Just tell the user which one.
 - **If the user named a workspace** (by name), resolve it with `postman workspace list --json` and match.
-- **Otherwise present a choice, don't demand an ID.** Run `postman workspace list --json`, show the **names**, and ask the user to pick one *or* create a new one:
+- **Otherwise present a choice, don't demand an ID.** Run `postman workspace list --json`, show the **names**, and ask the user to pick one _or_ create a new one:
   - **pick existing** → connect it once with `postman workspace pull <id>` (ID taken from the list), then push.
   - **create new** → the CLI has no `create`; make it via MCP `createWorkspace` (or the Postman app), then `pull` and push.
 - **Get the imported collection into the bound workspace before pushing.** The import is a standalone v2.1 `*.postman_collection.json`; a pulled workspace is a git-native v3 tree. After `pull`, bring the file in with `postman collection migrate <file>.postman_collection.json` into the workspace's collections directory (check `postman collection migrate -h`), then `postman workspace push`. Pushing a folder that has no collection in its tree uploads nothing.

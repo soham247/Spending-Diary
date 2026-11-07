@@ -2,6 +2,7 @@
 
 **Definition file (`.resources/definition.yaml`):**
 The definition contains metadata for a collection or folder. It is optional.
+
 - $kind: "collection" (required for both collection and folder definitions)
 - name: string (optional, defaults to the filesystem folder name)
 - description: string (optional)
@@ -16,6 +17,7 @@ The definition contains metadata for a collection or folder. It is optional.
 - order: number (optional, used for folder ordering)
 
 **HTTP Request:**
+
 - $kind: "http-request" (required)
 - name: string (optional)
 - order: number (optional) -> used to decide request position; value is only for comparison, and keeping values spaced out (for example by 1000) is preferred
@@ -36,19 +38,21 @@ The definition contains metadata for a collection or folder. It is optional.
 - examples (optional): relative path to examples directory. Example: `./.resources/<request-name>.resources/examples/`
 
 **HTTP Example:**
+
 - $kind: "http-example" (required)
 - name: string (optional)
 - request:
-    url: string
-    method: string
+  url: string
+  method: string
 - response:
-    statusCode: number
-    statusText: string
-    headers: array of {key, value}
-    body: {type, content}
+  statusCode: number
+  statusText: string
+  headers: array of {key, value}
+  body: {type, content}
 - order: number (optional)
 
 **GraphQL Request:**
+
 - $kind: "graphql-request" (required)
 - url: string
 - order: number (optional)
@@ -60,6 +64,7 @@ The definition contains metadata for a collection or folder. It is optional.
 - scripts: array of {type: "beforeQuery"|"afterResponse", code, language}
 
 **gRPC Request:**
+
 - $kind: "grpc-request" (required)
 - url: string
 - order: number (optional)
@@ -72,6 +77,7 @@ The definition contains metadata for a collection or folder. It is optional.
 - scripts: array of {type: "beforeInvoke"|"afterResponse", code, language}
 
 **WebSocket Request:**
+
 - $kind: "websocket-request" (required)
 - url: string
 - order: number (optional)
@@ -80,6 +86,7 @@ The definition contains metadata for a collection or folder. It is optional.
 - settings: {handshakeTimeout?, retryCount?, retryDelay?, maxPayload?, strictSSL?}
 
 **Socket.IO Request:**
+
 - $kind: "socket.io-request" (required)
 - url: string
 - order: number (optional)
@@ -89,6 +96,7 @@ The definition contains metadata for a collection or folder. It is optional.
 - settings: {version?, path?, handshakeTimeout?, retryCount?, retryDelay?, strictSSL?}
 
 **MQTT Request:**
+
 - $kind: "mqtt-request" (required)
 - url: string
 - order: number (optional)
@@ -100,6 +108,7 @@ The definition contains metadata for a collection or folder. It is optional.
 - settings: {cleanSession?, keepAlive?, autoReconnect?, connectionTimeout?, strictSSL?}
 
 **MCP Request:**
+
 - $kind: "mcp-request" (required)
 - transport: "sse" | "stdio"
 - order: number (optional)
@@ -107,6 +116,7 @@ The definition contains metadata for a collection or folder. It is optional.
 - STDIO: {command, env: [{key, value}], message, auth?, settings: {requestTimeout?}}
 
 **LLM Request:**
+
 - $kind: "llm-request" (required)
 - url: string
 - order: number (optional)
@@ -118,7 +128,6 @@ The definition contains metadata for a collection or folder. It is optional.
 - auth: {type, credentials}
 - settings: {temperature?, maxToken?, streamResponse?, responseFormatJSON?, topP?, presencePenalty?, frequencyPenalty?, maxSteps?, streamTools?}
 
-
 Environments are stored in the postman/environments/ folder as
 `<name>.environment.yaml` files. The `.environment` part of the suffix is required for
 `workspace push` to pick the file up as an environment. `.environment.yml` and
@@ -129,6 +138,7 @@ After writing one by hand, confirm the directory with
 The environment YAML format structure:
 
 **Environment Root:**
+
 - name: string (required)
 - values: array of {key, value: string, enabled, type}
   - value must be a string (same rule as collection variables)
@@ -138,20 +148,22 @@ The environment YAML format structure:
 User asks: "Create a development environment"
 
 YAML RULES (CRITICAL - invalid YAML breaks parsing, when in doubt single-quote it):
+
 1. Single-quote values with {{variables}}: `url: '{{base_url}}/users'` (never unquoted).
 2. Single-quote values containing `: # & * ! [ ] { } > |`, for example: `name: 'Health check: v2'`.
 3. Multi-line content (JSON bodies, scripts, queries) MUST use `|-` block scalar:
    body:
-     type: json
-     content: |-
-       {
-         "name": "example"
-       }
+   type: json
+   content: |-
+   {
+   "name": "example"
+   }
 4. Quote strings resembling booleans/numbers when intended as strings: `value: "true"`, `value: "123"`.
 5. `order` field MUST be a bare number, never quoted: `order: 1000`.
 6. Single-quote file paths and use forward slashes only: `examples: './.resources/name.resources/examples'`.
 
 Naming rules:
+
 - `<request-name>` (filename stem before `.request.yaml`) must NOT contain `/ \ : * ? " < > |`; sanitize to `-`.
 - `<environment-name>` (filename stem before `.environment.yaml`) follows the same
   sanitization as a request name. Write `<name>.environment.yaml`, not `<name>.yaml`.
@@ -162,30 +174,33 @@ Naming rules:
 Schema example ("bookstore api"):
 
 `postman/collections/bookstore api/get all books.request.yaml`
+
 ```yaml
 $kind: http-request
 method: GET
-url: '{{base_url}}/books'
+url: "{{base_url}}/books"
 order: 1000
 ```
 
 `postman/collections/bookstore api/get-book-by-id.request.yaml`
+
 ```yaml
 $kind: http-request
-name: 'get book by :id'
+name: "get book by :id"
 method: GET
-url: '{{base_url}}/books/:id'
+url: "{{base_url}}/books/:id"
 order: 2000
 pathVariables:
   - key: id
-    value: '1'
+    value: "1"
 ```
 
 `postman/collections/bookstore api/add new book.request.yaml`
+
 ```yaml
 $kind: http-request
 method: POST
-url: '{{base_url}}/books'
+url: "{{base_url}}/books"
 order: 3000
 headers:
   - key: Content-Type
@@ -200,12 +215,13 @@ body:
 ```
 
 `postman/collections/bookstore api/.resources/definition.yaml`
+
 ```yaml
 $kind: collection
 name: Bookstore API
 variables:
   - key: base_url
-    value: 'https://api.bookstore.com/v1'
+    value: "https://api.bookstore.com/v1"
 ```
 
 ## Directory Structure (File System Mode)
@@ -217,6 +233,7 @@ Every folder in `postman/collections/` represents a collection. A collection can
 A folder or collection can have a `.resources/` directory, which is an optional metadata/resources directory for that scope. The optional definition file `.resources/definition.yaml` stores collection/folder metadata. Request examples are stored in `.resources/<request-name>.resources/`.
 
 Example directory tree for a collection called "bookstore api":
+
 ```text
 postman/collections/
   bookstore api/

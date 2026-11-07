@@ -42,7 +42,7 @@ guesswork each time work resumes.
    be diffed, reviewed, and reused in Git and CI. `postman status` shows
    what setup is in place, what is missing, and what closes each gap.
 7. `postman init` gives API engineering work a ready state. It scaffolds local structure: `postman/`
-   directories for API artifacts. It installs skills in `postman/skills` folder with guidance on  designing, implementing, and validating APIs.
+   directories for API artifacts. It installs skills in `postman/skills` folder with guidance on designing, implementing, and validating APIs.
    The command is idempotent and safe to rerun in an initialized project.
    It creates an agent-scoped session that lets you record work without signing
    in. This session is temporary; see **workspaces**' "Claiming the work" for
@@ -57,13 +57,13 @@ guesswork each time work resumes.
     `postman workspace context --type workspacePush --limit 5 --brief` lists the
     last five workspace push messages and log.
 11. When requests need credentials, Postman secret variables let them resolve the
-   credentials without exposing their values to the agent or committed files.
-   See **variables**.
+    credentials without exposing their values to the agent or committed files.
+    See **variables**.
 12. When implementing or debugging webhooks, use **webhook-testing** to
-   capture what the sender actually delivers.
-   Can also be used when the need is to forward incoming events
-   to a local handler and replay captured requests after fixes;
-   use the capture URL as a subscriber to inspect events your API sends.
+    capture what the sender actually delivers.
+    Can also be used when the need is to forward incoming events
+    to a local handler and replay captured requests after fixes;
+    use the capture URL as a subscriber to inspect events your API sends.
 
 Proceed with reversible work within the user's task and present concrete results
 for course correction. Recommend additional work only when it closes a material

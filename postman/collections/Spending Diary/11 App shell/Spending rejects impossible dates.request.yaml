@@ -4,24 +4,19 @@
 "method": "GET"
 "url": "{{base_url}}/api/expenses?scope=mine&from=2026-02-30"
 "queryParams":
-  -
-    "key": "scope"
+  - "key": "scope"
     "value": "mine"
-  -
-    "key": "from"
+  - "key": "from"
     "value": "2026-02-30"
 "settings":
   "followRedirects": false
 "headers":
-  -
-    "key": "Cookie"
+  - "key": "Cookie"
     "value": "{{owner_cookie}}"
-  -
-    "key": "Origin"
+  - "key": "Origin"
     "value": "{{base_url}}"
 "scripts":
-  -
-    "type": "afterResponse"
+  - "type": "afterResponse"
     "language": "text/javascript"
     "code": |-
       pm.test('HTTP 400', () => pm.response.to.have.status(400));

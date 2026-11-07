@@ -1,18 +1,23 @@
-import * as React from "react"
+import { useSyncExternalStore } from "react";
 
-const MOBILE_BREAKPOINT = 768
+const MOBILE_BREAKPOINT = 768;
 
-const mediaQuery = `(max-width: ${MOBILE_BREAKPOINT - 1}px)`
+const query = `(max-width: ${MOBILE_BREAKPOINT - 1}px)`;
 
 function subscribe(onChange: () => void) {
-  const media = window.matchMedia(mediaQuery)
-  media.addEventListener("change", onChange)
-  return () => media.removeEventListener("change", onChange)
+  const media = window.matchMedia(query);
+  media.addEventListener("change", onChange);
+  return () => media.removeEventListener("change", onChange);
 }
 
-const clientSnapshot = () => window.matchMedia(mediaQuery).matches
-const serverSnapshot = () => false
+function getSnapshot() {
+  return window.matchMedia(query).matches;
+}
+
+function getServerSnapshot() {
+  return false;
+}
 
 export function useIsMobile() {
-  return React.useSyncExternalStore(subscribe, clientSnapshot, serverSnapshot)
+  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 }

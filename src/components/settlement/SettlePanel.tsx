@@ -14,6 +14,7 @@ export interface SettlePanelProps {
 export function SettlePanel(props: SettlePanelProps) {
   const context = usePaymentContext();
   if (context.isPending) return <LoadingState />;
-  if (context.isError) return <ErrorState retry={() => void context.refetch()} />;
+  if (context.isError)
+    return <ErrorState retry={() => void context.refetch()} />;
   return <PaymentForm {...props} scopes={context.data} />;
 }

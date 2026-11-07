@@ -21,6 +21,7 @@ These limitations are documented so they are handled correctly in all workflows.
 `createCollection` creates a flat collection. You cannot nest folders in a single call.
 
 **Workaround:** Decompose the operation:
+
 1. `createCollection` to create the collection
 2. `createCollectionFolder` to add folders
 3. `createCollectionRequest` to add requests to folders

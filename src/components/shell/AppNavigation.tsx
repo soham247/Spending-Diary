@@ -6,8 +6,15 @@ import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 
 const titles: Record<string, string> = {
-  home: "Overview", expenses: "Expenses", groups: "Groups", friends: "Friends",
-  activity: "Activity", insights: "Insights", settings: "Settings", settlements: "Payments", onboarding: "Your profile",
+  home: "Overview",
+  expenses: "Expenses",
+  groups: "Groups",
+  friends: "Friends",
+  activity: "Activity",
+  insights: "Insights",
+  settings: "Settings",
+  settlements: "Payments",
+  onboarding: "Your profile",
 };
 
 export function AppNavigation() {
@@ -23,9 +30,20 @@ export function AppNavigation() {
       return () => cancelAnimationFrame(frame);
     }
   }, [isMobile, openMobile]);
-  return <header className="flex min-h-16 shrink-0 items-center gap-3 border-b border-border px-4 sm:px-6">
-    <SidebarTrigger ref={triggerRef} className="size-11" aria-label="Toggle navigation" aria-expanded={isMobile ? openMobile : open} />
-    <Separator orientation="vertical" className="self-center data-[orientation=vertical]:h-5" />
-    <p className="text-sm font-medium">{titles[pathname.split("/")[1]] ?? "Spending Diary"}</p>
-  </header>;
+  return (
+    <header className="flex min-h-16 shrink-0 items-center gap-3 border-b border-border px-4 sm:px-6">
+      <SidebarTrigger
+        ref={triggerRef}
+        aria-label="Toggle navigation"
+        aria-expanded={isMobile ? openMobile : open}
+      />
+      <Separator
+        orientation="vertical"
+        className="self-center data-[orientation=vertical]:h-5"
+      />
+      <p className="text-sm font-medium">
+        {titles[pathname.split("/")[1]] ?? "Spending Diary"}
+      </p>
+    </header>
+  );
 }

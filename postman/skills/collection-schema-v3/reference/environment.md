@@ -50,12 +50,12 @@ leave the value empty or use the team's supported secret source.
 name: Staging EU
 values:
   - key: baseUrl
-    value: 'https://staging.example.com'
+    value: "https://staging.example.com"
     enabled: true
     type: default
     description: API base URL
   - key: apiToken
-    value: ''
+    value: ""
     enabled: false
     type: secret
 ```

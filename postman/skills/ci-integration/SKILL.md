@@ -13,18 +13,19 @@ the author's own passing tests do not establish cross-service compatibility.
 
 1. Select checks by the guarantee they establish:
 
-   | Guarantee | Gate |
-   | --- | --- |
-   | Saved behavioral assertions pass | `postman collection run <path-or-id>` |
-   | A collection's structure/style is valid | `postman collection lint <path> -f error` |
-   | A spec meets workspace governance rules | `postman spec lint <spec> --workspace-id <id> -f error` |
-   | Workspace entities and bindings pass lint/governance | `postman workspace lint --workspace-id <id> -f error` |
-   | Agent consumability meets an agreed threshold | `postman collection ai-readiness <path> --min-score <n>` or the spec equivalent |
+   | Guarantee                                            | Gate                                                                            |
+   | ---------------------------------------------------- | ------------------------------------------------------------------------------- |
+   | Saved behavioral assertions pass                     | `postman collection run <path-or-id>`                                           |
+   | A collection's structure/style is valid              | `postman collection lint <path> -f error`                                       |
+   | A spec meets workspace governance rules              | `postman spec lint <spec> --workspace-id <id> -f error`                         |
+   | Workspace entities and bindings pass lint/governance | `postman workspace lint --workspace-id <id> -f error`                           |
+   | Agent consumability meets an agreed threshold        | `postman collection ai-readiness <path> --min-score <n>` or the spec equivalent |
 
    Collection lint does not apply organization governance. Workspace-aware
    lint evaluates the rules available to that workspace; it does not author
    the policy. Confirm the intended rules are configured before claiming
    compliance. Read command-specific `-h` for installed options.
+
 2. Keep gate results distinguishable so a failed build identifies behavior,
    structure, governance, or readiness. Preserve nonzero exits; suppressing
    them with `-x`/`--suppress-exit-code` removes the gate. For collection runs,

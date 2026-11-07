@@ -23,15 +23,22 @@ export async function setup() {
       `TEST_DATABASE_URL points to "${dbName}" which does not end in _test. Refusing to run.`,
     );
   }
-  if (testUrl === process.env.DATABASE_URL || testUrl === process.env.DIRECT_URL) {
-    throw new Error("TEST_DATABASE_URL must differ from DATABASE_URL and DIRECT_URL.");
+  if (
+    testUrl === process.env.DATABASE_URL ||
+    testUrl === process.env.DIRECT_URL
+  ) {
+    throw new Error(
+      "TEST_DATABASE_URL must differ from DATABASE_URL and DIRECT_URL.",
+    );
   }
 
   // Verify via actual connection
   const pool = new Pool({ connectionString: testUrl, max: 1 });
   const client = await pool.connect();
   try {
-    const { rows } = await client.query<{ db: string }>("SELECT current_database() AS db");
+    const { rows } = await client.query<{ db: string }>(
+      "SELECT current_database() AS db",
+    );
     const actual = rows[0]?.db ?? "";
     if (!actual.endsWith("_test")) {
       throw new Error(

@@ -53,12 +53,12 @@ must match; lint reports a mismatch as `FMT209`. For example, `q=shoes&page=2`
 is represented as:
 
 ```yaml
-url: '{{base_url}}/search?q=shoes&page=2'
+url: "{{base_url}}/search?q=shoes&page=2"
 queryParams:
   - key: q
     value: shoes
   - key: page
-    value: '2'
+    value: "2"
 ```
 
 ## HTTP example (`*.example.yaml`)
@@ -125,7 +125,7 @@ auth:
   type: bearer
   credentials:
     - key: token
-      value: '{{TOKEN}}'
+      value: "{{TOKEN}}"
 ```
 
 `type` is one of `basic`, `bearer`, `apikey`, `digest`, `oauth1`, `oauth2`, `jwt`,
@@ -144,14 +144,16 @@ valid credential entry does not establish that the server will authenticate it.
 `body` is one shape chosen by `type` — write that branch's keys and nothing else.
 
 ```yaml
-body: {type: none}
+body: { type: none }
 ```
+
 ```yaml
 body:
-  type: json          # or text, xml, html, javascript
+  type: json # or text, xml, html, javascript
   content: |-
     {"id": 1}
 ```
+
 ```yaml
 body:
   type: urlencoded
@@ -159,6 +161,7 @@ body:
     - key: grant_type
       value: client_credentials
 ```
+
 ```yaml
 body:
   type: formdata
@@ -171,16 +174,17 @@ body:
       value: hello
       contentType: text/plain
 ```
+
 ```yaml
 body:
   type: file
   content:
-    src: ./upload.bin       # an object with src, not a bare path
+    src: ./upload.bin # an object with src, not a bare path
 ```
 
 Choose `body.type` to match the payload and contract. JSON `content` is a string;
 a block scalar keeps it readable without turning it into a YAML object.
-A *response* body inside an example has a narrower type list:
+A _response_ body inside an example has a narrower type list:
 see [HTTP examples](#http-example-exampleyaml).
 
 ## Scripts
@@ -241,30 +245,33 @@ validation. Preserve the type the field expects:
 ## Worked example: "bookstore api"
 
 `postman/collections/bookstore api/get all books.request.yaml`
+
 ```yaml
 $kind: http-request
 method: GET
-url: '{{base_url}}/books'
+url: "{{base_url}}/books"
 order: 1000
 ```
 
 `postman/collections/bookstore api/get-book-by-id.request.yaml`
+
 ```yaml
 $kind: http-request
-name: 'get book by :id'
+name: "get book by :id"
 method: GET
-url: '{{base_url}}/books/:id'
+url: "{{base_url}}/books/:id"
 order: 2000
 pathVariables:
   - key: id
-    value: '1'
+    value: "1"
 ```
 
 `postman/collections/bookstore api/add new book.request.yaml`
+
 ```yaml
 $kind: http-request
 method: POST
-url: '{{base_url}}/books'
+url: "{{base_url}}/books"
 order: 3000
 headers:
   - key: Content-Type
@@ -279,10 +286,11 @@ body:
 ```
 
 `postman/collections/bookstore api/.resources/definition.yaml`
+
 ```yaml
 $kind: collection
 name: Bookstore API
 variables:
   - key: base_url
-    value: 'https://api.bookstore.com/v1'
+    value: "https://api.bookstore.com/v1"
 ```

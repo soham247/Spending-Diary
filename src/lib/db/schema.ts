@@ -22,11 +22,13 @@ import {
 
 const tz = { withTimezone: true } as const;
 
-const id = () => text("id").primaryKey().$defaultFn(() => createId());
+const id = () =>
+  text("id")
+    .primaryKey()
+    .$defaultFn(() => createId());
 const money = (name: string) => integer(name);
 const balanceMoney = (name: string) => bigint(name, { mode: "bigint" });
-const createdAt = () =>
-  timestamp("created_at", tz).notNull().defaultNow();
+const createdAt = () => timestamp("created_at", tz).notNull().defaultNow();
 const updatedAt = () =>
   timestamp("updated_at", tz)
     .notNull()
@@ -61,10 +63,7 @@ export const inviteTypeEnum = pgEnum("invite_type", [
   "GROUP_LINK",
   "PERSONAL",
 ]);
-export const expenseKindEnum = pgEnum("expense_kind", [
-  "SHARED",
-  "PERSONAL",
-]);
+export const expenseKindEnum = pgEnum("expense_kind", ["SHARED", "PERSONAL"]);
 export const splitTypeEnum = pgEnum("split_type", [
   "EQUAL",
   "EXACT",
@@ -108,53 +107,63 @@ export const users = pgTable("users", {
     .default("INR"),
   notificationPrefs: jsonb("notification_prefs"),
   onboardedAt: timestamp("onboarded_at", tz),
-  mergedIntoId: text("merged_into_id").references(
-    (): AnyPgColumn => users.id,
-  ),
+  mergedIntoId: text("merged_into_id").references((): AnyPgColumn => users.id),
   deletedAt: timestamp("deleted_at", tz),
   createdAt: createdAt(),
   updatedAt: updatedAt(),
 });
 
-export const sessions = pgTable("sessions", {
-  id: text("id").primaryKey(),
-  expiresAt: timestamp("expires_at", tz).notNull(),
-  token: text("token").notNull().unique(),
-  ipAddress: text("ip_address"),
-  userAgent: text("user_agent"),
-  userId: text("user_id")
-    .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
-  createdAt: createdAt(),
-  updatedAt: updatedAt(),
-}, t => [index("idx_sessions_user").on(t.userId)]);
+export const sessions = pgTable(
+  "sessions",
+  {
+    id: text("id").primaryKey(),
+    expiresAt: timestamp("expires_at", tz).notNull(),
+    token: text("token").notNull().unique(),
+    ipAddress: text("ip_address"),
+    userAgent: text("user_agent"),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [index("idx_sessions_user").on(t.userId)],
+);
 
-export const accounts = pgTable("accounts", {
-  id: text("id").primaryKey(),
-  accountId: text("account_id").notNull(),
-  providerId: text("provider_id").notNull(),
-  userId: text("user_id")
-    .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
-  accessToken: text("access_token"),
-  refreshToken: text("refresh_token"),
-  idToken: text("id_token"),
-  accessTokenExpiresAt: timestamp("access_token_expires_at", tz),
-  refreshTokenExpiresAt: timestamp("refresh_token_expires_at", tz),
-  scope: text("scope"),
-  password: text("password"),
-  createdAt: createdAt(),
-  updatedAt: updatedAt(),
-}, t => [index("idx_accounts_user").on(t.userId)]);
+export const accounts = pgTable(
+  "accounts",
+  {
+    id: text("id").primaryKey(),
+    accountId: text("account_id").notNull(),
+    providerId: text("provider_id").notNull(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    accessToken: text("access_token"),
+    refreshToken: text("refresh_token"),
+    idToken: text("id_token"),
+    accessTokenExpiresAt: timestamp("access_token_expires_at", tz),
+    refreshTokenExpiresAt: timestamp("refresh_token_expires_at", tz),
+    scope: text("scope"),
+    password: text("password"),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [index("idx_accounts_user").on(t.userId)],
+);
 
-export const verifications = pgTable("verifications", {
-  id: text("id").primaryKey(),
-  identifier: text("identifier").notNull(),
-  value: text("value").notNull(),
-  expiresAt: timestamp("expires_at", tz).notNull(),
-  createdAt: createdAt(),
-  updatedAt: updatedAt(),
-}, t => [index("idx_verifications_identifier").on(t.identifier)]);
+export const verifications = pgTable(
+  "verifications",
+  {
+    id: text("id").primaryKey(),
+    identifier: text("identifier").notNull(),
+    value: text("value").notNull(),
+    expiresAt: timestamp("expires_at", tz).notNull(),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [index("idx_verifications_identifier").on(t.identifier)],
+);
 
 // ─── Rate limiting ──────────────────────────────────────────────────
 
@@ -173,18 +182,27 @@ export const emailRateLimits = pgTable("email_rate_limits", {
   windowEndsAt: timestamp("window_ends_at", tz).notNull(),
 });
 
-export const idempotencyRecords = pgTable("idempotency_records", {
-  viewerId: text("viewer_id").notNull().references(() => users.id, { onDelete: "restrict" }),
-  operation: text("operation").notNull(),
-  key: text("key").notNull(),
-  requestHash: text("request_hash").notNull(),
-  resourceId: text("resource_id").notNull(),
-  createdAt: createdAt(),
-}, t => [
-  primaryKey({ columns: [t.viewerId, t.operation, t.key] }),
-  check("ck_idempotency_operation", sql`${t.operation} IN ('expense', 'settlement', 'group', 'placeholder', 'invite', 'invite-report')`),
-  check("ck_idempotency_key", sql`char_length(${t.key}) BETWEEN 1 AND 200`),
-]);
+export const idempotencyRecords = pgTable(
+  "idempotency_records",
+  {
+    viewerId: text("viewer_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "restrict" }),
+    operation: text("operation").notNull(),
+    key: text("key").notNull(),
+    requestHash: text("request_hash").notNull(),
+    resourceId: text("resource_id").notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.viewerId, t.operation, t.key] }),
+    check(
+      "ck_idempotency_operation",
+      sql`${t.operation} IN ('expense', 'settlement', 'group', 'placeholder', 'invite', 'invite-report')`,
+    ),
+    check("ck_idempotency_key", sql`char_length(${t.key}) BETWEEN 1 AND 200`),
+  ],
+);
 
 // ─── Core tables ────────────────────────────────────────────────────
 
@@ -285,8 +303,13 @@ export const invites = pgTable(
 
 export const inviteClaimReports = pgTable("invite_claim_reports", {
   id: id(),
-  inviteId: text("invite_id").notNull().unique().references(() => invites.id, { onDelete: "restrict" }),
-  reporterId: text("reporter_id").notNull().references(() => users.id, { onDelete: "restrict" }),
+  inviteId: text("invite_id")
+    .notNull()
+    .unique()
+    .references(() => invites.id, { onDelete: "restrict" }),
+  reporterId: text("reporter_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "restrict" }),
   reason: text("reason").notNull().default(""),
   createdAt: createdAt(),
 });
@@ -411,10 +434,7 @@ export const ledgerEntries = pgTable(
     voidedAt: timestamp("voided_at", tz),
   },
   (t) => [
-    check(
-      "ck_ledger_different_users",
-      sql`${t.debtorId} <> ${t.creditorId}`,
-    ),
+    check("ck_ledger_different_users", sql`${t.debtorId} <> ${t.creditorId}`),
     check("ck_ledger_amount_positive", sql`${t.amount} > 0`),
     check(
       "ck_ledger_exactly_one_source",
@@ -446,10 +466,7 @@ export const balances = pgTable(
     primaryKey({
       columns: [t.scopeId, t.userLowId, t.userHighId, t.currency],
     }),
-    check(
-      "ck_balance_pair_order",
-      sql`${t.userLowId} < ${t.userHighId}`,
-    ),
+    check("ck_balance_pair_order", sql`${t.userLowId} < ${t.userHighId}`),
     index("idx_balances_high_user").on(t.userHighId),
   ],
 );
@@ -476,9 +493,7 @@ export const activities = pgTable(
     metadata: jsonb("metadata"),
     createdAt: createdAt(),
   },
-  (t) => [
-    index("idx_activities_group_created").on(t.groupId, t.createdAt),
-  ],
+  (t) => [index("idx_activities_group_created").on(t.groupId, t.createdAt)],
 );
 
 export const activityRecipients = pgTable(
@@ -588,77 +603,68 @@ export const expenseParticipantsRelations = relations(
   }),
 );
 
-export const settlementsRelations = relations(
-  settlements,
-  ({ one, many }) => ({
-    group: one(groups, {
-      fields: [settlements.groupId],
-      references: [groups.id],
-    }),
-    fromUser: one(users, {
-      fields: [settlements.fromUserId],
-      references: [users.id],
-      relationName: "settlementSender",
-    }),
-    toUser: one(users, {
-      fields: [settlements.toUserId],
-      references: [users.id],
-      relationName: "settlementReceiver",
-    }),
-    createdBy: one(users, {
-      fields: [settlements.createdById],
-      references: [users.id],
-    }),
-    ledgerEntries: many(ledgerEntries),
+export const settlementsRelations = relations(settlements, ({ one, many }) => ({
+  group: one(groups, {
+    fields: [settlements.groupId],
+    references: [groups.id],
   }),
-);
+  fromUser: one(users, {
+    fields: [settlements.fromUserId],
+    references: [users.id],
+    relationName: "settlementSender",
+  }),
+  toUser: one(users, {
+    fields: [settlements.toUserId],
+    references: [users.id],
+    relationName: "settlementReceiver",
+  }),
+  createdBy: one(users, {
+    fields: [settlements.createdById],
+    references: [users.id],
+  }),
+  ledgerEntries: many(ledgerEntries),
+}));
 
-export const ledgerEntriesRelations = relations(
-  ledgerEntries,
-  ({ one }) => ({
-    debtor: one(users, {
-      fields: [ledgerEntries.debtorId],
-      references: [users.id],
-      relationName: "ledgerDebtor",
-    }),
-    creditor: one(users, {
-      fields: [ledgerEntries.creditorId],
-      references: [users.id],
-      relationName: "ledgerCreditor",
-    }),
-    expense: one(expenses, {
-      fields: [ledgerEntries.expenseId],
-      references: [expenses.id],
-    }),
-    settlement: one(settlements, {
-      fields: [ledgerEntries.settlementId],
-      references: [settlements.id],
-    }),
+export const ledgerEntriesRelations = relations(ledgerEntries, ({ one }) => ({
+  debtor: one(users, {
+    fields: [ledgerEntries.debtorId],
+    references: [users.id],
+    relationName: "ledgerDebtor",
   }),
-);
+  creditor: one(users, {
+    fields: [ledgerEntries.creditorId],
+    references: [users.id],
+    relationName: "ledgerCreditor",
+  }),
+  expense: one(expenses, {
+    fields: [ledgerEntries.expenseId],
+    references: [expenses.id],
+  }),
+  settlement: one(settlements, {
+    fields: [ledgerEntries.settlementId],
+    references: [settlements.id],
+  }),
+}));
 
-export const activitiesRelations = relations(
-  activities,
-  ({ one, many }) => ({
-    group: one(groups, {
-      fields: [activities.groupId],
-      references: [groups.id],
-    }),
-    actor: one(users, {
-      fields: [activities.actorId],
-      references: [users.id],
-    }),
-    expense: one(expenses, {
-      fields: [activities.expenseId],
-      references: [expenses.id],
-    }),
-    settlement: one(settlements, {
-      fields: [activities.settlementId],
-      references: [settlements.id],
-    }),
-    recipients: many(activityRecipients),
+export const activitiesRelations = relations(activities, ({ one, many }) => ({
+  group: one(groups, {
+    fields: [activities.groupId],
+    references: [groups.id],
   }),
-);
+  actor: one(users, {
+    fields: [activities.actorId],
+    references: [users.id],
+  }),
+  expense: one(expenses, {
+    fields: [activities.expenseId],
+    references: [expenses.id],
+  }),
+  settlement: one(settlements, {
+    fields: [activities.settlementId],
+    references: [settlements.id],
+  }),
+  recipients: many(activityRecipients),
+}));
 
 export const activityRecipientsRelations = relations(
   activityRecipients,

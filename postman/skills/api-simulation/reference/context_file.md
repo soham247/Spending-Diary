@@ -20,11 +20,11 @@ The whole file is YAML under a fixed key schema. The key names and the `status`
 vocabulary are fixed; the template carries each key's field schema in the
 comments above it. A `null` is something nobody has established yet.
 
-| Key | Holds |
-| --- | --- |
-| `purpose` | `stands_in_for` and `unblocks` — what the simulation stands in for and what work it unblocks. Record the intended purpose when known and refine it as you learn, distinguishing intended outcomes from demonstrated results. The members it serves, their route keys and the hosts they answer for are in the `.sim.yaml` beside it. |
-| `assumptions` | What the code relies on about a dependency's behaviour. One claim per entry: `id`, `status`, `claim`, `reason`, `verification`, `source`, `updated_at`. |
-| `fingerprints` | What the claims were written against — `id`, `date`, `commit`, `cli`. |
+| Key            | Holds                                                                                                                                                                                                                                                                                                                                |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `purpose`      | `stands_in_for` and `unblocks` — what the simulation stands in for and what work it unblocks. Record the intended purpose when known and refine it as you learn, distinguishing intended outcomes from demonstrated results. The members it serves, their route keys and the hosts they answer for are in the `.sim.yaml` beside it. |
+| `assumptions`  | What the code relies on about a dependency's behaviour. One claim per entry: `id`, `status`, `claim`, `reason`, `verification`, `source`, `updated_at`.                                                                                                                                                                              |
+| `fingerprints` | What the claims were written against — `id`, `date`, `commit`, `cli`.                                                                                                                                                                                                                                                                |
 
 Everything else about this simulation lives where it already is: the members and
 their origins in the `.sim.yaml`, the handlers in `postman/mocks/`, and how to
@@ -78,12 +78,12 @@ evidence can settle one and leave the other standing.
 
 ### `status`
 
-| Value | Means | For example |
-| --- | --- | --- |
-| `supported` | Evidence supports the claim, within a stated scope. | The provider guarantees idempotency for 24 hours. |
-| `contradicted` | Evidence provides a counterexample. | A timed-out request did create an order. |
-| `unknown` | Available evidence cannot establish or reject it. | Key scope across token refresh is unspecified. |
-| `conflicting` | Applicable sources disagree. | Documentation promises immediate revocation; a real probe observes continued access. |
+| Value          | Means                                               | For example                                                                          |
+| -------------- | --------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `supported`    | Evidence supports the claim, within a stated scope. | The provider guarantees idempotency for 24 hours.                                    |
+| `contradicted` | Evidence provides a counterexample.                 | A timed-out request did create an order.                                             |
+| `unknown`      | Available evidence cannot establish or reject it.   | Key scope across token refresh is unspecified.                                       |
+| `conflicting`  | Applicable sources disagree.                        | Documentation promises immediate revocation; a real probe observes continued access. |
 
 `supported` is the one to be careful with: support comes with a scope, so the
 claim says what that scope is. Name the operation, relevant conditions and

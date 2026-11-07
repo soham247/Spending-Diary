@@ -1,213 +1,183 @@
 "use client";
 
+import { authFormError } from "@/lib/auth/form-error";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { LogIn } from "lucide-react";
+import { LoaderCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Separator } from "@/components/ui/separator";
+import { PasswordInput } from "@/components/auth/PasswordInput";
+import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
+import { loginFormSchema, type LoginFormInput } from "@/lib/validation/auth";
 import { signIn } from "@/lib/auth/auth-client";
 
-type Mode = "options" | "email-password" | "sent";
-
-interface Props {
+export default function LoginForm({
+  callbackUrl,
+  inviteToken,
+}: {
   callbackUrl: string;
   inviteToken?: string;
-}
-
-export default function LoginForm({ callbackUrl, inviteToken }: Props) {
+}) {
   const router = useRouter();
-  const [mode, setMode] = useState<Mode>("options");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  async function handleGoogleSignIn() {
-    setLoading(true);
-    setError(null);
-    try {
-      await signIn.social({
-        provider: "google",
-        callbackURL: callbackUrl,
-      });
-    } catch {
-      setError("Google sign-in failed. Please try again.");
-      setLoading(false);
-    }
-  }
-
-  async function handleEmailSignIn(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
+  const [pending, setPending] = useState<"email" | null>(null);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormInput>({
+    resolver: zodResolver(loginFormSchema),
+    mode: "onBlur",
+    defaultValues: { email: "", password: "" },
+  });
+  async function submit(values: LoginFormInput) {
+    setPending("email");
     setError(null);
     try {
       await signIn.email({
-        email,
-        password,
+        ...values,
         callbackURL: callbackUrl,
         fetchOptions: { throw: true },
       });
       router.push(callbackUrl);
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Something went wrong.";
-      if (msg.toLowerCase().includes("verify")) {
-        setError("Please verify your email before signing in.");
-      } else if (msg.toLowerCase().includes("credentials") || msg.toLowerCase().includes("invalid")) {
-        setError("Incorrect email or password.");
-      } else {
-        setError(msg);
-      }
-      setLoading(false);
+    } catch (cause) {
+      const message = authFormError(cause, "Couldn't sign in. Try again.");
+      setError(
+        message.toLowerCase().includes("verif")
+          ? "Verify your email before signing in."
+          : /credentials|invalid/i.test(message)
+            ? "Incorrect email or password. Try again."
+            : message,
+      );
+      setPending(null);
     }
   }
-
   return (
-    <div className="space-y-6">
-      {/* Invite context line */}
+    <div className="space-y-5">
+      <div className="space-y-2">
+        <h1 className="text-2xl font-medium tracking-tight">
+          Sign in to your diary
+        </h1>
+      </div>
       {inviteToken && (
-        <p className="text-sm text-center text-muted-foreground">
-          You were invited to join a group. Sign in to accept.
-        </p>
+        <Alert>
+          <AlertDescription>
+            Sign in to continue with your invitation.
+          </AlertDescription>
+        </Alert>
       )}
-
-      {/* Tagline — shown only on the options screen */}
-      {mode === "options" && (
-        <p className="text-sm text-center text-muted-foreground">
-          Split costs with friends, keep track of your own.
-        </p>
-      )}
-
-      {/* Error banner */}
       {error && (
-        <div
-          role="alert"
-          className="rounded-md bg-destructive/10 border border-destructive/20 px-4 py-3 text-sm text-destructive"
-        >
-          {error}
-        </div>
+        <Alert variant="destructive">
+          <AlertDescription>
+            {error}
+            {error.includes("Verify your email") && (
+              <Link
+                className="mt-2 inline-flex min-h-11 items-center underline underline-offset-4"
+                href={"/verify-email?next=" + encodeURIComponent(callbackUrl)}
+              >
+                Request a verification link
+              </Link>
+            )}
+          </AlertDescription>
+        </Alert>
       )}
-
-      {mode === "options" && (
-        <div className="space-y-3">
-          <Button
-            id="btn-google-signin"
-            className="w-full gap-2"
-            onClick={handleGoogleSignIn}
-            disabled={loading}
-          >
-            <LogIn size={16} strokeWidth={1.75} />
-            Continue with Google
-          </Button>
-
-          <Button
-            id="btn-use-email"
-            variant="ghost"
-            className="w-full text-muted-foreground hover:text-foreground"
-            onClick={() => setMode("email-password")}
-            disabled={loading}
-          >
-            Use email instead
-          </Button>
-        </div>
-      )}
-
-      {mode === "email-password" && (
-        <form onSubmit={handleEmailSignIn} className="space-y-4" noValidate>
-          <div className="space-y-1.5">
+      <GoogleSignInButton />
+      <div className="flex items-center gap-3 text-xs text-muted-foreground">
+        <Separator className="flex-1" />
+        <span>or</span>
+        <Separator className="flex-1" />
+      </div>
+      <form
+        onSubmit={handleSubmit(submit)}
+        noValidate
+        className="space-y-4"
+        aria-busy={pending === "email"}
+      >
+        <fieldset disabled={pending !== null} className="min-w-0 space-y-4">
+          <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
+              required
               id="email"
               type="email"
               autoComplete="email"
               inputMode="email"
+              autoCapitalize="none"
+              spellCheck={false}
               placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              autoFocus
+              {...register("email")}
+              aria-invalid={!!errors.email}
+              aria-describedby={errors.email ? "email-error" : undefined}
             />
+            {errors.email && (
+              <p
+                id="email-error"
+                role="alert"
+                className="text-sm text-destructive"
+              >
+                {errors.email.message}
+              </p>
+            )}
           </div>
-
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between">
+          <div className="space-y-2">
+            <div className="flex items-center justify-between gap-3">
               <Label htmlFor="password">Password</Label>
               <Link
                 href="/forgot-password"
-                className="text-xs text-muted-foreground hover:text-foreground underline-offset-4 hover:underline"
+                className="inline-flex min-h-11 items-center rounded-sm text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline focus-visible:outline-2 focus-visible:outline-ring"
               >
                 Forgot password?
               </Link>
             </div>
-            <Input
-              id="password"
-              type="password"
-              autoComplete="current-password"
-              placeholder="••••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+            <PasswordInput
               required
+              id="password"
+              autoComplete="current-password"
+              {...register("password")}
+              aria-invalid={!!errors.password}
+              aria-describedby={errors.password ? "password-error" : undefined}
             />
+            {errors.password && (
+              <p
+                id="password-error"
+                role="alert"
+                className="text-sm text-destructive"
+              >
+                {errors.password.message}
+              </p>
+            )}
           </div>
-
-          <Button id="btn-email-signin" type="submit" className="w-full" disabled={loading}>
-            {loading ? "Signing in…" : "Sign in"}
-          </Button>
-
-          <div className="flex items-center gap-3 text-xs text-muted-foreground">
-            <div className="h-px flex-1 bg-border" />
-            or
-            <div className="h-px flex-1 bg-border" />
-          </div>
-
-          <Button
-            id="btn-google-signin-alt"
-            type="button"
-            variant="outline"
-            className="w-full gap-2"
-            onClick={handleGoogleSignIn}
-            disabled={loading}
-          >
-            <LogIn size={16} strokeWidth={1.75} />
-            Continue with Google
-          </Button>
-
-          <p className="text-center text-sm text-muted-foreground">
-            Don&apos;t have an account?{" "}
-            <Link
-              href={`/register?callbackUrl=${encodeURIComponent(callbackUrl)}`}
-              className="text-foreground font-medium hover:underline underline-offset-4"
-            >
-              Create one
-            </Link>
-          </p>
-        </form>
-      )}
-
-      {/* Footer link for sign-up */}
-      {mode === "options" && (
-        <p className="text-center text-sm text-muted-foreground">
-          No account?{" "}
-          <Link
-            href={`/register?callbackUrl=${encodeURIComponent(callbackUrl)}`}
-            className="text-foreground font-medium hover:underline underline-offset-4"
-          >
-            Create one
-          </Link>
-        </p>
-      )}
-
-      {/* Back link */}
-      {mode !== "options" && (
-        <button
-          type="button"
-          onClick={() => { setMode("options"); setError(null); }}
-          className="w-full text-center text-sm text-muted-foreground hover:text-foreground transition-colors"
+        </fieldset>
+        <Button
+          type="submit"
+          size="lg"
+          className="w-full transition-colors"
+          disabled={pending !== null}
         >
-          ← Back
-        </button>
-      )}
+          {pending === "email" && (
+            <LoaderCircle
+              className="size-4 motion-safe:animate-spin"
+              aria-hidden="true"
+            />
+          )}
+          {pending === "email" ? "Signing in…" : "Sign in"}
+        </Button>
+      </form>
+      <p className="border-t border-border pt-4 text-sm text-muted-foreground">
+        New here?{" "}
+        <Link
+          href={"/register?callbackUrl=" + encodeURIComponent(callbackUrl)}
+          className="inline-flex min-h-11 items-center rounded-sm font-medium text-foreground underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-ring"
+        >
+          Create an account
+        </Link>
+      </p>
     </div>
   );
 }

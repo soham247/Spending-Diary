@@ -6,17 +6,13 @@
 "settings":
   "followRedirects": false
 "headers":
-  -
-    "key": "Cookie"
+  - "key": "Cookie"
     "value": "{{owner_cookie}}"
-  -
-    "key": "Origin"
+  - "key": "Origin"
     "value": "{{base_url}}"
-  -
-    "key": "Content-Type"
+  - "key": "Content-Type"
     "value": "application/json"
-  -
-    "key": "Idempotency-Key"
+  - "key": "Idempotency-Key"
     "value": "{{run_id}}-invalid-empty participants"
 "body":
   "type": "json"
@@ -31,8 +27,7 @@
       "participants": []
     }
 "scripts":
-  -
-    "type": "afterResponse"
+  - "type": "afterResponse"
     "language": "text/javascript"
     "code": |-
       pm.test('HTTP 400', () => pm.response.to.have.status(400));

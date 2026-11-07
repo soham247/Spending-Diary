@@ -1,9 +1,17 @@
 type EmailKind = "verification" | "password-reset";
 
 function escapeHtml(value: string): string {
-  return value.replace(/[&<>"']/g, character => ({
-    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
-  })[character]!);
+  return value.replace(
+    /[&<>"']/g,
+    (character) =>
+      ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;",
+      })[character]!,
+  );
 }
 
 export function accountEmail(kind: EmailKind, url: string) {
@@ -26,7 +34,14 @@ export function accountEmail(kind: EmailKind, url: string) {
 
   return {
     subject: `${title} - Spending Diary`,
-    text: ["Spending Diary", title, introduction, `${title}: ${url}`, expiry, reassurance].join("\n\n"),
+    text: [
+      "Spending Diary",
+      title,
+      introduction,
+      `${title}: ${url}`,
+      expiry,
+      reassurance,
+    ].join("\n\n"),
     html: `<!doctype html>
 <html lang="en">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${title}</title></head>

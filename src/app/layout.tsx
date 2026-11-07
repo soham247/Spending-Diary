@@ -1,14 +1,15 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Sans } from "next/font/google";
+import { Oxanium } from "next/font/google";
 import "./globals.css";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
 
-const ibmPlexSans = IBM_Plex_Sans({
-  weight: ["400", "500", "600"],
+const oxanium = Oxanium({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-sans",
+  variable: "--font-oxanium",
 });
 
 export const metadata: Metadata = {
@@ -23,16 +24,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${ibmPlexSans.variable} antialiased`}>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={cn("font-sans", oxanium.variable)}
+    >
+      <body className={`${oxanium.variable} antialiased`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >
-          {children}
-          <Sonner />
+          <TooltipProvider>
+            {children}
+            <Sonner />
+          </TooltipProvider>
         </ThemeProvider>
       </body>
     </html>

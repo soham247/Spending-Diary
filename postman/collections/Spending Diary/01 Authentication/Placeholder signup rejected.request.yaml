@@ -6,14 +6,11 @@
 "settings":
   "followRedirects": false
 "headers":
-  -
-    "key": "Cookie"
+  - "key": "Cookie"
     "value": "{{anon_cookie}}"
-  -
-    "key": "Origin"
+  - "key": "Origin"
     "value": "{{base_url}}"
-  -
-    "key": "Content-Type"
+  - "key": "Content-Type"
     "value": "application/json"
 "body":
   "type": "json"
@@ -24,8 +21,7 @@
       "password": "NonCredential-Invalid-123"
     }
 "scripts":
-  -
-    "type": "afterResponse"
+  - "type": "afterResponse"
     "language": "text/javascript"
     "code": |-
       pm.test('HTTP 400', () => pm.response.to.have.status(400));

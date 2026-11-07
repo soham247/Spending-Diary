@@ -17,10 +17,12 @@ The Postman MCP Server must be connected. If MCP tools aren't available, follow 
 Call `getWorkspaces` to get the user's workspace ID. If multiple workspaces exist, ask which to use.
 
 **From existing collection:**
+
 - Call `getCollections` with the `workspace` parameter
 - Select the target collection
 
 **From local spec:**
+
 - Find OpenAPI spec in the project
 - Import it first:
   1. Call `createSpec` with `workspaceId`, `name`, `type`, and `files`
@@ -31,6 +33,7 @@ Call `getWorkspaces` to get the user's workspace ID. If multiple workspaces exis
 Mock servers serve example responses. Call `getCollection` and check if requests have saved responses.
 
 If examples are missing:
+
 ```
 Your collection doesn't have response examples. Mock servers need
 these to know what to return.
@@ -39,6 +42,7 @@ Generating realistic examples from your schemas...
 ```
 
 For each request without examples:
+
 1. Call `getCollectionRequest` to get the schema
 2. Generate a realistic example response from the schema
 3. Call `createCollectionResponse` to save the example
@@ -50,6 +54,7 @@ Before creating a new mock, call `getMocks` to check if one already exists for t
 ### Step 4: Create Mock Server
 
 Call `createMock` with:
+
 - Workspace ID
 - Collection UID in `ownerId-collectionId` format (from `getCollection` response's `uid` field)
 - Environment ID (if applicable)
@@ -87,6 +92,7 @@ Quick integration:
 ### Step 7: Publish (optional)
 
 If the user wants the mock publicly accessible:
+
 - Call `publishMock` to make it available without authentication
 - Useful for demos, hackathons, or public documentation
 - Call `unpublishMock` to make it private again

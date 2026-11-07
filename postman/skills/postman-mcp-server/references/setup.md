@@ -15,12 +15,14 @@ Verify the Postman MCP Server is available by calling `getAuthenticatedUser`.
 **If it works:** Skip to Step 4 (workspace verification).
 
 **If it fails:** Check whether `mcp__postman__authenticate` is available.
+
 - Available → offer the user a choice: **OAuth (recommended)** or **API key**. Default to OAuth unless they ask for API key.
 - Not available → the MCP server isn't loaded. Show the "MCP tools not available" error below and stop.
 
 ### Step 2: OAuth Authentication (Recommended)
 
 Present:
+
 ```
 Let's connect your Postman account via OAuth — no key copying required.
 
@@ -57,6 +59,7 @@ I'll generate an authorization URL. Open it in your browser, sign in, and paste 
 ### Step 3: API Key Authentication (Alternative)
 
 Present:
+
 ```
 Let's set up Postman using an API key.
 
@@ -88,6 +91,7 @@ After successful connection (either auth method):
 3. Call `getAllSpecs` with the workspace ID to count specs.
 
 Present:
+
 ```
 Connected as: <user name>
 
@@ -99,6 +103,7 @@ You're all set.
 ```
 
 If workspace is empty:
+
 ```
 Your workspace is empty. You can ask me to:
   - Push a local OpenAPI spec to Postman
@@ -110,6 +115,7 @@ Your workspace is empty. You can ask me to:
 Based on what the user has:
 
 **Has collections:**
+
 ```
 Try asking me to:
   - Find APIs across your workspace
@@ -117,12 +123,14 @@ Try asking me to:
 ```
 
 **Has specs but no collections:**
+
 ```
 Try asking me to:
   - Generate a collection from one of your specs
 ```
 
 **Empty workspace:**
+
 ```
 Try asking me to:
   - Import an OpenAPI spec from your project

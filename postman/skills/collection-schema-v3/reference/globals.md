@@ -23,11 +23,11 @@ It has no `$kind` discriminator.
 name: Globals
 values:
   - key: base_url
-    value: 'https://api.example.com'
+    value: "https://api.example.com"
     enabled: true
     type: default
   - key: api_token
-    value: ''
+    value: ""
     enabled: false
     type: secret
 ```

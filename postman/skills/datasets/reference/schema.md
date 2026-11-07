@@ -11,20 +11,20 @@ postman/datasets/users/
 ```
 
 ```yaml
-type: dataset                 # not $kind
+type: dataset # not $kind
 name: "Users"
-id: 3f2b6c1e-9d4a-4f81-bc37-5e0a71d9c402     # uuid4
+id: 3f2b6c1e-9d4a-4f81-bc37-5e0a71d9c402 # uuid4
 data_dir: .resources
 sources:
   - from: embedded_datasource
     datasource:
       name: Records
       id: 8a1d0e77-5c62-4b19-9f03-2d6e4a8b7c15
-      format: json            # this example uses a JSON file
-      source_type: static     # static for files, dynamic for databases
+      format: json # this example uses a JSON file
+      source_type: static # static for files, dynamic for databases
       location:
         type: local_filesystem
-        value: rows.json      # relative to data_dir
+        value: rows.json # relative to data_dir
 views:
   - from: embedded_view
     view:

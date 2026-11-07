@@ -22,21 +22,38 @@ type Executor = Database | DbTx;
 
 async function exec(tx: Executor, sql: string, params: unknown[] = []) {
   const pieces = sql.split(/\$(\d+)/);
-  return tx.execute(query.join(pieces.map((piece, i) => i % 2 ? query`${params[Number(piece) - 1]}` : query.raw(piece)), query.raw("")));
+  return tx.execute(
+    query.join(
+      pieces.map((piece, i) =>
+        i % 2 ? query`${params[Number(piece) - 1]}` : query.raw(piece),
+      ),
+      query.raw(""),
+    ),
+  );
 }
 
-async function insertUser(tx: Executor, overrides: Partial<{ name: string; email: string }> = {}) {
+async function insertUser(
+  tx: Executor,
+  overrides: Partial<{ name: string; email: string }> = {},
+) {
   const userId = createId();
   await exec(
     tx,
     `INSERT INTO users (id, name, email, email_verified, status, default_currency, created_at, updated_at)
      VALUES ($1, $2, $3, true, 'ACTIVE', 'INR', now(), now())`,
-    [userId, overrides.name ?? "Test User", overrides.email ?? `${userId}@example.com`],
+    [
+      userId,
+      overrides.name ?? "Test User",
+      overrides.email ?? `${userId}@example.com`,
+    ],
   );
   return userId;
 }
 
-async function insertExpense(tx: Executor, opts: { amount: number; createdById: string }) {
+async function insertExpense(
+  tx: Executor,
+  opts: { amount: number; createdById: string },
+) {
   const expenseId = createId();
   await exec(
     tx,
@@ -82,7 +99,9 @@ describe("balance deferred triggers", () => {
         await insertExpense(tx, { amount: 1000, createdById: u1 });
         // No participants — trigger fires on INSERT to expenses at commit
       }),
-    ).rejects.toMatchObject({ cause: { code: "23514", message: expect.stringMatching(/unbalanced/i) } });
+    ).rejects.toMatchObject({
+      cause: { code: "23514", message: expect.stringMatching(/unbalanced/i) },
+    });
   });
 
   it("rejects unbalanced paid total", async () => {
@@ -90,11 +109,16 @@ describe("balance deferred triggers", () => {
       db.transaction(async (tx) => {
         const u1 = await insertUser(tx);
         const u2 = await insertUser(tx);
-        const expId = await insertExpense(tx, { amount: 1000, createdById: u1 });
+        const expId = await insertExpense(tx, {
+          amount: 1000,
+          createdById: u1,
+        });
         await insertParticipant(tx, expId, u1, 800, 500); // paid sums to 800, not 1000
         await insertParticipant(tx, expId, u2, 0, 500);
       }),
-    ).rejects.toMatchObject({ cause: { code: "23514", message: expect.stringMatching(/unbalanced/i) } });
+    ).rejects.toMatchObject({
+      cause: { code: "23514", message: expect.stringMatching(/unbalanced/i) },
+    });
   });
 
   it("rejects unbalanced owed total", async () => {
@@ -102,11 +126,16 @@ describe("balance deferred triggers", () => {
       db.transaction(async (tx) => {
         const u1 = await insertUser(tx);
         const u2 = await insertUser(tx);
-        const expId = await insertExpense(tx, { amount: 1000, createdById: u1 });
+        const expId = await insertExpense(tx, {
+          amount: 1000,
+          createdById: u1,
+        });
         await insertParticipant(tx, expId, u1, 1000, 600);
         await insertParticipant(tx, expId, u2, 0, 300); // owed sums to 900, not 1000
       }),
-    ).rejects.toMatchObject({ cause: { code: "23514", message: expect.stringMatching(/unbalanced/i) } });
+    ).rejects.toMatchObject({
+      cause: { code: "23514", message: expect.stringMatching(/unbalanced/i) },
+    });
   });
 
   it("rejects participant delete that unbalances expense", async () => {
@@ -122,9 +151,15 @@ describe("balance deferred triggers", () => {
 
     await expect(
       db.transaction(async (tx) => {
-        await exec(tx, `DELETE FROM expense_participants WHERE expense_id = $1 AND user_id = $2`, [expId!, u2!]);
+        await exec(
+          tx,
+          `DELETE FROM expense_participants WHERE expense_id = $1 AND user_id = $2`,
+          [expId!, u2!],
+        );
       }),
-    ).rejects.toMatchObject({ cause: { code: "23514", message: expect.stringMatching(/unbalanced/i) } });
+    ).rejects.toMatchObject({
+      cause: { code: "23514", message: expect.stringMatching(/unbalanced/i) },
+    });
   });
 
   it("rejects amount change that breaks balance", async () => {
@@ -139,9 +174,13 @@ describe("balance deferred triggers", () => {
 
     await expect(
       db.transaction(async (tx) => {
-        await exec(tx, `UPDATE expenses SET amount = 2000 WHERE id = $1`, [expId!]);
+        await exec(tx, `UPDATE expenses SET amount = 2000 WHERE id = $1`, [
+          expId!,
+        ]);
       }),
-    ).rejects.toMatchObject({ cause: { code: "23514", message: expect.stringMatching(/unbalanced/i) } });
+    ).rejects.toMatchObject({
+      cause: { code: "23514", message: expect.stringMatching(/unbalanced/i) },
+    });
   });
 
   it("rejects restore of a soft-deleted expense with tampered participants", async () => {
@@ -155,17 +194,27 @@ describe("balance deferred triggers", () => {
       await insertParticipant(tx, expId, u1, 1000, 500);
       await insertParticipant(tx, expId, u2, 0, 500);
       // Soft-delete to bypass the expense trigger for subsequent participant changes
-      await exec(tx, `UPDATE expenses SET deleted_at = now() WHERE id = $1`, [expId]);
+      await exec(tx, `UPDATE expenses SET deleted_at = now() WHERE id = $1`, [
+        expId,
+      ]);
       // Remove a participant while expense is deleted
-      await exec(tx, `DELETE FROM expense_participants WHERE expense_id = $1 AND user_id = $2`, [expId, u2]);
+      await exec(
+        tx,
+        `DELETE FROM expense_participants WHERE expense_id = $1 AND user_id = $2`,
+        [expId, u2],
+      );
     });
 
     // Restore — trigger fires and catches the imbalance
     await expect(
       db.transaction(async (tx) => {
-        await exec(tx, `UPDATE expenses SET deleted_at = NULL WHERE id = $1`, [expId!]);
+        await exec(tx, `UPDATE expenses SET deleted_at = NULL WHERE id = $1`, [
+          expId!,
+        ]);
       }),
-    ).rejects.toMatchObject({ cause: { code: "23514", message: expect.stringMatching(/unbalanced/i) } });
+    ).rejects.toMatchObject({
+      cause: { code: "23514", message: expect.stringMatching(/unbalanced/i) },
+    });
   });
 
   it("allows restore of a fully balanced expense", async () => {
@@ -177,9 +226,13 @@ describe("balance deferred triggers", () => {
       await insertParticipant(tx, expId, u1, 1000, 500);
       await insertParticipant(tx, expId, u2, 0, 500);
     });
-    await exec(db, `UPDATE expenses SET deleted_at = now() WHERE id = $1`, [expId!]);
+    await exec(db, `UPDATE expenses SET deleted_at = now() WHERE id = $1`, [
+      expId!,
+    ]);
     await db.transaction(async (tx) => {
-      await exec(tx, `UPDATE expenses SET deleted_at = NULL WHERE id = $1`, [expId!]);
+      await exec(tx, `UPDATE expenses SET deleted_at = NULL WHERE id = $1`, [
+        expId!,
+      ]);
     });
   });
 

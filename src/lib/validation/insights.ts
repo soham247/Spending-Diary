@@ -1,2 +1,5 @@
 ﻿import { z } from "zod";
-export const insightsInputSchema = z.object({ month: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/), kind: z.enum(["PERSONAL", "SHARED"]).optional() });
+export const insightsInputSchema = z.object({
+  month: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/),
+  kind: z.enum(["PERSONAL", "SHARED"]).optional(),
+});

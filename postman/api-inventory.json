@@ -2,17 +2,13 @@
   {
     "file": "src/app/api/activity/route.ts",
     "path": "/api/activity",
-    "methods": [
-      "GET"
-    ],
+    "methods": ["GET"],
     "status": "implemented"
   },
   {
     "file": "src/app/api/activity/[id]/route.ts",
     "path": "/api/activity/{id}",
-    "methods": [
-      "PATCH"
-    ],
+    "methods": ["PATCH"],
     "status": "implemented"
   },
   {
@@ -24,203 +20,145 @@
   {
     "file": "src/app/api/balances/route.ts",
     "path": "/api/balances",
-    "methods": [
-      "GET"
-    ],
+    "methods": ["GET"],
     "status": "implemented"
   },
   {
     "file": "src/app/api/cron/maintenance/route.ts",
     "path": "/api/cron/maintenance",
-    "methods": [
-      "GET"
-    ],
+    "methods": ["GET"],
     "status": "implemented"
   },
   {
     "file": "src/app/api/expenses/route.ts",
     "path": "/api/expenses",
-    "methods": [
-      "GET",
-      "POST"
-    ],
+    "methods": ["GET", "POST"],
     "status": "implemented"
   },
   {
     "file": "src/app/api/expenses/[id]/restore/route.ts",
     "path": "/api/expenses/{id}/restore",
-    "methods": [
-      "POST"
-    ],
+    "methods": ["POST"],
     "status": "implemented"
   },
   {
     "file": "src/app/api/expenses/[id]/route.ts",
     "path": "/api/expenses/{id}",
-    "methods": [
-      "GET",
-      "PATCH",
-      "DELETE"
-    ],
+    "methods": ["GET", "PATCH", "DELETE"],
     "status": "implemented"
   },
   {
     "file": "src/app/api/friends/route.ts",
     "path": "/api/friends",
-    "methods": [
-      "GET",
-      "POST"
-    ],
+    "methods": ["GET", "POST"],
     "status": "implemented"
   },
   {
     "file": "src/app/api/friends/[id]/route.ts",
     "path": "/api/friends/{id}",
-    "methods": [
-      "GET",
-      "PATCH"
-    ],
+    "methods": ["GET", "PATCH"],
     "status": "implemented"
   },
   {
     "file": "src/app/api/groups/route.ts",
     "path": "/api/groups",
-    "methods": [
-      "GET",
-      "POST"
-    ],
+    "methods": ["GET", "POST"],
     "status": "implemented"
   },
   {
     "file": "src/app/api/groups/[id]/members/route.ts",
     "path": "/api/groups/{id}/members",
-    "methods": [
-      "POST"
-    ],
+    "methods": ["POST"],
     "status": "implemented"
   },
   {
     "file": "src/app/api/groups/[id]/route.ts",
     "path": "/api/groups/{id}",
-    "methods": [
-      "GET",
-      "PATCH"
-    ],
+    "methods": ["GET", "PATCH"],
     "status": "implemented"
   },
   {
     "file": "src/app/api/insights/route.ts",
     "path": "/api/insights",
-    "methods": [
-      "GET"
-    ],
+    "methods": ["GET"],
     "status": "implemented"
   },
   {
     "file": "src/app/api/invites/claim/route.ts",
     "path": "/api/invites/claim",
-    "methods": [
-      "POST"
-    ],
+    "methods": ["POST"],
     "status": "implemented"
   },
   {
     "file": "src/app/api/invites/preview/route.ts",
     "path": "/api/invites/preview",
-    "methods": [
-      "GET"
-    ],
+    "methods": ["GET"],
     "status": "implemented"
   },
   {
     "file": "src/app/api/invites/route.ts",
     "path": "/api/invites",
-    "methods": [
-      "POST"
-    ],
+    "methods": ["POST"],
     "status": "implemented"
   },
   {
     "file": "src/app/api/invites/[id]/report/route.ts",
     "path": "/api/invites/{id}/report",
-    "methods": [
-      "POST"
-    ],
+    "methods": ["POST"],
     "status": "implemented"
   },
   {
     "file": "src/app/api/invites/[id]/route.ts",
     "path": "/api/invites/{id}",
-    "methods": [
-      "DELETE"
-    ],
+    "methods": ["DELETE"],
     "status": "implemented"
   },
   {
     "file": "src/app/api/me/anonymize/route.ts",
     "path": "/api/me/anonymize",
-    "methods": [
-      "POST"
-    ],
+    "methods": ["POST"],
     "status": "implemented"
   },
   {
     "file": "src/app/api/me/route.ts",
     "path": "/api/me",
-    "methods": [
-      "GET",
-      "PATCH"
-    ],
+    "methods": ["GET", "PATCH"],
     "status": "implemented"
   },
   {
     "file": "src/app/api/push/config/route.ts",
     "path": "/api/push/config",
-    "methods": [
-      "GET"
-    ],
+    "methods": ["GET"],
     "status": "implemented"
   },
   {
     "file": "src/app/api/push/subscription/route.ts",
     "path": "/api/push/subscription",
-    "methods": [
-      "PUT",
-      "DELETE"
-    ],
+    "methods": ["PUT", "DELETE"],
     "status": "implemented"
   },
   {
     "file": "src/app/api/settlements/context/route.ts",
     "path": "/api/settlements/context",
-    "methods": [
-      "GET"
-    ],
+    "methods": ["GET"],
     "status": "implemented"
   },
   {
     "file": "src/app/api/settlements/route.ts",
     "path": "/api/settlements",
-    "methods": [
-      "POST",
-      "GET"
-    ],
+    "methods": ["POST", "GET"],
     "status": "implemented"
   },
   {
     "file": "src/app/api/settlements/[id]/restore/route.ts",
     "path": "/api/settlements/{id}/restore",
-    "methods": [
-      "POST"
-    ],
+    "methods": ["POST"],
     "status": "implemented"
   },
   {
     "file": "src/app/api/settlements/[id]/route.ts",
     "path": "/api/settlements/{id}",
-    "methods": [
-      "DELETE"
-    ],
+    "methods": ["DELETE"],
     "status": "implemented"
   }
 ]

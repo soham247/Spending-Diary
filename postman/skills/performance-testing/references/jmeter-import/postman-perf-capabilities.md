@@ -4,16 +4,16 @@ Grounded in the `postman-cli`, `performance-test-api`, and `postman-performance-
 
 ## `postman performance run` CLI flags that matter for import
 
-| Concern | Flag | Notes |
-|---------|------|-------|
-| Virtual users | `--vu-count <n>` | default 20; cloud runs enforce a **minimum of 10** |
-| Duration | `-d, --duration <minutes>` | **minutes**, not seconds; default 1; cloud ceiling ~120 min (plan-gated) |
-| Load profile | `-p, --load-profile <p>` | one of `fixed`, `ramp-up`, `spike`, `peak`; default `ramp-up` |
-| Data file | `--data-file <path>` | JSON array or CSV; **local runs only**; distribution is forced to `random` |
-| Dataset | `--dataset-id` + `--dataset-view-id` + `--dataset-distribution` | cloud path; distribution `round-robin`/`fixed`/`random` |
-| Pass/fail | `--pass-if "<fn>(<metric>, <value>)"` | **single, not repeatable** |
-| Environment | `-e, --environment <id>` | |
-| Setup/teardown | `--setup-collection` / `--teardown-collection` | run **once** before/after — not concurrent load |
+| Concern        | Flag                                                            | Notes                                                                      |
+| -------------- | --------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| Virtual users  | `--vu-count <n>`                                                | default 20; cloud runs enforce a **minimum of 10**                         |
+| Duration       | `-d, --duration <minutes>`                                      | **minutes**, not seconds; default 1; cloud ceiling ~120 min (plan-gated)   |
+| Load profile   | `-p, --load-profile <p>`                                        | one of `fixed`, `ramp-up`, `spike`, `peak`; default `ramp-up`              |
+| Data file      | `--data-file <path>`                                            | JSON array or CSV; **local runs only**; distribution is forced to `random` |
+| Dataset        | `--dataset-id` + `--dataset-view-id` + `--dataset-distribution` | cloud path; distribution `round-robin`/`fixed`/`random`                    |
+| Pass/fail      | `--pass-if "<fn>(<metric>, <value>)"`                           | **single, not repeatable**                                                 |
+| Environment    | `-e, --environment <id>`                                        |                                                                            |
+| Setup/teardown | `--setup-collection` / `--teardown-collection`                  | run **once** before/after — not concurrent load                            |
 
 There is **no** `--load-segments`, no `--stages`, no `--iterations`, no think-time flag. A latent YAML "stages" schema exists in the CLI repo but is not wired to the command — do not target it.
 

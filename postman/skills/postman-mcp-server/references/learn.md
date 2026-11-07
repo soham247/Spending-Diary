@@ -6,7 +6,7 @@ description: Search the Postman Learning Center for how-to guidance, feature exp
 
 Answer "how do I..." questions about the Postman product by searching the official Postman Learning Center (https://learning.postman.com). Explain features, walk through workflows, and cite authoritative sources.
 
-Use this to learn *about Postman itself* — not to search the user's own collections, workspaces, or specs (that's `references/search.md`).
+Use this to learn _about Postman itself_ — not to search the user's own collections, workspaces, or specs (that's `references/search.md`).
 
 ## Prerequisites
 

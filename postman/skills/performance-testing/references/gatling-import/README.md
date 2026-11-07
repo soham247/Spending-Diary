@@ -3,9 +3,11 @@
 > Reference for the `performance-testing` skill. Convert the simulation, review the gap report, then the result is an ordinary performance run. Verifying it runs one iteration of real requests against the target, so confirm the target first — the same way any action with effects outside this session gets confirmed.
 
 ## Overview
+
 A Gatling simulation is code: a scenario of `http()` requests, checks, feeders,
 pauses and flow control, plus a `setUp` that injects load and asserts on
 results. Postman splits the same thing in two:
+
 - the **collection** (requests, test scripts, variables, data file), and
 - the **run config** (`postman performance run` flags: VUs, duration, load profile, pass criteria).
 
@@ -26,7 +28,7 @@ model, is worse than no conversion, because the user will trust the numbers.
    and build tool. If there is more than one simulation, ask which to convert.
    Convert one simulation per output directory.
 2. **Inventory.** Read every source file the simulation touches and list **every
-   construct a conversion must account for** — see *Inventory: what to list*. This
+   construct a conversion must account for** — see _Inventory: what to list_. This
    is your checklist; each item gets a stable id. Pay attention to requests built
    in loops or helper methods and to dynamic names — a shallow scan misses them.
 3. **Translate** each item using the files next to this one:
@@ -35,7 +37,7 @@ model, is worse than no conversion, because the user will trust the numbers.
    - `injection.md`: injection profiles, throttle, assertions → run flags
    - `unsupported.md`: what becomes a gap, and how to word it
 4. **Write outputs** to the output directory (formats below).
-5. **Verify** against the checklist in *Verify: self-review* — including, after you
+5. **Verify** against the checklist in _Verify: self-review_ — including, after you
    confirm the target, one real smoke iteration via the existing
    `postman collection run` command. Fix everything that fails and re-check, up to
    3 rounds.
@@ -43,6 +45,7 @@ model, is worse than no conversion, because the user will trust the numbers.
    result, and the top 3 things they must do by hand. Point them to MIGRATION.md.
 
 ## Inventory: what to list
+
 List every construct below that appears in the simulation, each with a **stable
 id** (used verbatim in the MIGRATION.md coverage table). Kinds and id prefixes:
 
@@ -63,7 +66,9 @@ id** (used verbatim in the MIGRATION.md coverage table). Kinds and id prefixes:
 A request built in a loop or helper, or named dynamically, still gets an id; find it by reading, not pattern-matching. If you are unsure a construct exists, list it and resolve it to a gap rather than omit it.
 
 ## Output formats
+
 ### `collection.json`: Postman collection v2.1
+
 - `info.schema` = `https://schema.getpostman.com/json/collection/v2.1.0/collection.json`
 - `info.description` is a plain string whose first line is exactly `imported-from: gatling` followed by two lines `source: <relative source path>` and `class: <simulation class/name>`. Example: `"imported-from: gatling\nsource: src/test/java/poc/BasicSimulation.java\nclass: BasicSimulation"`.
 - One collection per simulation. One folder per Gatling `group`; with **no** groups, requests sit at the collection root (a bare request name, no folder prefix — that is valid). Requests keep their Gatling names exactly (they drive per-request metrics), and **request leaf names must be unique** (a collection cannot hold two requests with the same path — see `repeat` in mapping.md).
@@ -71,6 +76,7 @@ A request built in a loop or helper, or named dynamically, still gets an id; fin
 - Each request's test script ends with the translated checks. Mark translated custom code with `// REVIEW: translated from Gatling custom code (<inventory id>)`.
 
 ### `environment.json`: Postman environment
+
 `{"name": "<simulation> (from Gatling)", "values": [{"key": "...", "value": "...", "enabled": true}]}`.
 Secrets become keys with an **empty value** and `"type": "secret"`. Never copy a
 secret literal from the source (see Critical rules). This file holds **secrets and
@@ -80,9 +86,11 @@ simulation with no secrets and no externalised config gets `"values": []`. (An e
 environment is correct and expected, not a defect.)
 
 ### `data/<name>.csv`
+
 Copy feeder files that the simulation uses. Convert JSON array feeders to CSV if they are flat. If the simulation has **no feeder**, don't create a `data/` directory at all (and omit `--data-file` from run.sh).
 
 ### `run.sh`
+
 ```bash
 #!/usr/bin/env bash
 # Converted from <Simulation>. Replace <collection-uid> after pushing the collection to a workspace.
@@ -92,14 +100,18 @@ postman performance run "<collection-uid>" \
   --data-file data/users.csv \
   --pass-if "less_than(error_rate, 1)"
 ```
+
 Only flags that exist in `postman performance run --help` (check the user's installed
 version; don't assume a flag from a newer CLI). Duration is in whole minutes, rounded up.
+
 - `--environment` — include it whenever `environment.json` has any values (the secrets/config requests depend on). Requests using `{{secret}}`/config resolve to nothing without it. Tell the user to import and **populate** `environment.json`, then replace `<environment-uid>` with its UID. Omit the flag only when the environment is empty (`values: []`).
 - `--data-file` only if the simulation has a feeder; **omit the line entirely** when there is none (don't invent a data file).
 - `--pass-if`: **at most one**, chosen by the strict priority in `injection.md` (error-rate, then latency percentile, then mean/rps) — this overrides source order. If **no** source assertion matches any category, **omit `--pass-if` entirely**. Every non-chosen assertion goes to the gap report.
 
 ### `MIGRATION.md`: gap report (also your accounting record)
+
 Sections, in order:
+
 1. **Summary**: source, counts (mapped / approximated / gap), verify result. The counts must equal the coverage-table tally; derive them from the table, don't hand-write them.
 2. **Load model**: the original injection profile, the chosen flags, and the arithmetic (see `injection.md`). Required even when the mapping is exact.
 3. **Coverage**: a table with one row per inventory id — this is the accounting that replaces a manifest. Columns: `id` · `kind` · `status` (`mapped` / `approximated` / `gap`) · `landed` (where it went, or why it was dropped). **Every inventory id appears here**; a missing row is a silently-dropped construct. Use these idioms in `landed`:
@@ -117,6 +129,7 @@ Sections, in order:
 Every `approximated` or `gap` id **must appear verbatim** in both the coverage table and its Approximations/Gaps bullet.
 
 ## Verify: self-review
+
 Before claiming done, check each of these against your own output and fix every miss:
 
 1. **Accounting** — every inventory id has a row in the MIGRATION.md coverage table; every `approximated`/`gap` id also has its bullet. Nothing dropped silently.
@@ -133,6 +146,7 @@ Before claiming done, check each of these against your own output and fix every 
    (add `-d data/<file>` when there is a feeder). Confirm every request executed with no transport error. A `pm.test` failure that comes from the conversion needs an explanation in MIGRATION.md; one that comes from the target (e.g. a 4xx the simulation also expected) just gets noted. If the user declines the traffic, or there is no CLI login / network, skip only this step and say in your report that no request was executed — the other five checks still hold.
 
 ## Critical rules
+
 1. **Never copy a secret literal into any output.** That covers the collection, environment, run.sh and MIGRATION.md. Items of kind `secret` become an environment key with an empty value, and MIGRATION.md tells the user to fill it in. Don't put secrets in descriptions or metadata either.
 2. **Never drop an item silently.** Every inventory id gets a coverage-table row. If you aren't sure, choose `approximated` or `gap` and explain. Don't choose `mapped`.
 3. **Never change the load model silently.** Open-model (arrival-rate) injection has no exact equivalent. Always show the conversion arithmetic in MIGRATION.md → Load model.

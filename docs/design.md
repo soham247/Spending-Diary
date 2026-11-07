@@ -94,13 +94,13 @@ actions are burnt orange, replacing the earlier ink-button rule.
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
   --radius: 0.625rem;
-  --destructive-foreground: #FFFFFF;
-  --credit: #0F766E;
-  --credit-foreground: #FFFFFF;
-  --credit-muted: #DDF1EE;
-  --debit: #B45309;
-  --debit-foreground: #FFFFFF;
-  --debit-muted: #FBEBD9;
+  --destructive-foreground: #ffffff;
+  --credit: #0f766e;
+  --credit-foreground: #ffffff;
+  --credit-muted: #ddf1ee;
+  --debit: #b45309;
+  --debit-foreground: #ffffff;
+  --debit-muted: #fbebd9;
 }
 
 .dark {
@@ -136,12 +136,12 @@ actions are burnt orange, replacing the earlier ink-button rule.
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
   --destructive-foreground: #111615;
-  --credit: #3CC2AE;
+  --credit: #3cc2ae;
   --credit-foreground: #111615;
-  --credit-muted: #12302D;
-  --debit: #F0A05A;
+  --credit-muted: #12302d;
+  --debit: #f0a05a;
   --debit-foreground: #111615;
-  --debit-muted: #35240F;
+  --debit-muted: #35240f;
 }
 ```
 
@@ -152,26 +152,24 @@ remain necessary because neighbouring orange shades are close in hue.
 
 ### 3.2 Typography
 
-**Typeface: IBM Plex Sans**, one family for everything, loaded with
-`next/font/google`. Chosen because it has a clear rupee sign, true tabular
-figures, a slightly technical, ledger-like character that suits exact numbers,
-and a matching **IBM Plex Sans Devanagari** for a future Hindi interface.
+**Typeface: Oxanium**, selected by the Nova preset, loaded with
+`next/font/google`. Body and heading tokens share the same family.
 Fallback: `system-ui, sans-serif`.
 
 Before shipping, verify in the browser that the ₹ glyph renders in Plex (not
 from a fallback font) and that `font-variant-numeric: tabular-nums` changes
 digit widths.
 
-| Role | Classes | Where |
-|---|---|---|
-| Balance sentence | `text-2xl font-normal leading-snug`, amount inside it `text-4xl font-semibold tracking-tight` | Home, group, friend headers |
-| Screen title | `text-xl font-semibold` | Top of each screen |
-| Section heading | `text-sm font-medium text-muted-foreground` | Above lists ("Groups", "This month") |
-| Row title | `text-base font-medium` | Person, group, expense names |
-| Body | `text-sm` | Most text |
-| Meta | `text-sm text-muted-foreground` | "Priya paid ₹1,200" under a row title |
-| Row amount | `text-base font-medium tabular-nums` | Right side of rows |
-| Small print | `text-xs text-muted-foreground` | Timestamps, helper text |
+| Role             | Classes                                                                                       | Where                                 |
+| ---------------- | --------------------------------------------------------------------------------------------- | ------------------------------------- |
+| Balance sentence | `text-2xl font-normal leading-snug`, amount inside it `text-4xl font-semibold tracking-tight` | Home, group, friend headers           |
+| Screen title     | `text-xl font-semibold`                                                                       | Top of each screen                    |
+| Section heading  | `text-sm font-medium text-muted-foreground`                                                   | Above lists ("Groups", "This month")  |
+| Row title        | `text-base font-medium`                                                                       | Person, group, expense names          |
+| Body             | `text-sm`                                                                                     | Most text                             |
+| Meta             | `text-sm text-muted-foreground`                                                               | "Priya paid ₹1,200" under a row title |
+| Row amount       | `text-base font-medium tabular-nums`                                                          | Right side of rows                    |
+| Small print      | `text-xs text-muted-foreground`                                                               | Timestamps, helper text               |
 
 Rules:
 
@@ -186,11 +184,8 @@ Rules:
 
 - **Spacing:** Tailwind scale only. Screen padding `px-4` on mobile, `px-6` on
   desktop. Rows `py-3`. Sections separated by `space-y-6`.
-- **Radius hierarchy** (not one radius for everything):
-  - Sheets, dialogs, and the list surface: `rounded-xl`
-  - Buttons, inputs, chips: `rounded-md`
-  - Avatars: `rounded-full`
-  - Rows inside a surface: no radius; they're separated by `divide-y`
+- **Radius:** inherit the Nova primitive's radius. Rows inside a grouped
+  surface have no extra radius and are separated by `divide-y`.
 - **Elevation:** flat by default. Shadows only on things that float above the
   page (dropdowns, sheets, dialogs, the mobile add button). Surfaces are
   distinguished by `bg-card` on `bg-background` plus `border`, not shadows.
@@ -216,6 +211,8 @@ Motion only answers what the person did:
 
 Respect `prefers-reduced-motion`: disable the row fade and collapse.
 
+The public landing page uses a single 200ms fade/4px rise on hero text, smooth anchor scrolling, and a 2px CTA-arrow movement on hover or keyboard focus (150ms). These effects only run with `prefers-reduced-motion: no-preference`; hover motion requires a fine pointer. Previews and financial amounts stay static. Implement in CSS without scroll listeners or animation dependencies.
+
 ## 4. Money display
 
 Every amount renders through one component: `<Money />`
@@ -223,10 +220,10 @@ Every amount renders through one component: `<Money />`
 
 ```tsx
 type MoneyProps = {
-  minor: number;                    // integer minor units
-  currency: string;                 // "INR"
-  tone?: "auto" | "neutral";        // auto: credit if > 0, debit if < 0
-  sign?: "never" | "always";        // default "never": direction comes from words
+  minor: number; // integer minor units
+  currency: string; // "INR"
+  tone?: "auto" | "neutral"; // auto: credit if > 0, debit if < 0
+  sign?: "never" | "always"; // default "never": direction comes from words
   size?: "row" | "hero" | "inline";
 };
 ```
@@ -243,12 +240,12 @@ Rules:
 - `tone="auto"` colors `credit`/`debit`; `neutral` is for expense totals,
   which aren't a direction.
 
-| State | Row right side | Color |
-|---|---|---|
-| They owe you | `owes you` / `₹450` (two lines, right-aligned) | `credit` |
-| You owe them | `you owe` / `₹450` | `debit` |
-| Settled | `settled up` | `muted-foreground` |
-| Expense you're not in | `not involved` | `muted-foreground` |
+| State                 | Row right side                                 | Color              |
+| --------------------- | ---------------------------------------------- | ------------------ |
+| They owe you          | `owes you` / `₹450` (two lines, right-aligned) | `credit`           |
+| You owe them          | `you owe` / `₹450`                             | `debit`            |
+| Settled               | `settled up`                                   | `muted-foreground` |
+| Expense you're not in | `not involved`                                 | `muted-foreground` |
 
 ## 5. Layout and navigation
 
@@ -275,17 +272,28 @@ files under `components/ui`.
   It replaces the previous bottom navigation.
 - The drawer has an explicit close button, traps focus, closes with Escape,
   and returns focus to the trigger. Choosing a destination closes it.
-- Navigation rows and action buttons have at least 44px touch targets.
+- Navigation rows and action buttons have at least 44px touch targets on mobile.
 - The drawer footer reserves the device bottom safe area. Content needs no
   bottom-nav spacer. At 360px, neither content nor drawer may overflow.
 - Group/friend expense actions retain their existing prefilled context.
 
 ### Sheets vs dialogs
 
-Forms open as a bottom `Drawer` on mobile and a `Dialog` on desktop, through
-one `ResponsiveDialog` wrapper that switches on a `useIsDesktop()` hook.
-Full-screen pages are used only for flows with several steps (onboarding,
-invite landing).
+Forms use the official shadcn `Drawer` on both mobile and desktop through
+`components/common/FormDrawer`. Bottom drawers fill the mobile width and are
+centred at `max-w-2xl` on desktop. Height follows content up to the dynamic
+viewport; the header stays visible and the body scrolls with safe-area padding.
+Save actions stay sticky inside the body. The existing navigation sidebar
+continues to use its Sheet.
+
+Drawers provide Close, Escape and browser Back dismissal, return focus to their
+trigger, and confirm before discarding an edited draft. Pending writes and UPI
+confirmation block dismissal. Only the handle initiates dragging; edited drafts cannot be swiped away. Expense
+payer and split editors replace the composer body without nesting drawers.
+Group/person creation and nickname editing open from buttons instead of taking
+space above lists. Existing expense deep links still open their editor.
+
+Full-screen pages remain for onboarding and invite landing.
 
 ## 6. Screens
 
@@ -294,34 +302,13 @@ copy to use.
 
 ### 6.1 Login
 
-```
-┌──────────────────────────────┐
-│                              │
-│  Spending Diary              │
-│  Split costs with friends,   │
-│  keep track of your own.     │
-│                              │
-│  [ G  Continue with Google ] │  primary (burnt orange)
-│                              │
-│  Use email instead           │  text button, reveals email field
-│                              │
-└──────────────────────────────┘
-```
+A focused auth surface with a home-linked wordmark, one heading and a compact shadcn Card. The currently unavailable Google option comes first as a disabled button with a monochrome Google brand icon and a short status line, followed by the email/password form (D-033). Email sign-in is immediately visible. Sign-up and password-recovery links remain available, and callback paths survive switching between login and signup.
 
-- Email state: one `Input type="email" autoComplete="email"` and a
-  "Send sign-in link" button.
-- Sent state: "Check your inbox. We sent a sign-in link to
-  rahul@gmail.com. It works for 15 minutes." plus "Use a different email".
-- Error (rate limited): "Too many requests for this email. Try again in 10
-  minutes, or continue with Google."
-- If arriving from an invite, a single line above the buttons: "Priya invited
-  you to Goa Trip."
+Use shared Zod form schemas and react-hook-form, field errors linked through aria-describedby, standard autocomplete attributes and a labelled Show/Hide password button. Never trim passwords or prevent pasting. Only pending operations show a spinner and disable inputs; failures preserve values. Use the shadcn destructive Alert for server errors. Invite context stays visible without assuming the invite type.
 
-### 6.2 Confirm sign-in (`/auth/confirm`)
+### 6.2 Signup and verification
 
-One heading ("Sign in to Spending Diary"), one full-width "Continue" button.
-Expired or used link: "This link has expired or was already used." with a
-"Send a new link" button. No automatic sign-in on page load (see PRD AUTH-3).
+Signup shares the login layout and disabled Google option, adding name and a new-password field. The existing policy is 10 to 128 characters, without composition rules. Successful signup clears the password and shows "Check your inbox", the destination email, a request-another-link action and a sign-in link preserving the callback. Verification remains required before sign-in (D-019/D-020); there are no magic links or /auth/confirm flows. Forgot/reset-password pages inherit the shared auth shell without changing their behavior.
 
 ### 6.3 Onboarding
 
@@ -471,6 +458,19 @@ equally.
 - **Edit conflict:** an `Alert` at the top: "Aman changed this expense while
   you were editing." with "Load latest" and "Keep editing". Saving is blocked
   until the user loads the latest version.
+
+The current create flow follows D-034: amount and description first, then a
+**With** row of selected friends or the selected group and **Add people or
+group** / **Change group**. One searchable picker replaces the mixed context
+dropdown. Global creation starts personal; friend and group entry points
+prefill their context. Personal creation hides payer/split controls until
+others are included. Changing context preserves the purchase details and
+explains any reset of custom allocations before applying it. Choosing a
+single payer returns immediately. The collapsed details row shows the date
+(**Today** by default), category and **Details**. The preview shows the
+viewer's share and domain-derived debts in words. An untouched empty amount
+does not show an error just because the people picker was opened. Payer,
+people and split editors stay inside the same Drawer.
 
 ### 6.8 Split editor
 
@@ -640,6 +640,25 @@ with an `AlertDialog` because this one is irreversible).
 
 ## 7. Components
 
+### Preset ownership (D-031)
+
+Use the shadcn `radix-nova` preset (`b1FQgMFSC`) as the component design
+system. Primitives own their typography, padding, radii, heights, and states.
+Use their default sizes unless a specific role needs a named size (for
+example, an icon button). Avoid per-screen height and padding overrides on
+ordinary controls. Keep generated primitives managed by the shadcn CLI.
+
+Use Card/Header/Title/Description/Content/Footer for standalone panels,
+Tabs for expense views, Alert for errors, and Avatar for person initials.
+Grouped lists compose one Card with zero outer vertical padding and gap,
+with divided rows inside; do not turn every list row into a separate card.
+Page grids, section gaps, and list-row layout remain feature composition.
+
+Below the `md` breakpoint, shared styles provide 44px touch targets for
+inputs, buttons, select triggers, sidebar controls, and tabs. Desktop uses
+the preset's compact sizes. The large amount-entry field remains an
+intentional exception. Retain Money and the credit/debit tokens.
+
 ### 7.1 shadcn primitives to install
 
 `button`, `input`, `label`, `form`, `textarea`, `select`, `checkbox`,
@@ -650,37 +669,37 @@ with an `AlertDialog` because this one is irreversible).
 
 ### 7.2 Variants to add via `cva()`
 
-| Component | Variant | Look |
-|---|---|---|
-| `Badge` | `credit` | `bg-credit-muted text-credit` |
-| `Badge` | `debit` | `bg-debit-muted text-debit` |
-| `Badge` | `neutral` | `bg-muted text-muted-foreground` |
-| `Button` | `fab` size | `size-14 rounded-full shadow-lg` with `default` variant colors |
+| Component | Variant    | Look                                                           |
+| --------- | ---------- | -------------------------------------------------------------- |
+| `Badge`   | `credit`   | `bg-credit-muted text-credit`                                  |
+| `Badge`   | `debit`    | `bg-debit-muted text-debit`                                    |
+| `Badge`   | `neutral`  | `bg-muted text-muted-foreground`                               |
+| `Button`  | `fab` size | `size-14 rounded-full shadow-lg` with `default` variant colors |
 
 ### 7.3 Feature components
 
-| Component | Folder | Notes |
-|---|---|---|
-| `Money` | `money/` | See section 4. The only way to render an amount. |
-| `AmountInput` | `money/` | Large decimal input; emits minor units via `toMinor()`; shows the currency symbol from the group. |
-| `BalanceSentence` | `balance/` | "Overall, you're owed ₹X" and its variants, per currency. |
-| `PersonRow` | `people/` | Avatar, name (nickname-aware), meta, right-side balance. |
-| `PersonAvatar` | `people/` | Photo or initials on `bg-muted`; placeholders get a dashed `border-border` ring. |
-| `PeoplePicker` | `people/` | `Command`-based search over friends and group members, with "Add someone new". |
-| `GroupRow` | `group/` | Type icon, name, member count, balance. |
-| `ExpenseRow` | `expense/` | Date, icon, description, payer meta, viewer's position. |
-| `ExpenseForm` | `expense/` | Section 6.7. |
-| `SplitEditor` | `expense/` | Section 6.8. |
-| `PaidByEditor` | `expense/` | Single or multiple payers. |
-| `SettleSheet` | `settlement/` | Section 6.10. |
-| `SuggestedPayments` | `balance/` | Simplified plan card. |
-| `InviteSheet` | `invite/` | Section 6.12. |
-| `InvitePreview` | `invite/` | Landing page content. |
-| `ActivityRow` | `activity/` | Section 6.13. |
-| `CategoryIcon` | `expense/` | Maps category to lucide icon in a muted square. |
-| `EmptyState` | `common/` | One sentence plus up to two actions. No illustrations. |
-| `ResponsiveDialog` | `common/` | Drawer on mobile, Dialog on desktop. |
-| `RowList` | `common/` | `bg-card rounded-xl border divide-y` surface for rows. |
+| Component           | Folder        | Notes                                                                                             |
+| ------------------- | ------------- | ------------------------------------------------------------------------------------------------- |
+| `Money`             | `money/`      | See section 4. The only way to render an amount.                                                  |
+| `AmountInput`       | `money/`      | Large decimal input; emits minor units via `toMinor()`; shows the currency symbol from the group. |
+| `BalanceSentence`   | `balance/`    | "Overall, you're owed ₹X" and its variants, per currency.                                         |
+| `PersonRow`         | `people/`     | Avatar, name (nickname-aware), meta, right-side balance.                                          |
+| `PersonAvatar`      | `people/`     | Photo or initials on `bg-muted`; placeholders get a dashed `border-border` ring.                  |
+| `PeoplePicker`      | `people/`     | `Command`-based search over friends and group members, with "Add someone new".                    |
+| `GroupRow`          | `group/`      | Type icon, name, member count, balance.                                                           |
+| `ExpenseRow`        | `expense/`    | Date, icon, description, payer meta, viewer's position.                                           |
+| `ExpenseForm`       | `expense/`    | Section 6.7.                                                                                      |
+| `SplitEditor`       | `expense/`    | Section 6.8.                                                                                      |
+| `PaidByEditor`      | `expense/`    | Single or multiple payers.                                                                        |
+| `SettleSheet`       | `settlement/` | Section 6.10.                                                                                     |
+| `SuggestedPayments` | `balance/`    | Simplified plan card.                                                                             |
+| `InviteSheet`       | `invite/`     | Section 6.12.                                                                                     |
+| `InvitePreview`     | `invite/`     | Landing page content.                                                                             |
+| `ActivityRow`       | `activity/`   | Section 6.13.                                                                                     |
+| `CategoryIcon`      | `expense/`    | Maps category to lucide icon in a muted square.                                                   |
+| `EmptyState`        | `common/`     | One sentence plus up to two actions. No illustrations.                                            |
+| `FormDrawer`        | `common/`     | Bottom Drawer at every breakpoint, guarded dismissal and shared form state.                       |
+| `RowList`           | `common/`     | `bg-card rounded-xl border divide-y` surface for rows.                                            |
 
 ## 8. Patterns
 
@@ -740,14 +759,14 @@ no mood copy ("Nothing here yet!"). Examples:
 Tone: plain, specific, friendly without being cute. Write from the user's side
 of the screen.
 
-| Use | Avoid |
-|---|---|
-| "You owe Priya ₹600" | "Outstanding balance: -₹600" |
-| "Settle up" | "Clear dues", "Pay now" |
-| "Record a cash payment" | "Mark as settled" |
-| "Add expense" / "Expense saved" | "Create transaction" / "Success!" |
-| "Invite people" | "Send invitations" |
-| "Couldn't save. Check your connection." | "Oops! Something went wrong 😕" |
+| Use                                     | Avoid                             |
+| --------------------------------------- | --------------------------------- |
+| "You owe Priya ₹600"                    | "Outstanding balance: -₹600"      |
+| "Settle up"                             | "Clear dues", "Pay now"           |
+| "Record a cash payment"                 | "Mark as settled"                 |
+| "Add expense" / "Expense saved"         | "Create transaction" / "Success!" |
+| "Invite people"                         | "Send invitations"                |
+| "Couldn't save. Check your connection." | "Oops! Something went wrong 😕"   |
 
 Vocabulary is fixed across the app: an action keeps its name from button to
 toast to activity entry (Add expense → Expense added → "Aman added Dinner").
@@ -764,19 +783,18 @@ toast to activity entry (Add expense → Expense added → "Aman added Dinner").
 - [ ] Layouts work from 360 px wide up; nothing scrolls horizontally.
 - [ ] `prefers-reduced-motion` disables row animations.
 - [ ] Dark mode is checked for every new screen.
-- [ ] The ₹ sign renders in IBM Plex Sans, not a fallback font.
+- [ ] The ₹ sign renders clearly with the preset font and its fallback.
 
 ## 11. What not to do
 
 - Don't put each row in its own card with a shadow.
 - Don't use `destructive` red for "you owe".
-- Don't use colored primary buttons; primary is ink.
+- Use the preset's primary button colors for primary actions.
 - Don't add gradients, glassmorphism, or decorative illustrations.
 - Don't show a number without saying what direction it goes.
 - Don't animate balances.
 - Don't use all-caps labels or middle-dot meta strings.
 - Don't hand-format money or compute splits in a component.
-
 
 ### Custom payment form (D-029)
 
@@ -785,3 +803,13 @@ Friend details always offer Record payment, including at zero balance; group pag
 At zero balance, on a debt-increasing payment, or on an overpayment that reverses the balance, show a confirmation stating the resulting balance before saving or opening UPI. Cancel preserves the form without recording anything. Normal partial/full repayments need no extra confirmation. Former members and blocked pairs only repay existing pairwise debt without overpaying. Former members retain payment delete/Undo controls after reaching zero; archived groups remain read-only.
 
 Payment Activity uses the transfer icon and names both payer and receiver, with explicit deleted/restored wording. Payments never count as spending. Loading, error/retry and no-eligible-person states appear inside the sheet. Amounts render through Money and inputs preserve their values after a failed save.
+
+### Public landing page
+
+The landing page uses a sticky, solid-background navbar, a short split-layout hero and a static, explicitly labelled dinner example. Anchor targets clear the navbar. Three product capabilities are shown through code-native previews: splitting shared costs, personal spending by owed share, and recording confirmed UPI repayments. Supporting text stays to one sentence per feature, with no repeated eyebrow labels, stock imagery, animation or charting dependencies. Keep the selected theme and font; previews use semantic tokens, shadcn primitives and Money. Stack previews at mobile widths and preserve 44px action targets.
+
+Design direction: shared spending for friends; calm, exact and warm; a well-kept notebook; the balance sentence and repayment receipt carry the visual detail; the paid amount and personal share remain visibly distinct. Craft guidance informed by [unslop by Damir Sokolovsky](https://heydamir.design/unslop), CC BY 4.0.
+
+The Unslop polish keeps the selected font, palette and section order. Use a single surface for the dinner preview, a wider spending breakdown beside a compact repayment receipt, and the preset's `lg` action size. Keep labels direct, remove redundant directional icons, and use a quiet dashed divider to separate the bill/share summary from repayments. Preserve native desktop control sizing rather than introducing landing-only button heights.
+
+Auth Unslop direction: shared spending for friends; calm, exact and warm; the diary as a quiet working surface; one active email submit action and a clear verification result; the recognizable Google mark as a brand-specific exception to the interface icon set. Keep the selected font, palette and card structure. Tighten form grouping, place recovery beside the password label, and keep helper text brief. Google is disabled in both UI and the production provider configuration (D-033). Craft guidance: unslop by Damir Sokolovsky, CC BY 4.0 (credited above).

@@ -4,21 +4,17 @@
 "method": "GET"
 "url": "{{base_url}}/api/invites/preview?token={{direct_token}}"
 "queryParams":
-  -
-    "key": "token"
+  - "key": "token"
     "value": "{{direct_token}}"
 "settings":
   "followRedirects": false
 "headers":
-  -
-    "key": "Cookie"
+  - "key": "Cookie"
     "value": "{{anon_cookie}}"
-  -
-    "key": "Origin"
+  - "key": "Origin"
     "value": "{{base_url}}"
 "scripts":
-  -
-    "type": "afterResponse"
+  - "type": "afterResponse"
     "language": "text/javascript"
     "code": |-
       pm.test('HTTP 200', () => pm.response.to.have.status(200));

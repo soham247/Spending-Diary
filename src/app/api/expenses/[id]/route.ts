@@ -6,7 +6,9 @@ import { editExpense, deleteExpense } from "@/lib/domain/expenses";
 import { getExpenseById } from "@/lib/api/server-queries";
 import { NotFoundError } from "@/lib/utils/errors";
 
-interface Ctx { params: Promise<{ id: string }> }
+interface Ctx {
+  params: Promise<{ id: string }>;
+}
 export async function GET(req: Request, ctx: Ctx) {
   try {
     const session = await requireSession(req);
@@ -14,7 +16,9 @@ export async function GET(req: Request, ctx: Ctx) {
     const expense = await getExpenseById(session.userId, id);
     if (!expense) throw new NotFoundError();
     return Response.json({ data: expense });
-  } catch (error) { return mapError(error); }
+  } catch (error) {
+    return mapError(error);
+  }
 }
 export async function PATCH(req: Request, ctx: Ctx) {
   try {
@@ -24,7 +28,9 @@ export async function PATCH(req: Request, ctx: Ctx) {
     await editExpense(session.userId, id, input);
     schedulePush();
     return Response.json({ data: { id } });
-  } catch (error) { return mapError(error); }
+  } catch (error) {
+    return mapError(error);
+  }
 }
 export async function DELETE(req: Request, ctx: Ctx) {
   try {
@@ -33,5 +39,7 @@ export async function DELETE(req: Request, ctx: Ctx) {
     await deleteExpense(session.userId, id);
     schedulePush();
     return Response.json({ data: { id } });
-  } catch (error) { return mapError(error); }
+  } catch (error) {
+    return mapError(error);
+  }
 }

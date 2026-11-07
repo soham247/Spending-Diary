@@ -37,10 +37,7 @@ export class ConflictError extends AppError {
 }
 
 export class ValidationError extends AppError {
-  constructor(
-    message = "Validation failed",
-    fields?: Record<string, string>,
-  ) {
+  constructor(message = "Validation failed", fields?: Record<string, string>) {
     super(message, "VALIDATION_ERROR", 400, fields);
   }
 }
