@@ -1,160 +1,222 @@
 "use client";
 
+import { authFormError } from "@/lib/auth/form-error";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { LogIn } from "lucide-react";
+import { LoaderCircle, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { signIn, signUp } from "@/lib/auth/auth-client";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Separator } from "@/components/ui/separator";
+import { PasswordInput } from "@/components/auth/PasswordInput";
+import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
+import {
+  registerFormSchema,
+  type RegisterFormInput,
+} from "@/lib/validation/auth";
+import { signUp } from "@/lib/auth/auth-client";
 
-interface Props {
-  callbackUrl: string;
-}
-
-export default function RegisterForm({ callbackUrl }: Props) {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+export default function RegisterForm({ callbackUrl }: { callbackUrl: string }) {
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [sent, setSent] = useState(false);
-
-  async function handleGoogleSignIn() {
-    setLoading(true);
-    setError(null);
-    try {
-      await signIn.social({ provider: "google", callbackURL: callbackUrl });
-    } catch {
-      setError("Google sign-in failed. Please try again.");
-      setLoading(false);
-    }
-  }
-
-  async function handleRegister(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
+  const [pending, setPending] = useState<"email" | null>(null);
+  const [sentEmail, setSentEmail] = useState<string | null>(null);
+  const {
+    register,
+    handleSubmit,
+    resetField,
+    formState: { errors },
+  } = useForm<RegisterFormInput>({
+    resolver: zodResolver(registerFormSchema),
+    mode: "onBlur",
+    defaultValues: { name: "", email: "", password: "" },
+  });
+  async function submit(values: RegisterFormInput) {
+    setPending("email");
     setError(null);
     try {
       await signUp.email({
-        name,
-        email,
-        password,
-        callbackURL: `/verify-email?next=${encodeURIComponent(callbackUrl)}`,
+        ...values,
+        callbackURL: "/verify-email?next=" + encodeURIComponent(callbackUrl),
         fetchOptions: { throw: true },
       });
-      setSent(true);
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Something went wrong.";
-      if (msg.toLowerCase().includes("already")) {
-        setError("An account with this email already exists. Sign in instead.");
-      } else {
-        setError(msg);
-      }
-      setLoading(false);
+      resetField("password");
+      setSentEmail(values.email);
+    } catch (cause) {
+      const message = authFormError(
+        cause,
+        "Couldn't create your account. Try again.",
+      );
+      setError(
+        message.toLowerCase().includes("already")
+          ? "An account with this email already exists. Sign in instead."
+          : message,
+      );
+    } finally {
+      setPending(null);
     }
   }
-
-  if (sent) {
+  const signInUrl = "/login?callbackUrl=" + encodeURIComponent(callbackUrl);
+  if (sentEmail)
     return (
-      <div className="space-y-4 text-center">
-        <h1 className="text-xl font-semibold">Check your inbox</h1>
+      <div className="space-y-5" role="status">
+        <span className="flex size-12 items-center justify-center rounded-lg bg-muted">
+          <Mail
+            className="size-5 text-muted-foreground"
+            strokeWidth={1.75}
+            aria-hidden="true"
+          />
+        </span>
+        <div className="space-y-2">
+          <h1 className="text-2xl font-medium tracking-tight">
+            Check your inbox
+          </h1>
+          <p className="text-sm leading-relaxed text-muted-foreground">
+            Open the verification link sent to{" "}
+            <strong className="break-all font-medium text-foreground">
+              {sentEmail}
+            </strong>{" "}
+            to activate your account.
+          </p>
+        </div>
         <p className="text-sm text-muted-foreground">
-          We sent a verification link to <strong className="text-foreground">{email}</strong>.
-          Click it to activate your account.
+          If it is missing, check your spam folder.
         </p>
-        <p className="text-xs text-muted-foreground">
-          Didn&apos;t get it? Check your spam folder, or{" "}
-          <Link href="/login" className="underline underline-offset-4 hover:text-foreground">
-            sign in again
-          </Link>{" "}
-          to resend.
-        </p>
+        <Button asChild variant="outline" size="lg" className="w-full">
+          <Link href={"/verify-email?next=" + encodeURIComponent(callbackUrl)}>
+            Request another link
+          </Link>
+        </Button>
+        <Link
+          href={signInUrl}
+          className="inline-flex min-h-11 items-center rounded-sm text-sm underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-ring"
+        >
+          Back to sign in
+        </Link>
       </div>
     );
-  }
-
   return (
-    <div className="space-y-6">
-      <h1 className="text-xl font-semibold text-center">Create your account</h1>
-
+    <div className="space-y-5">
+      <div className="space-y-2">
+        <h1 className="text-2xl font-medium tracking-tight">
+          Create your account
+        </h1>
+        <p className="text-sm text-muted-foreground">Start with your email</p>
+      </div>
       {error && (
-        <div role="alert" className="rounded-md bg-destructive/10 border border-destructive/20 px-4 py-3 text-sm text-destructive">
-          {error}
-        </div>
+        <Alert variant="destructive">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
       )}
-
-      <form onSubmit={handleRegister} className="space-y-4" noValidate>
-        <div className="space-y-1.5">
-          <Label htmlFor="name">Name</Label>
-          <Input
-            id="name"
-            type="text"
-            autoComplete="name"
-            placeholder="Priya Sharma"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-            autoFocus
-          />
-        </div>
-
-        <div className="space-y-1.5">
-          <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
-            type="email"
-            autoComplete="email"
-            inputMode="email"
-            placeholder="you@example.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-
-        <div className="space-y-1.5">
-          <Label htmlFor="password">Password</Label>
-          <Input
-            id="password"
-            type="password"
-            autoComplete="new-password"
-            placeholder="at least 10 characters"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            minLength={10}
-            required
-          />
-          <p className="text-xs text-muted-foreground">At least 10 characters.</p>
-        </div>
-
-        <Button id="btn-register" type="submit" className="w-full" disabled={loading}>
-          {loading ? "Creating account…" : "Create account"}
+      <GoogleSignInButton />
+      <div className="flex items-center gap-3 text-xs text-muted-foreground">
+        <Separator className="flex-1" />
+        <span>or</span>
+        <Separator className="flex-1" />
+      </div>
+      <form
+        onSubmit={handleSubmit(submit)}
+        noValidate
+        className="space-y-4"
+        aria-busy={pending === "email"}
+      >
+        <fieldset disabled={pending !== null} className="min-w-0 space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="name">Name</Label>
+            <Input
+              required
+              id="name"
+              autoComplete="name"
+              placeholder="Priya Sharma"
+              {...register("name")}
+              aria-invalid={!!errors.name}
+              aria-describedby={errors.name ? "name-error" : undefined}
+            />
+            {errors.name && (
+              <p
+                id="name-error"
+                role="alert"
+                className="text-sm text-destructive"
+              >
+                {errors.name.message}
+              </p>
+            )}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              required
+              id="email"
+              type="email"
+              autoComplete="email"
+              inputMode="email"
+              autoCapitalize="none"
+              spellCheck={false}
+              placeholder="you@example.com"
+              {...register("email")}
+              aria-invalid={!!errors.email}
+              aria-describedby={errors.email ? "email-error" : undefined}
+            />
+            {errors.email && (
+              <p
+                id="email-error"
+                role="alert"
+                className="text-sm text-destructive"
+              >
+                {errors.email.message}
+              </p>
+            )}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="password">Password</Label>
+            <PasswordInput
+              required
+              id="password"
+              autoComplete="new-password"
+              {...register("password")}
+              aria-invalid={!!errors.password}
+              aria-describedby={
+                errors.password
+                  ? "password-help password-error"
+                  : "password-help"
+              }
+            />
+            <p id="password-help" className="text-xs text-muted-foreground">
+              10 to 128 characters
+            </p>
+            {errors.password && (
+              <p
+                id="password-error"
+                role="alert"
+                className="text-sm text-destructive"
+              >
+                {errors.password.message}
+              </p>
+            )}
+          </div>
+        </fieldset>
+        <Button
+          type="submit"
+          size="lg"
+          className="w-full transition-colors"
+          disabled={pending !== null}
+        >
+          {pending === "email" && (
+            <LoaderCircle
+              className="size-4 motion-safe:animate-spin"
+              aria-hidden="true"
+            />
+          )}
+          {pending === "email" ? "Creating account…" : "Create account"}
         </Button>
       </form>
-
-      <div className="flex items-center gap-3 text-xs text-muted-foreground">
-        <div className="h-px flex-1 bg-border" />
-        or
-        <div className="h-px flex-1 bg-border" />
-      </div>
-
-      <Button
-        id="btn-google-register"
-        variant="outline"
-        className="w-full gap-2"
-        onClick={handleGoogleSignIn}
-        disabled={loading}
-      >
-        <LogIn size={16} strokeWidth={1.75} />
-        Continue with Google
-      </Button>
-
-      <p className="text-center text-sm text-muted-foreground">
+      <p className="border-t border-border pt-4 text-sm text-muted-foreground">
         Already have an account?{" "}
         <Link
-          href={`/login?callbackUrl=${encodeURIComponent(callbackUrl)}`}
-          className="text-foreground font-medium hover:underline underline-offset-4"
+          href={signInUrl}
+          className="inline-flex min-h-11 items-center rounded-sm font-medium text-foreground underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-ring"
         >
           Sign in
         </Link>

@@ -10,6 +10,7 @@ description: Sets up, runs, debugs, and interprets results from `postman applica
 **Requires a Playwright project in the repository.** Without Playwright e2e tests there is nothing to capture — Playwright is the only supported runner.
 
 `postman application test` does not send its own requests. It:
+
 1. Spawns your Playwright test command (e.g. `npx playwright test`)
 2. The capture plugin intercepts network traffic and writes it as artifacts
 3. The CLI reads those artifacts, matches each request against your collections, and runs any `pm.test` assertions saved in the matched items
@@ -72,8 +73,8 @@ Before constructing any command, run `postman app test --help` to confirm the av
 
 **No `postman.config.cjs` yet** — the first run generates and saves `postman.config.cjs`, writing these choices as the defaults for all future runs. Confirm both with the user before running:
 
-- *Test command*: check `package.json` scripts for a project-specific test command (e.g. `npm run test:e2e`). Present what you find and ask the user to confirm — the CLI defaults to `npx playwright test` when a Playwright config is found, but do not assume that is what they want.
-- *Collection*: check `postman/collections/` and list what is available. Ask the user which collection to use. If none exist, ask whether to generate one from captured traffic.
+- _Test command_: check `package.json` scripts for a project-specific test command (e.g. `npm run test:e2e`). Present what you find and ask the user to confirm — the CLI defaults to `npx playwright test` when a Playwright config is found, but do not assume that is what they want.
+- _Collection_: check `postman/collections/` and list what is available. Ask the user which collection to use. If none exist, ask whether to generate one from captured traffic.
 
 Once confirmed, run `postman app test` with the appropriate flags (e.g. `--target-collection <path>` or `--generate-collection`) — the CLI generates and saves `postman.config.cjs` automatically. Do not write the config file manually.
 
@@ -90,6 +91,7 @@ Running `postman app test` without a collection in a non-interactive context exi
 Lives at the **repository root**. The generated file includes comments explaining every field — read it for the full reference. It stays current with the CLI version installed in the repo.
 
 To edit config for common needs:
+
 - **Change the test command** — update `command`
 - **Add or change a collection** — update `targets.default.collections`
 - **Exclude noisy requests** — add `filters` (urlPatterns, methods, headers)
@@ -103,9 +105,11 @@ A **target** is a named set of collections + optional environment. The `default`
 ## Debugging
 
 **If a flag in this skill is unrecognized** (e.g. `--yes`, `--generate-collection`, `--dry-run`) or the behaviour described here doesn't match what you see, check the CLI version first:
+
 ```bash
 postman --version
 ```
+
 This skill targets the latest CLI release. If the version is outdated, update the CLI, then re-run. The `--help` output for each command shows the flags actually available in the installed version.
 
 Read the CLI error output first — it names the specific failure and what to fix.

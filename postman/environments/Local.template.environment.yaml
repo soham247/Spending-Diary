@@ -1,62 +1,50 @@
 "name": "Spending Diary local template"
 "values":
-  -
-    "key": "base_url"
+  - "key": "base_url"
     "value": "http://localhost:3000"
     "enabled": true
     "type": "default"
-  -
-    "key": "run_id"
+  - "key": "run_id"
     "value": ""
     "enabled": true
     "type": "default"
-  -
-    "key": "date"
+  - "key": "date"
     "value": ""
     "enabled": true
     "type": "default"
-  -
-    "key": "owner_id"
+  - "key": "owner_id"
     "value": ""
     "enabled": true
     "type": "default"
-  -
-    "key": "friend_id"
+  - "key": "friend_id"
     "value": ""
     "enabled": true
     "type": "default"
-  -
-    "key": "outsider_id"
+  - "key": "outsider_id"
     "value": ""
     "enabled": true
     "type": "default"
-  -
-    "key": "group_id"
+  - "key": "group_id"
     "value": ""
     "enabled": true
     "type": "default"
-  -
-    "key": "settlement_group_id"
+  - "key": "settlement_group_id"
     "value": ""
     "enabled": true
     "type": "default"
-  -
-    "key": "owner_cookie"
+  - "key": "owner_cookie"
     "value": ""
     "enabled": true
     "type": "secret"
-  -
-    "key": "friend_cookie"
+  - "key": "friend_cookie"
     "value": ""
     "enabled": true
     "type": "secret"
-  -
-    "key": "outsider_cookie"
+  - "key": "outsider_cookie"
     "value": ""
     "enabled": true
     "type": "secret"
-  -
-    "key": "anon_cookie"
+  - "key": "anon_cookie"
     "value": "better-auth.session_token=invalid"
     "enabled": true
     "type": "secret"

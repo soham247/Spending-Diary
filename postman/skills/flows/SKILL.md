@@ -37,7 +37,7 @@ result that says nothing about the caller's actual workflow.
    while unrequested public exposure or auth removal needs consent.
 5. Inspect the deployed URL and whether its trigger is enabled. A deployed
    but disabled flow is not ready to receive calls; `flows update <id>
-   --trigger on` enables it when intended. If deployment is part of a requested
+--trigger on` enables it when intended. If deployment is part of a requested
    run, continue through triggering and capture the Run ID. A request only to
    deploy does not authorize executing unrelated downstream writes.
 6. Diagnose from run evidence. A trigger response is the Response block's

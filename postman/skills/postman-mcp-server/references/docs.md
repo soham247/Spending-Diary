@@ -19,13 +19,16 @@ Call `getWorkspaces` to get the user's workspace ID. If multiple workspaces exis
 Check for API definitions in this order:
 
 **Local specs:**
+
 - Search for `**/openapi.{json,yaml,yml}`, `**/swagger.{json,yaml,yml}`
 
 **Postman specs:**
+
 - Call `getAllSpecs` with the workspace ID to find specs in Postman
 - Call `getSpecDefinition` to pull the full spec
 
 **Postman collections:**
+
 - Call `getCollections` with the `workspace` parameter
 - Call `getCollection` for full detail
 
@@ -46,6 +49,7 @@ Documentation Coverage: 60%
 ### Step 3: Generate or Improve
 
 **Sparse spec:** Generate documentation for each endpoint:
+
 - Operation summary and description
 - Parameter table (name, type, required, description)
 - Request body schema with examples
@@ -54,6 +58,7 @@ Documentation Coverage: 60%
 - Authentication requirements per endpoint
 
 **Partial spec:** Fill the gaps:
+
 - Add missing descriptions (infer from naming and schemas)
 - Generate realistic examples from schemas
 - Add error responses
@@ -75,6 +80,7 @@ Ask the user which output they want:
 ### Step 5: Sync Spec and Collection
 
 If both a spec and collection exist, keep them in sync:
+
 - Call `syncCollectionWithSpec` to update collection from spec. **Async (HTTP 202).** Poll `getCollectionUpdatesTasks` for completion with increasing waits between polls. Only supports OpenAPI 3.0.
 - Or call `syncSpecWithCollection` to update spec from collection changes.
 

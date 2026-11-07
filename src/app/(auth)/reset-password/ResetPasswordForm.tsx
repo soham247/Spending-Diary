@@ -44,7 +44,9 @@ export default function ResetPasswordForm({ token, errorParam }: Props) {
       setDone(true);
       setTimeout(() => router.push("/login"), 2000);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Reset failed. Please try again.");
+      setError(
+        err instanceof Error ? err.message : "Reset failed. Please try again.",
+      );
     } finally {
       setLoading(false);
     }
@@ -59,10 +61,7 @@ export default function ResetPasswordForm({ token, errorParam }: Props) {
             This password-reset link has expired or was already used.
           </p>
         </div>
-        <Link
-          href="/forgot-password"
-          className="block"
-        >
+        <Link href="/forgot-password" className="block">
           <Button id="btn-request-new-reset" className="w-full">
             Request a new link
           </Button>
@@ -98,7 +97,10 @@ export default function ResetPasswordForm({ token, errorParam }: Props) {
       </div>
 
       {error && (
-        <div role="alert" className="rounded-md bg-destructive/10 border border-destructive/20 px-4 py-3 text-sm text-destructive">
+        <div
+          role="alert"
+          className="rounded-md bg-destructive/10 border border-destructive/20 px-4 py-3 text-sm text-destructive"
+        >
           {error}
         </div>
       )}
@@ -130,7 +132,12 @@ export default function ResetPasswordForm({ token, errorParam }: Props) {
             required
           />
         </div>
-        <Button id="btn-set-password" type="submit" className="w-full" disabled={loading}>
+        <Button
+          id="btn-set-password"
+          type="submit"
+          className="w-full"
+          disabled={loading}
+        >
           {loading ? "Saving…" : "Set new password"}
         </Button>
       </form>

@@ -7,9 +7,9 @@ description: Guide for building high-quality APIs by leveraging postman cli. Use
 
 ## Overview
 
-spec         (none yet - author one before writing code)
-collections  postman/collections/
-cli          postman 1.76.0
+spec (none yet - author one before writing code)
+collections postman/collections/
+cli postman 1.76.0
 
 ---
 
@@ -49,7 +49,6 @@ Build the collection from the spec. Add appropriate test scripts for the request
 
 The collection is a directory of YAML in the Postman Collection v3 format. Read the schema reference before writing any collection file.
 
-
 ---
 
 ### Phase 2: Make Code Satisfy the Contract
@@ -61,7 +60,6 @@ Write or change the implementation so the running service matches the spec. The 
 #### 2.2 Run the collection and surface the result
 
 Prove the endpoint by running the collection. Surface the collection run result to user exactly as it printed, including failures.
-
 
 ---
 

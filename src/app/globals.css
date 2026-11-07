@@ -1,9 +1,11 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-sans: "IBM Plex Sans", system-ui, sans-serif;
+  --font-sans: var(--font-oxanium);
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -48,11 +50,13 @@
   --color-sidebar-primary: var(--sidebar-primary);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar: var(--sidebar);
+  --font-heading: var(--font-oxanium);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
@@ -83,13 +87,15 @@
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
   --radius: 0.625rem;
-  --destructive-foreground: #FFFFFF;
-  --credit: #0F766E;
-  --credit-foreground: #FFFFFF;
-  --credit-muted: #DDF1EE;
-  --debit: #B45309;
-  --debit-foreground: #FFFFFF;
-  --debit-muted: #FBEBD9;
+  --destructive-foreground: #ffffff;
+  --credit: #0f766e;
+  --credit-foreground: #ffffff;
+  --credit-muted: #ddf1ee;
+  --debit: #b45309;
+  --debit-foreground: #ffffff;
+  --debit-muted: #fbebd9;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
 }
 
 .dark {
@@ -125,12 +131,12 @@
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
   --destructive-foreground: #111615;
-  --credit: #3CC2AE;
+  --credit: #3cc2ae;
   --credit-foreground: #111615;
-  --credit-muted: #12302D;
-  --debit: #F0A05A;
+  --credit-muted: #12302d;
+  --debit: #f0a05a;
   --debit-foreground: #111615;
-  --debit-muted: #35240F;
+  --debit-muted: #35240f;
 }
 
 @layer base {
@@ -138,24 +144,107 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply antialiased bg-background text-foreground;
     font-family: var(--font-sans);
+  }
+  html {
+    @apply font-sans;
   }
 }
 
-html.dark { color-scheme: dark; }
-html { color-scheme: light; }
-@layer utilities {
-  .sidebar-safe-bottom { padding-bottom: max(0.5rem, env(safe-area-inset-bottom)); }
+html.dark {
+  color-scheme: dark;
 }
-button, a { touch-action: manipulation; }
-h1, h2 { text-wrap: balance; }
+html {
+  color-scheme: light;
+}
+@layer utilities {
+  .sidebar-safe-bottom {
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+  }
+  .form-drawer-content[data-vaul-drawer-direction="bottom"] {
+    margin-top: 1rem;
+    max-height: calc(100dvh - 1rem);
+  }
+  .form-drawer-content > div:first-child:not([data-vaul-handle]) {
+    display: none;
+  }
+  .form-drawer-body {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+    scroll-padding-block: 1rem;
+  }
+  .form-drawer-actions {
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+    background: var(--popover);
+    padding-block: 1rem;
+  }
+}
+button,
+a {
+  touch-action: manipulation;
+}
+h1,
+h2 {
+  text-wrap: balance;
+}
+@media (prefers-reduced-motion: no-preference) {
+  html:has([data-landing]) {
+    scroll-behavior: smooth;
+  }
+  .landing-intro {
+    animation: landing-enter 200ms ease-out;
+  }
+  .landing-action svg {
+    transition: transform 150ms ease-out;
+  }
+  .landing-action:focus-visible svg {
+    transform: translateX(0.125rem);
+  }
+}
+@media (prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine) {
+  .landing-action:hover svg {
+    transform: translateX(0.125rem);
+  }
+}
+@keyframes landing-enter {
+  from {
+    opacity: 0;
+    transform: translateY(0.25rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 @layer base {
-  input:not([type="checkbox"]):not([type="radio"]) { @apply min-h-11; }
-  [data-slot="button"] { @apply min-h-11; }
-  .toaster button { @apply min-h-11 min-w-11; }
+  @media (width < 48rem) {
+    [data-slot="input"],
+    [data-slot="button"],
+    [data-slot="select-trigger"],
+    [data-slot="sidebar-trigger"],
+    [data-slot="sidebar-menu-button"],
+    [data-slot="tabs-trigger"] {
+      @apply min-h-11;
+    }
+    [data-slot="button"][data-size^="icon"] {
+      @apply min-w-11;
+    }
+    [data-slot="tabs-list"] {
+      @apply min-h-14;
+    }
+    .toaster button {
+      @apply min-h-11 min-w-11;
+    }
+  }
 }

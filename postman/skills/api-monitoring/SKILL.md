@@ -41,7 +41,7 @@ exercise the guarantees users depend on.
    The CLI timeout caps waiting, not execution: after a timeout, read the job
    with `monitor jobs get <job-id>`; its state is the verdict.
 6. Answer each failure question at its level. `monitor jobs list
-   <monitor-id>` finds jobs, `monitor jobs get <job-id>` shows terminal state
+<monitor-id>` finds jobs, `monitor jobs get <job-id>` shows terminal state
    and regional outcomes, and `monitor runs get <run-id>` shows assertions
    within an attempt. A failing region, a connection error, and a failed
    assertion imply different fixes. For a trend across runs, such as which

@@ -25,7 +25,8 @@ export default function VerifyEmailClient({ nextUrl, errorParam }: Props) {
   const [resendError, setResendError] = useState<string | null>(null);
 
   const errorMessage = errorParam
-    ? (ERROR_MESSAGES[errorParam] ?? "Verification failed. Please request a new link.")
+    ? (ERROR_MESSAGES[errorParam] ??
+      "Verification failed. Please request a new link.")
     : null;
 
   async function handleResend(e: React.FormEvent) {
@@ -39,7 +40,9 @@ export default function VerifyEmailClient({ nextUrl, errorParam }: Props) {
       });
       setResent(true);
     } catch (err: unknown) {
-      setResendError(err instanceof Error ? err.message : "Failed to send. Try again.");
+      setResendError(
+        err instanceof Error ? err.message : "Failed to send. Try again.",
+      );
     } finally {
       setResending(false);
     }
@@ -76,14 +79,22 @@ export default function VerifyEmailClient({ nextUrl, errorParam }: Props) {
             {resendError && (
               <p className="text-sm text-destructive">{resendError}</p>
             )}
-            <Button id="btn-resend" type="submit" className="w-full" disabled={resending}>
+            <Button
+              id="btn-resend"
+              type="submit"
+              className="w-full"
+              disabled={resending}
+            >
               {resending ? "Sending…" : "Send new link"}
             </Button>
           </form>
         )}
 
         <p className="text-center text-sm text-muted-foreground">
-          <Link href="/login" className="underline underline-offset-4 hover:text-foreground">
+          <Link
+            href="/login"
+            className="underline underline-offset-4 hover:text-foreground"
+          >
             Back to sign in
           </Link>
         </p>
@@ -102,11 +113,15 @@ export default function VerifyEmailClient({ nextUrl, errorParam }: Props) {
       </div>
 
       {resent ? (
-        <p className="text-sm text-muted-foreground">New link sent — check your inbox.</p>
+        <p className="text-sm text-muted-foreground">
+          New link sent — check your inbox.
+        </p>
       ) : (
         <form onSubmit={handleResend} className="space-y-3 text-left">
           <div className="space-y-1.5">
-            <Label htmlFor="resend-email-default">Resend to a different address</Label>
+            <Label htmlFor="resend-email-default">
+              Resend to a different address
+            </Label>
             <Input
               id="resend-email-default"
               type="email"
@@ -117,7 +132,9 @@ export default function VerifyEmailClient({ nextUrl, errorParam }: Props) {
               onChange={(e) => setResendEmail(e.target.value)}
             />
           </div>
-          {resendError && <p className="text-sm text-destructive">{resendError}</p>}
+          {resendError && (
+            <p className="text-sm text-destructive">{resendError}</p>
+          )}
           <Button
             id="btn-resend-default"
             type="submit"

@@ -23,6 +23,7 @@ The Postman MCP Server must be connected. If MCP tools aren't available, follow 
 Call `runCollection` with the collection UID in `OWNER_ID-UUID` format. Get the UID from the `getCollection` response's `uid` field.
 
 If the collection uses environment variables:
+
 1. Call `getEnvironments` to list available environments
 2. Ask which environment to use (or detect from naming convention)
 3. Pass the environment ID to `runCollection`
@@ -55,6 +56,7 @@ Test Results: Pet Store API
 ### Step 4: Diagnose Failures
 
 For each failure:
+
 1. Call `getCollectionRequest` to see the full request definition
 2. Call `getCollectionResponse` to see expected responses
 3. Check if the API source code is in the current project
@@ -64,6 +66,7 @@ For each failure:
 ### Step 5: Fix and Re-run
 
 After fixing code:
+
 1. Offer to re-run: "Tests fixed. Want me to run the collection again?"
 2. Call `runCollection` again
 3. Show before/after comparison
@@ -71,6 +74,7 @@ After fixing code:
 ### Step 6: Update Collection (if needed)
 
 If the tests themselves need updating (not the API):
+
 - Call `updateCollectionRequest` to fix request bodies, headers, or test scripts
 - Call `updateCollectionResponse` to update expected responses
 

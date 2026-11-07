@@ -4,8 +4,7 @@
   "version": "1.0.0"
   "description": "Contract and route inventory for the local checkout. Money uses integer minor units. Authentication is managed by Better Auth; OAuth, verification and reset token flows require separate end-to-end tests."
 "servers":
-  -
-    "url": "http://localhost:3000"
+  - "url": "http://localhost:3000"
     "description": "Local development application"
 "paths":
   "/api/activity":
@@ -13,26 +12,21 @@
       "operationId": "get_api_activity"
       "summary": "GET /api/activity"
       "security":
-        -
-          "sessionCookie":
-            []
+        - "sessionCookie": []
       "parameters":
-        -
-          "name": "cursor"
+        - "name": "cursor"
           "in": "query"
           "schema":
             "type": "string"
             "minLength": 1
             "maxLength": 128
-        -
-          "name": "groupId"
+        - "name": "groupId"
           "in": "query"
           "schema":
             "type": "string"
             "minLength": 1
             "maxLength": 128
-        -
-          "name": "expenseId"
+        - "name": "expenseId"
           "in": "query"
           "schema":
             "type": "string"
@@ -46,11 +40,9 @@
               "schema":
                 "type": "object"
                 "required":
-                  -
-                    "data"
+                  - "data"
                 "properties":
-                  "data":
-                    {}
+                  "data": {}
         "400":
           "description": "Invalid input"
           "content":
@@ -73,12 +65,9 @@
       "operationId": "patch_api_activity__id_"
       "summary": "PATCH /api/activity/{id}"
       "security":
-        -
-          "sessionCookie":
-            []
+        - "sessionCookie": []
       "parameters":
-        -
-          "name": "id"
+        - "name": "id"
           "in": "path"
           "required": true
           "schema":
@@ -93,11 +82,9 @@
               "schema":
                 "type": "object"
                 "required":
-                  -
-                    "data"
+                  - "data"
                 "properties":
-                  "data":
-                    {}
+                  "data": {}
         "400":
           "description": "Invalid input"
           "content":
@@ -120,12 +107,9 @@
       "summary": "GET /api/balances"
       "description": "Contract derived from the project rules and shared validation schemas; failing regression tests document implementation gaps."
       "tags":
-        -
-          "balances"
+        - "balances"
       "security":
-        -
-          "sessionCookie":
-            []
+        - "sessionCookie": []
       "responses":
         "200":
           "description": "Success envelope"
@@ -134,11 +118,9 @@
               "schema":
                 "type": "object"
                 "required":
-                  -
-                    "data"
+                  - "data"
                 "properties":
-                  "data":
-                    {}
+                  "data": {}
         "400":
           "description": "Invalid input"
           "content":
@@ -159,12 +141,9 @@
       "summary": "GET /api/cron/maintenance"
       "description": "Contract derived from the project rules and shared validation schemas; failing regression tests document implementation gaps."
       "tags":
-        -
-          "cron"
+        - "cron"
       "security":
-        -
-          "maintenanceBearer":
-            []
+        - "maintenanceBearer": []
       "responses":
         "200":
           "description": "Success envelope"
@@ -173,11 +152,9 @@
               "schema":
                 "type": "object"
                 "required":
-                  -
-                    "data"
+                  - "data"
                 "properties":
-                  "data":
-                    {}
+                  "data": {}
         "400":
           "description": "Invalid input"
           "content":
@@ -196,12 +173,9 @@
     "get":
       "operationId": "listExpenses"
       "tags":
-        -
-          "Application"
+        - "Application"
       "security":
-        -
-          "sessionCookie":
-            []
+        - "sessionCookie": []
       "responses":
         "200":
           "description": "Success"
@@ -210,16 +184,13 @@
               "schema":
                 "type": "object"
                 "required":
-                  -
-                    "data"
+                  - "data"
                 "properties":
                   "data":
                     "type": "object"
                     "required":
-                      -
-                        "items"
-                      -
-                        "nextCursor"
+                      - "items"
+                      - "nextCursor"
                     "properties":
                       "items":
                         "type": "array"
@@ -239,10 +210,8 @@
                         "items":
                           "type": "object"
                           "required":
-                            -
-                              "currency"
-                            -
-                              "amount"
+                            - "currency"
+                            - "amount"
                           "properties":
                             "currency":
                               "type": "string"
@@ -262,64 +231,50 @@
           "description": "Not found or not visible"
       "description": "Visible expenses, newest calendar date then ID. Pages contain at most 30 rows. Deleted expenses are opt-in. scope=mine includes only the signed-in participant with a positive owed share, adds yourShare to rows and spendingTotals per currency across all matching non-deleted expenses, independent of pagination. Inclusive from/to calendar dates must be ordered. No user ID can override the session viewer."
       "parameters":
-        -
-          "name": "groupId"
+        - "name": "groupId"
           "in": "query"
           "schema":
             "type": "string"
             "maxLength": 128
-        -
-          "name": "friendId"
+        - "name": "friendId"
           "in": "query"
           "schema":
             "type": "string"
             "maxLength": 128
-        -
-          "name": "cursor"
+        - "name": "cursor"
           "in": "query"
           "schema":
             "type": "string"
             "maxLength": 128
-        -
-          "name": "kind"
+        - "name": "kind"
           "in": "query"
           "schema":
             "type": "string"
             "enum":
-              -
-                "PERSONAL"
-              -
-                "SHARED"
-        -
-          "name": "deleted"
+              - "PERSONAL"
+              - "SHARED"
+        - "name": "deleted"
           "in": "query"
           "schema":
             "type": "string"
             "enum":
-              -
-                "true"
-              -
-                "false"
+              - "true"
+              - "false"
             "default": "false"
-        -
-          "name": "scope"
+        - "name": "scope"
           "in": "query"
           "schema":
             "type": "string"
             "enum":
-              -
-                "all"
-              -
-                "mine"
+              - "all"
+              - "mine"
             "default": "all"
-        -
-          "name": "from"
+        - "name": "from"
           "in": "query"
           "schema":
             "type": "string"
             "format": "date"
-        -
-          "name": "to"
+        - "name": "to"
           "in": "query"
           "schema":
             "type": "string"
@@ -329,15 +284,11 @@
       "summary": "POST /api/expenses"
       "description": "Contract derived from the project rules and shared validation schemas; failing regression tests document implementation gaps."
       "tags":
-        -
-          "expenses"
+        - "expenses"
       "security":
-        -
-          "sessionCookie":
-            []
+        - "sessionCookie": []
       "parameters":
-        -
-          "name": "Idempotency-Key"
+        - "name": "Idempotency-Key"
           "in": "header"
           "required": true
           "schema":
@@ -352,11 +303,9 @@
               "schema":
                 "type": "object"
                 "required":
-                  -
-                    "data"
+                  - "data"
                 "properties":
-                  "data":
-                    {}
+                  "data": {}
         "400":
           "description": "Invalid input"
           "content":
@@ -383,15 +332,11 @@
       "summary": "POST /api/expenses/{id}/restore"
       "description": "Contract derived from the project rules and shared validation schemas; failing regression tests document implementation gaps."
       "tags":
-        -
-          "expenses"
+        - "expenses"
       "security":
-        -
-          "sessionCookie":
-            []
+        - "sessionCookie": []
       "parameters":
-        -
-          "name": "id"
+        - "name": "id"
           "in": "path"
           "required": true
           "schema":
@@ -404,11 +349,9 @@
               "schema":
                 "type": "object"
                 "required":
-                  -
-                    "data"
+                  - "data"
                 "properties":
-                  "data":
-                    {}
+                  "data": {}
         "400":
           "description": "Invalid input"
           "content":
@@ -429,15 +372,11 @@
       "summary": "GET /api/expenses/{id}"
       "description": "Contract derived from the project rules and shared validation schemas; failing regression tests document implementation gaps."
       "tags":
-        -
-          "expenses"
+        - "expenses"
       "security":
-        -
-          "sessionCookie":
-            []
+        - "sessionCookie": []
       "parameters":
-        -
-          "name": "id"
+        - "name": "id"
           "in": "path"
           "required": true
           "schema":
@@ -450,11 +389,9 @@
               "schema":
                 "type": "object"
                 "required":
-                  -
-                    "data"
+                  - "data"
                 "properties":
-                  "data":
-                    {}
+                  "data": {}
         "400":
           "description": "Invalid input"
           "content":
@@ -474,15 +411,11 @@
       "summary": "PATCH /api/expenses/{id}"
       "description": "Contract derived from the project rules and shared validation schemas; failing regression tests document implementation gaps."
       "tags":
-        -
-          "expenses"
+        - "expenses"
       "security":
-        -
-          "sessionCookie":
-            []
+        - "sessionCookie": []
       "parameters":
-        -
-          "name": "id"
+        - "name": "id"
           "in": "path"
           "required": true
           "schema":
@@ -495,11 +428,9 @@
               "schema":
                 "type": "object"
                 "required":
-                  -
-                    "data"
+                  - "data"
                 "properties":
-                  "data":
-                    {}
+                  "data": {}
         "400":
           "description": "Invalid input"
           "content":
@@ -525,15 +456,11 @@
       "summary": "DELETE /api/expenses/{id}"
       "description": "Contract derived from the project rules and shared validation schemas; failing regression tests document implementation gaps."
       "tags":
-        -
-          "expenses"
+        - "expenses"
       "security":
-        -
-          "sessionCookie":
-            []
+        - "sessionCookie": []
       "parameters":
-        -
-          "name": "id"
+        - "name": "id"
           "in": "path"
           "required": true
           "schema":
@@ -546,11 +473,9 @@
               "schema":
                 "type": "object"
                 "required":
-                  -
-                    "data"
+                  - "data"
                 "properties":
-                  "data":
-                    {}
+                  "data": {}
         "400":
           "description": "Invalid input"
           "content":
@@ -570,11 +495,8 @@
       "operationId": "get_api_friends"
       "summary": "GET /api/friends"
       "security":
-        -
-          "sessionCookie":
-            []
-      "parameters":
-        []
+        - "sessionCookie": []
+      "parameters": []
       "responses":
         "200":
           "description": "Success envelope"
@@ -583,11 +505,9 @@
               "schema":
                 "type": "object"
                 "required":
-                  -
-                    "data"
+                  - "data"
                 "properties":
-                  "data":
-                    {}
+                  "data": {}
         "400":
           "description": "Invalid input"
           "content":
@@ -608,12 +528,9 @@
       "operationId": "post_api_friends"
       "summary": "POST /api/friends"
       "security":
-        -
-          "sessionCookie":
-            []
+        - "sessionCookie": []
       "parameters":
-        -
-          "name": "Idempotency-Key"
+        - "name": "Idempotency-Key"
           "in": "header"
           "required": true
           "schema":
@@ -628,11 +545,9 @@
               "schema":
                 "type": "object"
                 "required":
-                  -
-                    "data"
+                  - "data"
                 "properties":
-                  "data":
-                    {}
+                  "data": {}
         "400":
           "description": "Invalid input"
           "content":
@@ -660,12 +575,9 @@
       "operationId": "get_api_friends__id_"
       "summary": "GET /api/friends/{id}"
       "security":
-        -
-          "sessionCookie":
-            []
+        - "sessionCookie": []
       "parameters":
-        -
-          "name": "id"
+        - "name": "id"
           "in": "path"
           "required": true
           "schema":
@@ -680,11 +592,9 @@
               "schema":
                 "type": "object"
                 "required":
-                  -
-                    "data"
+                  - "data"
                 "properties":
-                  "data":
-                    {}
+                  "data": {}
         "400":
           "description": "Invalid input"
           "content":
@@ -705,12 +615,9 @@
       "operationId": "patch_api_friends__id_"
       "summary": "PATCH /api/friends/{id}"
       "security":
-        -
-          "sessionCookie":
-            []
+        - "sessionCookie": []
       "parameters":
-        -
-          "name": "id"
+        - "name": "id"
           "in": "path"
           "required": true
           "schema":
@@ -725,11 +632,9 @@
               "schema":
                 "type": "object"
                 "required":
-                  -
-                    "data"
+                  - "data"
                 "properties":
-                  "data":
-                    {}
+                  "data": {}
         "400":
           "description": "Invalid input"
           "content":
@@ -757,11 +662,8 @@
       "operationId": "get_api_groups"
       "summary": "GET /api/groups"
       "security":
-        -
-          "sessionCookie":
-            []
-      "parameters":
-        []
+        - "sessionCookie": []
+      "parameters": []
       "responses":
         "200":
           "description": "Success envelope"
@@ -770,11 +672,9 @@
               "schema":
                 "type": "object"
                 "required":
-                  -
-                    "data"
+                  - "data"
                 "properties":
-                  "data":
-                    {}
+                  "data": {}
         "400":
           "description": "Invalid input"
           "content":
@@ -795,12 +695,9 @@
       "operationId": "post_api_groups"
       "summary": "POST /api/groups"
       "security":
-        -
-          "sessionCookie":
-            []
+        - "sessionCookie": []
       "parameters":
-        -
-          "name": "Idempotency-Key"
+        - "name": "Idempotency-Key"
           "in": "header"
           "required": true
           "schema":
@@ -815,11 +712,9 @@
               "schema":
                 "type": "object"
                 "required":
-                  -
-                    "data"
+                  - "data"
                 "properties":
-                  "data":
-                    {}
+                  "data": {}
         "400":
           "description": "Invalid input"
           "content":
@@ -847,12 +742,9 @@
       "operationId": "post_api_groups__id__members"
       "summary": "POST /api/groups/{id}/members"
       "security":
-        -
-          "sessionCookie":
-            []
+        - "sessionCookie": []
       "parameters":
-        -
-          "name": "id"
+        - "name": "id"
           "in": "path"
           "required": true
           "schema":
@@ -867,11 +759,9 @@
               "schema":
                 "type": "object"
                 "required":
-                  -
-                    "data"
+                  - "data"
                 "properties":
-                  "data":
-                    {}
+                  "data": {}
         "400":
           "description": "Invalid input"
           "content":
@@ -899,12 +789,9 @@
       "operationId": "get_api_groups__id_"
       "summary": "GET /api/groups/{id}"
       "security":
-        -
-          "sessionCookie":
-            []
+        - "sessionCookie": []
       "parameters":
-        -
-          "name": "id"
+        - "name": "id"
           "in": "path"
           "required": true
           "schema":
@@ -919,11 +806,9 @@
               "schema":
                 "type": "object"
                 "required":
-                  -
-                    "data"
+                  - "data"
                 "properties":
-                  "data":
-                    {}
+                  "data": {}
         "400":
           "description": "Invalid input"
           "content":
@@ -944,12 +829,9 @@
       "operationId": "patch_api_groups__id_"
       "summary": "PATCH /api/groups/{id}"
       "security":
-        -
-          "sessionCookie":
-            []
+        - "sessionCookie": []
       "parameters":
-        -
-          "name": "id"
+        - "name": "id"
           "in": "path"
           "required": true
           "schema":
@@ -964,11 +846,9 @@
               "schema":
                 "type": "object"
                 "required":
-                  -
-                    "data"
+                  - "data"
                 "properties":
-                  "data":
-                    {}
+                  "data": {}
         "400":
           "description": "Invalid input"
           "content":
@@ -996,27 +876,21 @@
       "operationId": "get_api_insights"
       "summary": "GET /api/insights"
       "security":
-        -
-          "sessionCookie":
-            []
+        - "sessionCookie": []
       "parameters":
-        -
-          "name": "month"
+        - "name": "month"
           "in": "query"
           "required": true
           "schema":
             "type": "string"
             "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])$"
-        -
-          "name": "kind"
+        - "name": "kind"
           "in": "query"
           "schema":
             "type": "string"
             "enum":
-              -
-                "PERSONAL"
-              -
-                "SHARED"
+              - "PERSONAL"
+              - "SHARED"
       "responses":
         "200":
           "description": "Success envelope"
@@ -1025,11 +899,9 @@
               "schema":
                 "type": "object"
                 "required":
-                  -
-                    "data"
+                  - "data"
                 "properties":
-                  "data":
-                    {}
+                  "data": {}
         "400":
           "description": "Invalid input"
           "content":
@@ -1051,11 +923,8 @@
       "operationId": "post_api_invites_claim"
       "summary": "POST /api/invites/claim"
       "security":
-        -
-          "sessionCookie":
-            []
-      "parameters":
-        []
+        - "sessionCookie": []
+      "parameters": []
       "responses":
         "200":
           "description": "Success envelope"
@@ -1064,11 +933,9 @@
               "schema":
                 "type": "object"
                 "required":
-                  -
-                    "data"
+                  - "data"
                 "properties":
-                  "data":
-                    {}
+                  "data": {}
         "400":
           "description": "Invalid input"
           "content":
@@ -1095,11 +962,9 @@
     "get":
       "operationId": "get_api_invites_preview"
       "summary": "GET /api/invites/preview"
-      "security":
-        []
+      "security": []
       "parameters":
-        -
-          "name": "token"
+        - "name": "token"
           "in": "query"
           "required": true
           "schema":
@@ -1113,11 +978,9 @@
               "schema":
                 "type": "object"
                 "required":
-                  -
-                    "data"
+                  - "data"
                 "properties":
-                  "data":
-                    {}
+                  "data": {}
         "400":
           "description": "Invalid input"
           "content":
@@ -1139,12 +1002,9 @@
       "operationId": "post_api_invites"
       "summary": "POST /api/invites"
       "security":
-        -
-          "sessionCookie":
-            []
+        - "sessionCookie": []
       "parameters":
-        -
-          "name": "Idempotency-Key"
+        - "name": "Idempotency-Key"
           "in": "header"
           "required": true
           "schema":
@@ -1159,11 +1019,9 @@
               "schema":
                 "type": "object"
                 "required":
-                  -
-                    "data"
+                  - "data"
                 "properties":
-                  "data":
-                    {}
+                  "data": {}
         "400":
           "description": "Invalid input"
           "content":
@@ -1191,20 +1049,16 @@
       "operationId": "post_api_invites__id__report"
       "summary": "POST /api/invites/{id}/report"
       "security":
-        -
-          "sessionCookie":
-            []
+        - "sessionCookie": []
       "parameters":
-        -
-          "name": "id"
+        - "name": "id"
           "in": "path"
           "required": true
           "schema":
             "type": "string"
             "minLength": 1
             "maxLength": 128
-        -
-          "name": "Idempotency-Key"
+        - "name": "Idempotency-Key"
           "in": "header"
           "required": true
           "schema":
@@ -1219,11 +1073,9 @@
               "schema":
                 "type": "object"
                 "required":
-                  -
-                    "data"
+                  - "data"
                 "properties":
-                  "data":
-                    {}
+                  "data": {}
         "400":
           "description": "Invalid input"
           "content":
@@ -1251,12 +1103,9 @@
       "operationId": "delete_api_invites__id_"
       "summary": "DELETE /api/invites/{id}"
       "security":
-        -
-          "sessionCookie":
-            []
+        - "sessionCookie": []
       "parameters":
-        -
-          "name": "id"
+        - "name": "id"
           "in": "path"
           "required": true
           "schema":
@@ -1271,11 +1120,9 @@
               "schema":
                 "type": "object"
                 "required":
-                  -
-                    "data"
+                  - "data"
                 "properties":
-                  "data":
-                    {}
+                  "data": {}
         "400":
           "description": "Invalid input"
           "content":
@@ -1297,11 +1144,8 @@
       "operationId": "post_api_me_anonymize"
       "summary": "POST /api/me/anonymize"
       "security":
-        -
-          "sessionCookie":
-            []
-      "parameters":
-        []
+        - "sessionCookie": []
+      "parameters": []
       "responses":
         "200":
           "description": "Success envelope"
@@ -1310,11 +1154,9 @@
               "schema":
                 "type": "object"
                 "required":
-                  -
-                    "data"
+                  - "data"
                 "properties":
-                  "data":
-                    {}
+                  "data": {}
         "400":
           "description": "Invalid input"
           "content":
@@ -1341,12 +1183,9 @@
     "get":
       "operationId": "getProfile"
       "tags":
-        -
-          "Application"
+        - "Application"
       "security":
-        -
-          "sessionCookie":
-            []
+        - "sessionCookie": []
       "responses":
         "200":
           "description": "Success"
@@ -1355,8 +1194,7 @@
               "schema":
                 "type": "object"
                 "required":
-                  -
-                    "data"
+                  - "data"
                 "properties":
                   "data":
                     "$ref": "#/components/schemas/Profile"
@@ -1373,12 +1211,9 @@
     "patch":
       "operationId": "updateProfile"
       "tags":
-        -
-          "Application"
+        - "Application"
       "security":
-        -
-          "sessionCookie":
-            []
+        - "sessionCookie": []
       "responses":
         "200":
           "description": "Success"
@@ -1387,8 +1222,7 @@
               "schema":
                 "type": "object"
                 "required":
-                  -
-                    "data"
+                  - "data"
                 "properties":
                   "data":
                     "$ref": "#/components/schemas/Profile"
@@ -1413,11 +1247,8 @@
       "operationId": "get_api_push_config"
       "summary": "GET /api/push/config"
       "security":
-        -
-          "sessionCookie":
-            []
-      "parameters":
-        []
+        - "sessionCookie": []
+      "parameters": []
       "responses":
         "200":
           "description": "Success envelope"
@@ -1426,11 +1257,9 @@
               "schema":
                 "type": "object"
                 "required":
-                  -
-                    "data"
+                  - "data"
                 "properties":
-                  "data":
-                    {}
+                  "data": {}
         "400":
           "description": "Invalid input"
           "content":
@@ -1452,11 +1281,8 @@
       "operationId": "put_api_push_subscription"
       "summary": "PUT /api/push/subscription"
       "security":
-        -
-          "sessionCookie":
-            []
-      "parameters":
-        []
+        - "sessionCookie": []
+      "parameters": []
       "responses":
         "200":
           "description": "Success envelope"
@@ -1465,11 +1291,9 @@
               "schema":
                 "type": "object"
                 "required":
-                  -
-                    "data"
+                  - "data"
                 "properties":
-                  "data":
-                    {}
+                  "data": {}
         "400":
           "description": "Invalid input"
           "content":
@@ -1496,11 +1320,8 @@
       "operationId": "delete_api_push_subscription"
       "summary": "DELETE /api/push/subscription"
       "security":
-        -
-          "sessionCookie":
-            []
-      "parameters":
-        []
+        - "sessionCookie": []
+      "parameters": []
       "responses":
         "200":
           "description": "Success envelope"
@@ -1509,11 +1330,9 @@
               "schema":
                 "type": "object"
                 "required":
-                  -
-                    "data"
+                  - "data"
                 "properties":
-                  "data":
-                    {}
+                  "data": {}
         "400":
           "description": "Invalid input"
           "content":
@@ -1542,9 +1361,7 @@
       "summary": "Get viewer-authorized payment scopes and counterparties"
       "description": "Active members and former members with nonzero pairwise group balances are eligible. Former viewers see only their own outstanding pairwise debt. Archived groups are omitted. No general group access is granted."
       "security":
-        -
-          "sessionCookie":
-            []
+        - "sessionCookie": []
       "responses":
         "200":
           "description": "Payment context"
@@ -1553,8 +1370,7 @@
               "schema":
                 "type": "object"
                 "required":
-                  -
-                    "data"
+                  - "data"
                 "properties":
                   "data":
                     "$ref": "#/components/schemas/PaymentContext"
@@ -1566,15 +1382,11 @@
       "summary": "POST /api/settlements"
       "description": "Records a payment separately from spending. Viewer must be payer or receiver. Exactly one group or Direct scope is affected. Former members and blocked pairs may only repay existing pairwise debt, without overpayment. note is optional, at most 2000 characters. Advances, reverse payments and overpayments between unrestricted parties are supported; the UI confirms the resulting balance."
       "tags":
-        -
-          "settlements"
+        - "settlements"
       "security":
-        -
-          "sessionCookie":
-            []
+        - "sessionCookie": []
       "parameters":
-        -
-          "name": "Idempotency-Key"
+        - "name": "Idempotency-Key"
           "in": "header"
           "required": true
           "schema":
@@ -1589,11 +1401,9 @@
               "schema":
                 "type": "object"
                 "required":
-                  -
-                    "data"
+                  - "data"
                 "properties":
-                  "data":
-                    {}
+                  "data": {}
         "400":
           "description": "Invalid input"
           "content":
@@ -1618,41 +1428,33 @@
       "operationId": "get_api_settlements"
       "summary": "GET /api/settlements"
       "security":
-        -
-          "sessionCookie":
-            []
+        - "sessionCookie": []
       "parameters":
-        -
-          "name": "cursor"
+        - "name": "cursor"
           "in": "query"
           "schema":
             "type": "string"
             "minLength": 1
             "maxLength": 128
-        -
-          "name": "groupId"
+        - "name": "groupId"
           "in": "query"
           "schema":
             "type": "string"
             "minLength": 1
             "maxLength": 128
-        -
-          "name": "friendId"
+        - "name": "friendId"
           "in": "query"
           "schema":
             "type": "string"
             "minLength": 1
             "maxLength": 128
-        -
-          "name": "deleted"
+        - "name": "deleted"
           "in": "query"
           "schema":
             "type": "string"
             "enum":
-              -
-                "true"
-              -
-                "false"
+              - "true"
+              - "false"
       "responses":
         "200":
           "description": "Success envelope"
@@ -1661,11 +1463,9 @@
               "schema":
                 "type": "object"
                 "required":
-                  -
-                    "data"
+                  - "data"
                 "properties":
-                  "data":
-                    {}
+                  "data": {}
         "400":
           "description": "Invalid input"
           "content":
@@ -1687,12 +1487,9 @@
       "operationId": "post_api_settlements__id__restore"
       "summary": "POST /api/settlements/{id}/restore"
       "security":
-        -
-          "sessionCookie":
-            []
+        - "sessionCookie": []
       "parameters":
-        -
-          "name": "id"
+        - "name": "id"
           "in": "path"
           "required": true
           "schema":
@@ -1707,11 +1504,9 @@
               "schema":
                 "type": "object"
                 "required":
-                  -
-                    "data"
+                  - "data"
                 "properties":
-                  "data":
-                    {}
+                  "data": {}
         "400":
           "description": "Invalid input"
           "content":
@@ -1735,15 +1530,11 @@
       "summary": "DELETE /api/settlements/{id}"
       "description": "Contract derived from the project rules and shared validation schemas; failing regression tests document implementation gaps."
       "tags":
-        -
-          "settlements"
+        - "settlements"
       "security":
-        -
-          "sessionCookie":
-            []
+        - "sessionCookie": []
       "parameters":
-        -
-          "name": "id"
+        - "name": "id"
           "in": "path"
           "required": true
           "schema":
@@ -1756,11 +1547,9 @@
               "schema":
                 "type": "object"
                 "required":
-                  -
-                    "data"
+                  - "data"
                 "properties":
-                  "data":
-                    {}
+                  "data": {}
         "400":
           "description": "Invalid input"
           "content":
@@ -1781,8 +1570,7 @@
       "summary": "Read Better Auth session"
       "description": "Better Auth uses its native response format, not the application data envelope."
       "tags":
-        -
-          "Authentication"
+        - "Authentication"
       "responses":
         "200":
           "description": "Session and user, or null for no valid session"
@@ -1806,10 +1594,8 @@
     "Participant":
       "type": "object"
       "required":
-        -
-          "userId"
-        -
-          "paid"
+        - "userId"
+        - "paid"
       "properties":
         "userId":
           "type": "string"
@@ -1839,20 +1625,13 @@
     "CreateExpense":
       "type": "object"
       "required":
-        -
-          "description"
-        -
-          "category"
-        -
-          "amount"
-        -
-          "currency"
-        -
-          "date"
-        -
-          "splitType"
-        -
-          "participants"
+        - "description"
+        - "category"
+        - "amount"
+        - "currency"
+        - "date"
+        - "splitType"
+        - "participants"
       "properties":
         "groupId":
           "type": "string"
@@ -1864,26 +1643,16 @@
         "category":
           "type": "string"
           "enum":
-            -
-              "Food"
-            -
-              "Groceries"
-            -
-              "Transport"
-            -
-              "Rent"
-            -
-              "Utilities"
-            -
-              "Shopping"
-            -
-              "Entertainment"
-            -
-              "Travel"
-            -
-              "Health"
-            -
-              "Other"
+            - "Food"
+            - "Groceries"
+            - "Transport"
+            - "Rent"
+            - "Utilities"
+            - "Shopping"
+            - "Entertainment"
+            - "Travel"
+            - "Health"
+            - "Other"
         "notes":
           "type": "string"
           "nullable": true
@@ -1897,22 +1666,17 @@
         "currency":
           "type": "string"
           "enum":
-            -
-              "INR"
+            - "INR"
         "date":
           "type": "string"
           "format": "date"
         "splitType":
           "type": "string"
           "enum":
-            -
-              "EQUAL"
-            -
-              "EXACT"
-            -
-              "PERCENTAGE"
-            -
-              "SHARES"
+            - "EQUAL"
+            - "EXACT"
+            - "PERCENTAGE"
+            - "SHARES"
         "participants":
           "type": "array"
           "minItems": 1
@@ -1920,10 +1684,8 @@
           "items":
             "type": "object"
             "required":
-              -
-                "userId"
-              -
-                "paid"
+              - "userId"
+              - "paid"
             "properties":
               "userId":
                 "type": "string"
@@ -1953,8 +1715,7 @@
     "EditExpense":
       "type": "object"
       "required":
-        -
-          "version"
+        - "version"
       "properties":
         "version":
           "type": "integer"
@@ -1966,26 +1727,16 @@
         "category":
           "type": "string"
           "enum":
-            -
-              "Food"
-            -
-              "Groceries"
-            -
-              "Transport"
-            -
-              "Rent"
-            -
-              "Utilities"
-            -
-              "Shopping"
-            -
-              "Entertainment"
-            -
-              "Travel"
-            -
-              "Health"
-            -
-              "Other"
+            - "Food"
+            - "Groceries"
+            - "Transport"
+            - "Rent"
+            - "Utilities"
+            - "Shopping"
+            - "Entertainment"
+            - "Travel"
+            - "Health"
+            - "Other"
         "notes":
           "type": "string"
           "nullable": true
@@ -1999,22 +1750,17 @@
         "currency":
           "type": "string"
           "enum":
-            -
-              "INR"
+            - "INR"
         "date":
           "type": "string"
           "format": "date"
         "splitType":
           "type": "string"
           "enum":
-            -
-              "EQUAL"
-            -
-              "EXACT"
-            -
-              "PERCENTAGE"
-            -
-              "SHARES"
+            - "EQUAL"
+            - "EXACT"
+            - "PERCENTAGE"
+            - "SHARES"
         "participants":
           "type": "array"
           "minItems": 1
@@ -2022,10 +1768,8 @@
           "items":
             "type": "object"
             "required":
-              -
-                "userId"
-              -
-                "paid"
+              - "userId"
+              - "paid"
             "properties":
               "userId":
                 "type": "string"
@@ -2055,18 +1799,12 @@
     "CreateSettlement":
       "type": "object"
       "required":
-        -
-          "fromUserId"
-        -
-          "toUserId"
-        -
-          "amount"
-        -
-          "currency"
-        -
-          "method"
-        -
-          "date"
+        - "fromUserId"
+        - "toUserId"
+        - "amount"
+        - "currency"
+        - "method"
+        - "date"
       "properties":
         "groupId":
           "type": "string"
@@ -2086,17 +1824,13 @@
         "currency":
           "type": "string"
           "enum":
-            -
-              "INR"
+            - "INR"
         "method":
           "type": "string"
           "enum":
-            -
-              "CASH"
-            -
-              "UPI"
-            -
-              "OTHER"
+            - "CASH"
+            - "UPI"
+            - "OTHER"
         "date":
           "type": "string"
           "format": "date"
@@ -2107,16 +1841,13 @@
     "Error":
       "type": "object"
       "required":
-        -
-          "error"
+        - "error"
       "properties":
         "error":
           "type": "object"
           "required":
-            -
-              "code"
-            -
-              "message"
+            - "code"
+            - "message"
           "properties":
             "code":
               "type": "string"
@@ -2129,14 +1860,10 @@
     "Profile":
       "type": "object"
       "required":
-        -
-          "id"
-        -
-          "name"
-        -
-          "email"
-        -
-          "defaultCurrency"
+        - "id"
+        - "name"
+        - "email"
+        - "defaultCurrency"
       "properties":
         "id":
           "type": "string"
@@ -2165,8 +1892,7 @@
         "defaultCurrency":
           "type": "string"
           "enum":
-            -
-              "INR"
+            - "INR"
     "UpdateProfile":
       "type": "object"
       "additionalProperties": false
@@ -2192,13 +1918,11 @@
         "defaultCurrency":
           "type": "string"
           "enum":
-            -
-              "INR"
+            - "INR"
     "CreateGroup":
       "type": "object"
       "required":
-        -
-          "name"
+        - "name"
       "properties":
         "name":
           "type": "string"
@@ -2207,19 +1931,14 @@
         "type":
           "type": "string"
           "enum":
-            -
-              "TRIP"
-            -
-              "HOME"
-            -
-              "COUPLE"
-            -
-              "OTHER"
+            - "TRIP"
+            - "HOME"
+            - "COUPLE"
+            - "OTHER"
         "currency":
           "type": "string"
           "enum":
-            -
-              "INR"
+            - "INR"
         "simplifyDebts":
           "type": "boolean"
       "additionalProperties": false
@@ -2233,14 +1952,10 @@
         "type":
           "type": "string"
           "enum":
-            -
-              "TRIP"
-            -
-              "HOME"
-            -
-              "COUPLE"
-            -
-              "OTHER"
+            - "TRIP"
+            - "HOME"
+            - "COUPLE"
+            - "OTHER"
         "simplifyDebts":
           "type": "boolean"
         "archived":
@@ -2249,20 +1964,15 @@
     "MemberAction":
       "type": "object"
       "required":
-        -
-          "action"
+        - "action"
       "properties":
         "action":
           "type": "string"
           "enum":
-            -
-              "LEAVE"
-            -
-              "REMOVE"
-            -
-              "PROMOTE"
-            -
-              "REJOIN"
+            - "LEAVE"
+            - "REMOVE"
+            - "PROMOTE"
+            - "REJOIN"
         "userId":
           "type": "string"
           "minLength": 1
@@ -2273,8 +1983,7 @@
     "Placeholder":
       "type": "object"
       "required":
-        -
-          "name"
+        - "name"
       "properties":
         "name":
           "type": "string"
@@ -2291,18 +2000,14 @@
     "Invite":
       "type": "object"
       "required":
-        -
-          "type"
+        - "type"
       "properties":
         "type":
           "type": "string"
           "enum":
-            -
-              "GROUP_LINK"
-            -
-              "DIRECT"
-            -
-              "PERSONAL"
+            - "GROUP_LINK"
+            - "DIRECT"
+            - "PERSONAL"
         "groupId":
           "type": "string"
           "minLength": 1
@@ -2315,8 +2020,7 @@
     "ClaimInvite":
       "type": "object"
       "required":
-        -
-          "token"
+        - "token"
       "properties":
         "token":
           "type": "string"
@@ -2341,10 +2045,8 @@
     "Subscription":
       "type": "object"
       "required":
-        -
-          "endpoint"
-        -
-          "keys"
+        - "endpoint"
+        - "keys"
       "properties":
         "endpoint":
           "type": "string"
@@ -2352,10 +2054,8 @@
         "keys":
           "type": "object"
           "required":
-            -
-              "p256dh"
-            -
-              "auth"
+            - "p256dh"
+            - "auth"
           "properties":
             "p256dh":
               "type": "string"
@@ -2364,8 +2064,7 @@
     "DeleteSubscription":
       "type": "object"
       "required":
-        -
-          "endpoint"
+        - "endpoint"
       "properties":
         "endpoint":
           "type": "string"
@@ -2385,14 +2084,10 @@
       "items":
         "type": "object"
         "required":
-          -
-            "id"
-          -
-            "name"
-          -
-            "currency"
-          -
-            "people"
+          - "id"
+          - "name"
+          - "currency"
+          - "people"
         "properties":
           "id":
             "type": "string"
@@ -2402,23 +2097,17 @@
           "currency":
             "type": "string"
             "enum":
-              -
-                "INR"
+              - "INR"
           "people":
             "type": "array"
             "items":
               "type": "object"
               "required":
-                -
-                  "id"
-                -
-                  "name"
-                -
-                  "upiId"
-                -
-                  "net"
-                -
-                  "restricted"
+                - "id"
+                - "name"
+                - "upiId"
+                - "net"
+                - "restricted"
               "properties":
                 "id":
                   "type": "string"

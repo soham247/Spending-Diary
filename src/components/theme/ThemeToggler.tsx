@@ -1,17 +1,21 @@
-"use client"
+"use client";
 
-import { Moon, Sun } from "lucide-react"
-import { useTheme } from "next-themes"
-import { Button } from "@/components/ui/button"
-import { useSyncExternalStore } from "react"
+import { Moon, Sun } from "lucide-react";
+import { useTheme } from "next-themes";
+import { Button } from "@/components/ui/button";
+import { useSyncExternalStore } from "react";
 
-const subscribe = () => () => {}
-const clientSnapshot = () => true
-const serverSnapshot = () => false
+const subscribe = () => () => {};
+const clientSnapshot = () => true;
+const serverSnapshot = () => false;
 
 export function ModeToggle() {
-  const { setTheme, theme } = useTheme()
-  const mounted = useSyncExternalStore(subscribe, clientSnapshot, serverSnapshot)
+  const { setTheme, theme } = useTheme();
+  const mounted = useSyncExternalStore(
+    subscribe,
+    clientSnapshot,
+    serverSnapshot,
+  );
 
   if (!mounted) {
     return (
@@ -19,13 +23,13 @@ export function ModeToggle() {
         <Button
           variant="outline"
           size="icon"
-          className="w-9 h-9 p-0 hidden md:block"
+          className="hidden md:inline-flex"
           aria-label="Toggle theme"
         >
-          <div className="w-4 h-4" />
+          <span className="size-4" />
         </Button>
       </div>
-    )
+    );
   }
 
   return (
@@ -33,7 +37,7 @@ export function ModeToggle() {
       <Button
         variant="ghost"
         size="icon"
-        className="w-7 h-7 hidden md:flex items-center"
+        className="hidden md:inline-flex"
         onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
         aria-label="Toggle theme"
       >
@@ -44,5 +48,5 @@ export function ModeToggle() {
         )}
       </Button>
     </div>
-  )
+  );
 }

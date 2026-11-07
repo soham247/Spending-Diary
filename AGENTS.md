@@ -38,14 +38,14 @@ spending insights. Full requirements: `docs/prd.md`.
 Skills live in `.agents/skills/`. Before starting a task, check the table and
 read the matching `SKILL.md` first. Several can apply to one task.
 
-| When the task involves | Use |
-|---|---|
-| Creating, editing, deleting or restoring an expense or settlement; splits; ledger; balances | `add-money-write` |
-| Adding or changing anything under `src/app/api/` | `add-api-route` |
-| Changing `src/lib/db/schema.ts`, adding a migration, a trigger, a check constraint or an index | `drizzle-migration` |
-| Finishing any task that touches money, queries, routes, hooks or UI | `money-review` |
-| React/Next.js components, data fetching, bundle or render performance | `vercel-react-best-practices` |
-| Component structure, compound components, variants, props design | `vercel-composition-patterns` |
+| When the task involves                                                                         | Use                           |
+| ---------------------------------------------------------------------------------------------- | ----------------------------- |
+| Creating, editing, deleting or restoring an expense or settlement; splits; ledger; balances    | `add-money-write`             |
+| Adding or changing anything under `src/app/api/`                                               | `add-api-route`               |
+| Changing `src/lib/db/schema.ts`, adding a migration, a trigger, a check constraint or an index | `drizzle-migration`           |
+| Finishing any task that touches money, queries, routes, hooks or UI                            | `money-review`                |
+| React/Next.js components, data fetching, bundle or render performance                          | `vercel-react-best-practices` |
+| Component structure, compound components, variants, props design                               | `vercel-composition-patterns` |
 
 **Precedence:** this file overrides every installed skill. If a skill
 conflicts with a rule here, follow this file and say so in your report. Known
@@ -69,7 +69,7 @@ to violate by taking the "obvious" shortcut. Don't.
    (integer → display string). In JSON, money is always an integer in minor
    units.
 2. **Every expense balances exactly.** `SUM(participant.paid) =
-   SUM(participant.owed) = expense.amount`. This is validated in the Zod
+SUM(participant.owed) = expense.amount`. This is validated in the Zod
    schema AND enforced by a deferred Postgres constraint trigger. Never
    disable or work around the trigger — if it fires, the bug is upstream.
 3. **Splitting and rounding happen in exactly one place:**
@@ -353,7 +353,7 @@ Read `docs/design.md` before building any screen.
 - **If the token you need doesn't exist yet, add it — don't inline a value:**
   - A new semantic color → add a CSS variable in `globals.css` and map it in
     the `@theme inline` block, then use the new token name.
-  - A new *look* for an existing component → add a variant to that
+  - A new _look_ for an existing component → add a variant to that
     component's `cva()` definition rather than a one-off className.
 - **Money color is meaning, not decoration.** `credit` (you are owed) and
   `debit` (you owe) are used only on amounts and balance indicators, always
@@ -424,7 +424,7 @@ Read `docs/design.md` before building any screen.
 
 - `docs/prd.md` — product requirements and acceptance criteria
 - `docs/design.md` — visual language, tokens, screens, and UI patterns
-- `docs/schema.md` — database schema and the *why* behind it
+- `docs/schema.md` — database schema and the _why_ behind it
   (Drizzle source of truth lives in `src/lib/db/schema.ts`)
 - `docs/decisions.md` — dated log of resolved questionsv
 

@@ -66,7 +66,7 @@ CLI answers `postman simulation -h` with its general help).
   simulation over them.** `postman dependency add mock <name-or-id>` declares
   it in `.postman/resources.yaml` and materialises it under
   `postman/.dependencies/`, and the member's `path:` points there; `-w
-  <workspace>` resolves a name from the workspace that owns it.
+<workspace>` resolves a name from the workspace that owns it.
 - **Prefix each mock's `pm.state` keys with its name.** As of CLI 1.73.0,
   members of a local run read each other's keys, so two mocks storing
   `orders` overwrite each other.

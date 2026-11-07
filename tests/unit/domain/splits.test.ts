@@ -45,7 +45,10 @@ describe("largestRemainder", () => {
 
   it("handles total=0", () => {
     const result = largestRemainder(
-      [{ userId: "a", exact: 0 }, { userId: "b", exact: 0 }],
+      [
+        { userId: "a", exact: 0 },
+        { userId: "b", exact: 0 },
+      ],
       0,
     );
     expect(result.get("a")).toBe(0);
@@ -93,7 +96,10 @@ describe("splitEqual", () => {
 describe("splitExact", () => {
   it("accepts a perfectly balanced set", () => {
     const result = splitExact(
-      [{ userId: "a", owed: 600 }, { userId: "b", owed: 400 }],
+      [
+        { userId: "a", owed: 600 },
+        { userId: "b", owed: 400 },
+      ],
       1000,
     );
     expect(result.get("a")).toBe(600);
@@ -101,9 +107,9 @@ describe("splitExact", () => {
   });
 
   it("rejects a mismatched total", () => {
-    expect(() =>
-      splitExact([{ userId: "a", owed: 600 }], 1000),
-    ).toThrow(/sum to 600 but expense total is 1000/);
+    expect(() => splitExact([{ userId: "a", owed: 600 }], 1000)).toThrow(
+      /sum to 600 but expense total is 1000/,
+    );
   });
 });
 
@@ -112,7 +118,10 @@ describe("splitExact", () => {
 describe("splitPercentage", () => {
   it("splits 1000 at 70/30", () => {
     const result = splitPercentage(
-      [{ userId: "a", percentage: 70 }, { userId: "b", percentage: 30 }],
+      [
+        { userId: "a", percentage: 70 },
+        { userId: "b", percentage: 30 },
+      ],
       1000,
     );
     expect(result.get("a")).toBe(700);
@@ -172,15 +181,18 @@ describe("splitShares", () => {
   });
 
   it("throws on zero total shares", () => {
-    expect(() =>
-      splitShares([{ userId: "a", shares: 0 }], 100),
-    ).toThrow(/greater than zero/i);
+    expect(() => splitShares([{ userId: "a", shares: 0 }], 100)).toThrow(
+      /greater than zero/i,
+    );
   });
 
   it("property: sum always equals total", () => {
     fc.assert(
       fc.property(
-        fc.array(fc.integer({ min: 1, max: 10 }), { minLength: 1, maxLength: 8 }),
+        fc.array(fc.integer({ min: 1, max: 10 }), {
+          minLength: 1,
+          maxLength: 8,
+        }),
         fc.integer({ min: 1, max: 1_000_000 }),
         (sharesList, total) => {
           const participants = sharesList.map((shares, i) => ({
@@ -211,9 +223,7 @@ describe("computeLedgerEdges", () => {
   });
 
   it("produces no edge for a fully personal expense", () => {
-    const edges = computeLedgerEdges([
-      { userId: "A", paid: 1000, owed: 1000 },
-    ]);
+    const edges = computeLedgerEdges([{ userId: "A", paid: 1000, owed: 1000 }]);
     expect(edges).toHaveLength(0);
   });
 
@@ -269,28 +279,76 @@ describe("computeLedgerEdges", () => {
   });
 });
 
-
 describe("ledger conservation regressions", () => {
   it("keeps every creditor exact for a multi-payer expense", () => {
-    const p = [{userId:"a",paid:7,owed:0},{userId:"b",paid:3,owed:0},{userId:"c",paid:0,owed:5},{userId:"d",paid:0,owed:5}];
-    const edges=computeLedgerEdges(p);
-    for(const person of p) expect(edges.filter(e=>e.creditorId===person.userId).reduce((s,e)=>s+e.amount,0)-edges.filter(e=>e.debtorId===person.userId).reduce((s,e)=>s+e.amount,0)).toBe(person.paid-person.owed);
+    const p = [
+      { userId: "a", paid: 7, owed: 0 },
+      { userId: "b", paid: 3, owed: 0 },
+      { userId: "c", paid: 0, owed: 5 },
+      { userId: "d", paid: 0, owed: 5 },
+    ];
+    const edges = computeLedgerEdges(p);
+    for (const person of p)
+      expect(
+        edges
+          .filter((e) => e.creditorId === person.userId)
+          .reduce((s, e) => s + e.amount, 0) -
+          edges
+            .filter((e) => e.debtorId === person.userId)
+            .reduce((s, e) => s + e.amount, 0),
+      ).toBe(person.paid - person.owed);
   });
   it("property: balanced allocations preserve every person's net exactly", () => {
-    fc.assert(fc.property(fc.array(fc.integer({min:0,max:100000}),{minLength:2,maxLength:12}), paid => {
-      const total=paid.reduce((s,v)=>s+v,0);
-      const owed=splitEqual(paid.map((_,i)=>String(i)),total);
-      const p=paid.map((amount,i)=>({userId:String(i),paid:amount,owed:owed.get(String(i))!}));
-      const edges=computeLedgerEdges(p);
-      for(const person of p) {
-        expect(edges.filter(e=>e.creditorId===person.userId).reduce((s,e)=>s+e.amount,0)-edges.filter(e=>e.debtorId===person.userId).reduce((s,e)=>s+e.amount,0)).toBe(person.paid-person.owed);
-      }
-      expect(edges.every(e=>e.amount>0&&Number.isInteger(e.amount)&&e.debtorId!==e.creditorId)).toBe(true);
-    }));
+    fc.assert(
+      fc.property(
+        fc.array(fc.integer({ min: 0, max: 100000 }), {
+          minLength: 2,
+          maxLength: 12,
+        }),
+        (paid) => {
+          const total = paid.reduce((s, v) => s + v, 0);
+          const owed = splitEqual(
+            paid.map((_, i) => String(i)),
+            total,
+          );
+          const p = paid.map((amount, i) => ({
+            userId: String(i),
+            paid: amount,
+            owed: owed.get(String(i))!,
+          }));
+          const edges = computeLedgerEdges(p);
+          for (const person of p) {
+            expect(
+              edges
+                .filter((e) => e.creditorId === person.userId)
+                .reduce((s, e) => s + e.amount, 0) -
+                edges
+                  .filter((e) => e.debtorId === person.userId)
+                  .reduce((s, e) => s + e.amount, 0),
+            ).toBe(person.paid - person.owed);
+          }
+          expect(
+            edges.every(
+              (e) =>
+                e.amount > 0 &&
+                Number.isInteger(e.amount) &&
+                e.debtorId !== e.creditorId,
+            ),
+          ).toBe(true);
+        },
+      ),
+    );
   });
   it("keeps largest-remainder splits exact at the PostgreSQL integer maximum", () => {
-    const values=splitShares([{userId:"a",shares:999999},{userId:"b",shares:333333},{userId:"c",shares:1}],2147483647);
-    expect([...values.values()].reduce((s,v)=>s+v,0)).toBe(2147483647);
+    const values = splitShares(
+      [
+        { userId: "a", shares: 999999 },
+        { userId: "b", shares: 333333 },
+        { userId: "c", shares: 1 },
+      ],
+      2147483647,
+    );
+    expect([...values.values()].reduce((s, v) => s + v, 0)).toBe(2147483647);
     expect([...values.values()].every(Number.isInteger)).toBe(true);
   });
 });

@@ -1,10 +1,28 @@
 export const queryKeys = {
-  money: { roots: () => [["balances"], ["group"], ["friend"], ["friends"], ["activity"], ["insights"], ["settlement"]] as const },
+  money: {
+    roots: () =>
+      [
+        ["balances"],
+        ["group"],
+        ["friend"],
+        ["friends"],
+        ["activity"],
+        ["insights"],
+        ["settlement"],
+      ] as const,
+  },
   invites: { preview: (token: string) => ["invite", token] as const },
   activityRoot: () => ["activity"] as const,
   insightsRoot: () => ["insights"] as const,
-  activity: (filters: { groupId?: string; expenseId?: string } = {}) => ["activity", filters] as const,
-  settlements: { list: (filters: { groupId?: string; friendId?: string; deleted?: string }) => ["settlement", filters] as const },
+  activity: (filters: { groupId?: string; expenseId?: string } = {}) =>
+    ["activity", filters] as const,
+  settlements: {
+    list: (filters: {
+      groupId?: string;
+      friendId?: string;
+      deleted?: string;
+    }) => ["settlement", filters] as const,
+  },
   sessions: () => ["sessions"] as const,
   paymentContext: () => ["settlement", "context"] as const,
   me: () => ["me"] as const,
@@ -21,7 +39,15 @@ export const queryKeys = {
   },
   expenses: {
     all: () => ["expense"] as const,
-    list: (filters: { kind?: string; deleted?: string; groupId?: string; friendId?: string; scope?: string; from?: string; to?: string }) => ["expense", "list", filters] as const,
+    list: (filters: {
+      kind?: string;
+      deleted?: string;
+      groupId?: string;
+      friendId?: string;
+      scope?: string;
+      from?: string;
+      to?: string;
+    }) => ["expense", "list", filters] as const,
     detail: (expenseId: string) => ["expense", expenseId] as const,
   },
   friends: {

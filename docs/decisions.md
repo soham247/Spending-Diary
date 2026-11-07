@@ -7,83 +7,101 @@ guessing, and add an entry when a question gets answered.
 ---
 
 ### D-001 · 2026-09-30 · Money as integer minor units
+
 Store amounts as integers in paise (`Int` per row, `BigInt` for the balance
 cache). Floats caused rounding errors in the old schema; integers are exact and
 fast. Rules out `Float`, `numeric` arithmetic in JS, and `parseFloat` on input.
 
 ### D-002 · 2026-09-30 · Ledger plus balance cache
+
 Balances are derived from an append-only `ledger_entries` table and cached in
 `balances`, both written in the same transaction. The old running
 `Friend.amount` couldn't be audited and drifted. Rules out computing pairwise
 balances on read from expenses, and any other code writing `balances`.
 
 ### D-003 · 2026-09-30 · One participant row with `paid` and `owed`
+
 Replaces separate payments and shares tables. Halves joins and prevents
 duplicate participants via a composite key.
 
 ### D-004 · 2026-09-30 · Greedy allocation for multi-payer expenses
+
 Participant nets are matched largest-debtor to largest-creditor, ties by user
 ID. Integer-exact and deterministic. The same algorithm powers debt
 simplification.
 
 ### D-005 · 2026-09-30 · Largest-remainder rounding for splits
+
 Equal, percentage, and share splits distribute leftover paise one at a time in
 a deterministic order so shares always sum to the total.
 
 ### D-006 · 2026-09-30 · No passwords: Google plus email magic link
+
 Better Auth with Google OAuth and magic links. Phone OTP is not free (Firebase
 requires a paid plan for SMS), so phone is not an auth method in Phase 1. Superseded by D-019 (email and password added, magic links dropped).
 
 ### D-007 · 2026-09-30 · Verification and password-reset email goes through our own SMTP
+
 Nodemailer over our own SMTP on port 587/465, sending from our domain with
 SPF, DKIM, and DMARC. No third-party email API. Self-hosted Postfix is ruled
 out for login email due to deliverability.
 
 ### D-008 · 2026-09-30 · Magic links open a confirm page
+
 The emailed link opens `/auth/confirm`, and only a button press consumes the
 token, because email security scanners pre-open links. Superseded by D-019. No confirm page is needed: reset tokens are consumed on form submit, and verification only proves a mailbox the user owns.
 
 ### D-009 · 2026-09-30 · Phone numbers are unverified and not unique
+
 Phone is contact info only. Without verification, a unique constraint would
 let anyone lock someone else's number.
 
 ### D-010 · 2026-09-30 · Placeholders use `.invalid` emails
+
 Invited-but-unregistered people are `INVITED` users with
 `placeholder+<id>@spendingdiary.invalid`, satisfying Better Auth's required
 email. The mail layer refuses `.invalid`. A separate `members` table was
 considered and deferred as a larger refactor.
 
 ### D-011 · 2026-09-30 · Invite links are the claim proof
+
 A direct invite link is single-use and claims its placeholder, merging history
 into the claimer's account. The inviter is notified of who claimed it.
 
 ### D-012 · 2026-09-30 · Invites are sent from the user's own apps
+
 The share sheet (WhatsApp first on most Android phones) sends invites. The
 server never sends invite messages. Free, and a message from a friend converts
 better than one from a business number.
 
 ### D-013 · 2026-09-30 · Keep Next.js route handlers as the backend
+
 The bottleneck was the schema and business logic, not the framework. Revisit
 if we need long-running workers beyond cron-triggered jobs.
 
 ### D-014 · 2026-09-30 · Prisma over Drizzle
+
 The existing codebase uses Prisma. Raw SQL is used only for triggers, check
 constraints, partial indexes, and atomic balance upserts.
 
 ### D-015 · 2026-09-30 · Phase 1 is free to run
+
 All Phase 1 services run on free tiers. Web push replaces SMS/WhatsApp
 notifications. The premium tier is deferred to Phase 3; before it charges
 money, hosting moves off Vercel Hobby, which is for non-commercial use.
 
 ### D-016 · 2026-09-30 · One currency per group in Phase 1
+
 Balances are keyed by currency and never summed across currencies. Multi-
 currency expenses with rate snapshots are Phase 3.
 
 ### D-017 · 2026-09-30 · Participants and admins can edit expenses
+
 Any participant of an expense, and any group admin, can edit or delete it.
 Other group members can view only.
 
 ### D-018 · 2026-09-30 · Delete uses Undo, not confirmation
+
 Expense and settlement deletes are soft and restorable, so the UI uses an Undo
 toast instead of a confirmation dialog. Irreversible actions still confirm.
 
@@ -133,7 +151,6 @@ The user confirmed that payments remain separate settlements with no split or ca
 
 Group payment counterparties include active members and former members with any nonzero pairwise group balance, including offsetting debts with zero aggregate net. If either party is a former member, only repayment of the existing pairwise debt is allowed, without overpayment or new debt. Former members may record their own repayments and delete/undo their payments after reaching zero, without regaining expense or general group access. Restoration rechecks current repayment restrictions. Blocked-pair restrictions remain in effect and archived groups remain read-only.
 
-
 ### D-030 - 2026-11-06 - Adopt the supplied shadcn theme and sidebar
 
 The user explicitly selected a new light/dark OKLCH palette, burnt-orange
@@ -145,3 +162,19 @@ extension tokens and Money rendering so financial direction stays explicit.
 Use the official CLI-generated Tailwind v4 sidebar and primitives; desktop
 collapses to icons and mobile uses the sidebar Sheet. No financial or
 authorization behaviour changes.
+
+### D-031 - 2026-11-07 - Let the Nova preset own component styling
+
+The user requested that the app use shadcn components wherever possible and follow the selected b1FQgMFSC preset. Use radix-nova primitives, the selected Oxanium font, and the existing neutral/amber theme as the design system. Remove desktop control-height overrides and custom card surfaces; compose Cards, Tabs, Alerts, and Avatars instead. Preserve 44px mobile touch targets and intentional amount-input emphasis. This supersedes the earlier IBM Plex Sans typography and app-wide 44px desktop control sizing. Keep financial colors and Money rendering, existing domain behavior, and loading/error/empty states.
+
+### D-032 - 2026-11-07 - Use shadcn Drawer for forms at every breakpoint
+
+The user chose Drawer alone for form overlays on mobile and desktop rather than a responsive Drawer/Dialog combination. Use the official radix-nova Drawer generated by the shadcn CLI. Drawers open from the bottom, fill mobile width and use a centred constrained width on desktop. Share presentation and draft protection through FormDrawer, retain the existing sidebar Sheet, and leave financial services, validation and authorization unchanged. Payer and split editing stay within one expense Drawer; Close, Escape, handle drag and browser Back must protect edited drafts, and pending writes/UPI confirmation block dismissal. This supersedes the desktop Dialog prescription in design section 5.
+
+### D-033 - 2026-11-07 - Temporarily pause Google authentication
+
+The user requested that Google authentication be disabled for now, while retaining a disabled Continue with Google button with a recognizable Google icon on login and registration. Production Better Auth uses no social providers even when Google credentials are present. Email/password login, registration, email verification and password recovery remain active. Re-enabling Google is a future explicit change; no credentials or linked accounts are removed.
+
+### D-034 - 2026-11-07 - One expense composer and participant picker
+
+The user approved the researched add-expense UX proposal. Replace the mixed context dropdown with one searchable people/group picker inside the existing Drawer. Global Add starts personal, friend entry selects that friend and the viewer, and group entry selects all active members. Never select the first friend automatically. Keep amount, description, date, category and notes when switching people or groups. Changing the selection resets allocations to equal and payer to the viewer; explain this before applying when a custom split or payer would be replaced. Cancelling keeps the existing selection and allocations. Group selection stays scoped to that group's active members. Single-payer selection returns immediately to the form; multiple payers and payer-excluded splits remain available. Show participant chips and domain-derived debt previews. Keep existing services, guards, transactions, idempotency and edit concurrency.

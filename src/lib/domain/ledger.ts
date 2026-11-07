@@ -1,10 +1,7 @@
 import "server-only";
 import { and, eq, isNull, sql } from "drizzle-orm";
 import type { DbTx } from "@/lib/db/client";
-import {
-  ledgerEntries,
-  balances,
-} from "@/lib/db/schema";
+import { ledgerEntries, balances } from "@/lib/db/schema";
 import { orderPair } from "@/lib/utils/order-pair";
 import type { LedgerEdge } from "./splits";
 
@@ -26,7 +23,11 @@ export async function writeLedgerEntries(
   sourceId: { expenseId: string } | { settlementId: string },
 ): Promise<void> {
   if (edges.length === 0) return;
-  edges = [...edges].sort((a, b) => orderPair(a.debtorId, a.creditorId).join("\0").localeCompare(orderPair(b.debtorId, b.creditorId).join("\0")));
+  edges = [...edges].sort((a, b) =>
+    orderPair(a.debtorId, a.creditorId)
+      .join("\0")
+      .localeCompare(orderPair(b.debtorId, b.creditorId).join("\0")),
+  );
 
   // Insert ledger entries
   await tx.insert(ledgerEntries).values(
@@ -97,16 +98,18 @@ export async function voidLedgerEntries(
   const rows = await tx
     .select()
     .from(ledgerEntries)
-    .where(filter).for("update");
+    .where(filter)
+    .for("update");
 
   if (rows.length === 0) return;
-  rows.sort((a, b) => orderPair(a.debtorId, a.creditorId).join("\0").localeCompare(orderPair(b.debtorId, b.creditorId).join("\0")));
+  rows.sort((a, b) =>
+    orderPair(a.debtorId, a.creditorId)
+      .join("\0")
+      .localeCompare(orderPair(b.debtorId, b.creditorId).join("\0")),
+  );
 
   // Mark voided
-  await tx
-    .update(ledgerEntries)
-    .set({ voidedAt: new Date() })
-    .where(filter);
+  await tx.update(ledgerEntries).set({ voidedAt: new Date() }).where(filter);
 
   // Reverse each entry in the balance cache
   for (const row of rows) {

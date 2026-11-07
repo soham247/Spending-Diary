@@ -9,8 +9,7 @@ export function proxy(req: NextRequest) {
   const { pathname, search } = req.nextUrl;
 
   const hasSession =
-    req.cookies.has(SESSION_COOKIE) ||
-    req.cookies.has(SECURE_SESSION_COOKIE);
+    req.cookies.has(SESSION_COOKIE) || req.cookies.has(SECURE_SESSION_COOKIE);
 
   // No cookie → redirect to login with callbackUrl
   if (!hasSession) {

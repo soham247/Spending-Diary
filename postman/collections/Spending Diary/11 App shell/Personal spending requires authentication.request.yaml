@@ -4,21 +4,17 @@
 "method": "GET"
 "url": "{{base_url}}/api/expenses?scope=mine"
 "queryParams":
-  -
-    "key": "scope"
+  - "key": "scope"
     "value": "mine"
 "settings":
   "followRedirects": false
 "headers":
-  -
-    "key": "Cookie"
+  - "key": "Cookie"
     "value": "{{anon_cookie}}"
-  -
-    "key": "Origin"
+  - "key": "Origin"
     "value": "{{base_url}}"
 "scripts":
-  -
-    "type": "afterResponse"
+  - "type": "afterResponse"
     "language": "text/javascript"
     "code": |-
       pm.test('HTTP 401', () => pm.response.to.have.status(401));

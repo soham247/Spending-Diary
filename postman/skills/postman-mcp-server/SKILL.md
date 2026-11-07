@@ -44,15 +44,15 @@ assume a client can switch a route pinned to a specific MCP endpoint.
 
 Read the reference for the branch being used:
 
-| Task | Reference and decision it supports |
-| --- | --- |
-| Locate an API | [Search](references/search.md): narrow candidates to the intended resource |
-| Generate or synchronize artifacts | [Sync](references/sync.md): choose source and track completion |
-| Serve saved examples | [Mock](references/mock.md): classic collection mocks; for CLI Code Mocks use **api-mocking** |
-| Execute saved assertions | [Test](references/test.md): distinguish run completion from failures |
-| Improve or publish docs | [Docs](references/docs.md): fill contract gaps and verify reader access |
-| Requested security review | [Security](references/security.md): assess concrete API risks |
-| Product how-to questions | [Learning Center](references/learn.md): product documentation search when exposed |
+| Task                              | Reference and decision it supports                                                           |
+| --------------------------------- | -------------------------------------------------------------------------------------------- |
+| Locate an API                     | [Search](references/search.md): narrow candidates to the intended resource                   |
+| Generate or synchronize artifacts | [Sync](references/sync.md): choose source and track completion                               |
+| Serve saved examples              | [Mock](references/mock.md): classic collection mocks; for CLI Code Mocks use **api-mocking** |
+| Execute saved assertions          | [Test](references/test.md): distinguish run completion from failures                         |
+| Improve or publish docs           | [Docs](references/docs.md): fill contract gaps and verify reader access                      |
+| Requested security review         | [Security](references/security.md): assess concrete API risks                                |
+| Product how-to questions          | [Learning Center](references/learn.md): product documentation search when exposed            |
 
 ## Verification
 

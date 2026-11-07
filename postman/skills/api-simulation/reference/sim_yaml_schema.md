@@ -5,15 +5,15 @@ Read this when writing or debugging a `.sim.yaml` by hand.
 `id:` fields, which a local run ignores.
 
 ```yaml
-simulation: checkout-dev               # required: the name
-routing: path                          # path (default) or header
-mocks:                                 # required: one entry per member
-  - name: catalog                      # optional display name
-    routeKey: catalog                  # lowercase letters, digits, - and _
-    origin:                            # optional: hostnames, for --proxy
+simulation: checkout-dev # required: the name
+routing: path # path (default) or header
+mocks: # required: one entry per member
+  - name: catalog # optional display name
+    routeKey: catalog # lowercase letters, digits, - and _
+    origin: # optional: hostnames, for --proxy
       - catalog.internal.example.com
-    path: postman/mocks/catalog        # a mock's folder, config.yaml or handler
-    scenarios:                         # optional: conditions, below
+    path: postman/mocks/catalog # a mock's folder, config.yaml or handler
+    scenarios: # optional: conditions, below
       - overrides:
           conditions:
             latency: { delay_ms: 250 }
@@ -34,12 +34,12 @@ directory it looked in.
 
 ## Conditions
 
-| Condition | Field | Effect |
-| --- | --- | --- |
-| `latency` | `delay_ms` | Holds each request that long, then serves it. |
-| `error` | `status_code` (400–599) | Every request gets that status as JSON, with `"scenario":"error"`. |
-| `rate_limit` | `requests_per_minute` | Requests over the limit get `429` and `Retry-After`. |
-| `chaos` | `failure_rate` (0–100), optional `status_code` | That share of requests, at random, get `500` or that status. |
+| Condition    | Field                                          | Effect                                                             |
+| ------------ | ---------------------------------------------- | ------------------------------------------------------------------ |
+| `latency`    | `delay_ms`                                     | Holds each request that long, then serves it.                      |
+| `error`      | `status_code` (400–599)                        | Every request gets that status as JSON, with `"scenario":"error"`. |
+| `rate_limit` | `requests_per_minute`                          | Requests over the limit get `429` and `Retry-After`.               |
+| `chaos`      | `failure_rate` (0–100), optional `status_code` | That share of requests, at random, get `500` or that status.       |
 
 - A condition covers every route on its member. To fail one endpoint while
   its siblings succeed, give that endpoint a mock of its own.

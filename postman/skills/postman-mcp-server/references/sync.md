@@ -15,6 +15,7 @@ The Postman MCP Server must be connected. If MCP tools aren't available, follow 
 ### Step 1: Understand What Changed
 
 Detect or ask:
+
 - Is there a local OpenAPI spec? Search for `**/openapi.{json,yaml,yml}`, `**/swagger.{json,yaml,yml}`
 - Did the user add/remove/modify endpoints?
 - Is there an existing Postman collection to update, or do they need a new one?
@@ -26,11 +27,13 @@ Call `getWorkspaces` to get the user's workspace ID. If multiple workspaces exis
 ### Step 3: Find or Create the Collection
 
 **If updating an existing collection:**
+
 1. Call `getCollections` with the `workspace` parameter to list collections
 2. Match by name or ask the user which collection
 3. Call `getCollection` to get current state
 
 **If creating a new collection from a spec:**
+
 1. Read the local OpenAPI spec
 2. Call `createSpec` with:
    - `workspaceId`: the workspace ID
@@ -46,17 +49,20 @@ Call `getWorkspaces` to get the user's workspace ID. If multiple workspaces exis
 ### Step 4: Sync
 
 **Spec to Collection (most common):**
+
 1. Call `createSpec` or `updateSpecFile` with local spec content
 2. Call `syncCollectionWithSpec` to update the collection. **Async (HTTP 202).** Poll `getCollectionUpdatesTasks` for completion with increasing waits between polls.
 3. **Note:** `syncCollectionWithSpec` only supports OpenAPI 3.0. For Swagger 2.0 or OpenAPI 3.1, use `updateSpecFile` and regenerate the collection.
 4. Report what changed
 
 **Collection to Spec (reverse sync):**
+
 1. Call `syncSpecWithCollection` to update the spec from collection changes
 2. Write the updated spec back to the local file
 
 **Manual updates (no spec):**
 For individual endpoint changes:
+
 1. `createCollectionRequest` to add new endpoints
 2. `updateCollectionRequest` to modify existing ones
 3. `createCollectionFolder` to organize by resource

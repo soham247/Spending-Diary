@@ -32,6 +32,7 @@ Use the unified `searchPostmanElements` tool. It can search across various entit
 ### Step 2: Drill Into Results
 
 For each relevant hit:
+
 1. Call `getCollection` to get the overview
 2. Scan endpoint names and descriptions for relevance
 3. Call `getCollectionRequest` for the most relevant endpoints
@@ -43,6 +44,7 @@ For each relevant hit:
 Format results as a clear answer to the user's question.
 
 **When found:**
+
 ```
 Yes, you can get a user's email via the API.
 
@@ -60,6 +62,7 @@ Yes, you can get a user's email via the API.
 ```
 
 **When not found:**
+
 ```
 No endpoint returns user emails.
 

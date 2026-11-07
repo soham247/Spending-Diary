@@ -16,7 +16,7 @@ neither the contract nor agent usability; inspect the relevant fields or use
 checking their effect, or enforcing an agreed readiness gate.
 
 1. Score the artifact consumers actually use. `postman collection ai-readiness
-   <path-or-id>` reads a collection, including a local v3 directory;
+<path-or-id>` reads a collection, including a local v3 directory;
    `postman spec ai-readiness <path-or-id>` reads an OpenAPI spec directly.
    Generating a collection solely to score a spec adds a second artifact
    without improving the evidence. Use the installed command's `-h` for options.

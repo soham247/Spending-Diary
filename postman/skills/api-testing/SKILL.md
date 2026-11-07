@@ -11,12 +11,12 @@ guarantee; a successful HTTP exchange alone does not establish correctness.
 
 1. Choose the smallest execution mode that answers the question:
 
-   | Evidence needed | Use |
-   | --- | --- |
-   | One endpoint with no saved request | `postman request <url>` |
-   | Behavior of an existing saved request | `postman collection run <collection-path> -i <request-id-name-or-path>` |
-   | Reusable regression checks | `postman collection run <path-or-id>` |
-   | Whether a real app's calls match the contract | `postman application test` |
+   | Evidence needed                               | Use                                                                     |
+   | --------------------------------------------- | ----------------------------------------------------------------------- |
+   | One endpoint with no saved request            | `postman request <url>`                                                 |
+   | Behavior of an existing saved request         | `postman collection run <collection-path> -i <request-id-name-or-path>` |
+   | Reusable regression checks                    | `postman collection run <path-or-id>`                                   |
+   | Whether a real app's calls match the contract | `postman application test`                                              |
 
 2. Reuse a matching request under `postman/collections/` before reconstructing
    its HTTP fields. Running it through the collection retains inherited auth,

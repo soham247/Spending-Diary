@@ -6,6 +6,7 @@ import { ErrorState } from "@/components/common/ErrorState";
 export function ProfileSettings({ destination }: { destination?: string }) {
   const profile = useProfile();
   if (profile.isPending) return <LoadingState />;
-  if (profile.isError) return <ErrorState retry={() => void profile.refetch()} />;
+  if (profile.isError)
+    return <ErrorState retry={() => void profile.refetch()} />;
   return <ProfileForm profile={profile.data} destination={destination} />;
 }

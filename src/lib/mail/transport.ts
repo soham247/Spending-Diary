@@ -50,7 +50,10 @@ export function getTestMailbox(): TestMessage[] | null {
 
 // ─── Send helpers ───────────────────────────────────────────────────
 
-async function send(to: string, message: ReturnType<typeof accountEmail>): Promise<void> {
+async function send(
+  to: string,
+  message: ReturnType<typeof accountEmail>,
+): Promise<void> {
   if (isPlaceholderEmail(to)) {
     console.warn("[mail] Refusing to send to placeholder address:", to);
     return;

@@ -3,7 +3,9 @@ import { requireSession } from "@/lib/auth/guards";
 import { mapError } from "@/lib/api/route-handler";
 import { restoreExpense } from "@/lib/domain/expenses";
 
-interface Ctx { params: Promise<{ id: string }> }
+interface Ctx {
+  params: Promise<{ id: string }>;
+}
 export async function POST(req: Request, ctx: Ctx) {
   try {
     const session = await requireSession(req);
@@ -11,5 +13,7 @@ export async function POST(req: Request, ctx: Ctx) {
     await restoreExpense(session.userId, id);
     schedulePush();
     return Response.json({ data: { id } });
-  } catch (error) { return mapError(error); }
+  } catch (error) {
+    return mapError(error);
+  }
 }

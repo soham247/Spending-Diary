@@ -52,7 +52,9 @@ export async function getSettlements(viewerId: string, groupId?: string) {
     .from(settlements)
     .where(
       and(
-        groupId ? eq(settlements.groupId, groupId) : isNull(settlements.groupId),
+        groupId
+          ? eq(settlements.groupId, groupId)
+          : isNull(settlements.groupId),
         isNull(settlements.deletedAt),
         or(
           eq(settlements.fromUserId, viewerId),

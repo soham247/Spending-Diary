@@ -4,31 +4,31 @@ All six confirmed findings from the original API audit are fixed in this checkou
 
 ## Verified results
 
-| Check | Result |
-| --- | --- |
-| Postman HTTP suite | 101 requests, 232 assertions passed, exit 0 |
-| Unit and PostgreSQL integration tests | 113 passed, zero failed/skipped |
-| TypeScript | Pass |
-| ESLint | Pass with four pre-existing React hook warnings |
-| Production build | Pass, including type checking |
-| Full npm audit, including development dependencies | Zero vulnerabilities, exit 0 |
-| Postman collection/environment and OpenAPI syntax lint | Pass |
-| Better Auth schema generation | Completed and reconciled with the application schema |
-| Drizzle generation/check | No pending schema changes; check passes |
-| Generated migration on isolated PostgreSQL | Applied successfully; balance-trigger tests pass |
+| Check                                                  | Result                                               |
+| ------------------------------------------------------ | ---------------------------------------------------- |
+| Postman HTTP suite                                     | 101 requests, 232 assertions passed, exit 0          |
+| Unit and PostgreSQL integration tests                  | 113 passed, zero failed/skipped                      |
+| TypeScript                                             | Pass                                                 |
+| ESLint                                                 | Pass with four pre-existing React hook warnings      |
+| Production build                                       | Pass, including type checking                        |
+| Full npm audit, including development dependencies     | Zero vulnerabilities, exit 0                         |
+| Postman collection/environment and OpenAPI syntax lint | Pass                                                 |
+| Better Auth schema generation                          | Completed and reconciled with the application schema |
+| Drizzle generation/check                               | No pending schema changes; check passes              |
+| Generated migration on isolated PostgreSQL             | Applied successfully; balance-trigger tests pass     |
 
 The passing Postman suite still includes 21 explicit 501 checks for 11 legacy route files. Those checks document unimplemented features; they do not establish that those features work. The test target was `http://127.0.0.1:3100` with a disposable PostgreSQL database and local SMTP fixture. Shared Postman files still default to `http://localhost:3000`, with each request appending `/api/...`.
 
 ## Fixes
 
-| Finding | Resolution |
-| --- | --- |
-| S1: outsider expense/settlement mutations | Every domain mutation receives the viewer ID and calls transactional guards. Expense permissions require participation or current group-admin membership; settlement deletion requires either side of the payment. Unauthorized and missing objects return the same 404. |
-| S2: forged participants and groups | Creates validate caller status, current group membership, participants, friendship/block rules, archived state and group currency before writing. Direct expenses must include the caller. |
-| S3: payments increase debt | Settlement ledger entries now reduce the payer's debt. Tests verify partial payment, deletion reversal and concurrent replay. |
-| S4: currency/financial edits leave stale ledger | Financial edits void old entries and rebuild participants, ledger and balances in one transaction. Unsupported currencies are rejected. |
-| S5: duplicate create effects | The new idempotency table atomically records creator, operation, key, original request digest and result ID. Same-body concurrent retries reuse the ID; changed-body retries return 409. The digest remains valid after later edits or deletion. |
-| S6: invalid financial input | Shared Zod validation enforces actual calendar dates, integer row bounds, unique/bounded participant lists, supported currency, and paid/exact-owed totals. Structural input errors return 400; domain balancing failures return 422. Missing keys and malformed JSON return 400. |
+| Finding                                         | Resolution                                                                                                                                                                                                                                                                        |
+| ----------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| S1: outsider expense/settlement mutations       | Every domain mutation receives the viewer ID and calls transactional guards. Expense permissions require participation or current group-admin membership; settlement deletion requires either side of the payment. Unauthorized and missing objects return the same 404.          |
+| S2: forged participants and groups              | Creates validate caller status, current group membership, participants, friendship/block rules, archived state and group currency before writing. Direct expenses must include the caller.                                                                                        |
+| S3: payments increase debt                      | Settlement ledger entries now reduce the payer's debt. Tests verify partial payment, deletion reversal and concurrent replay.                                                                                                                                                     |
+| S4: currency/financial edits leave stale ledger | Financial edits void old entries and rebuild participants, ledger and balances in one transaction. Unsupported currencies are rejected.                                                                                                                                           |
+| S5: duplicate create effects                    | The new idempotency table atomically records creator, operation, key, original request digest and result ID. Same-body concurrent retries reuse the ID; changed-body retries return 409. The digest remains valid after later edits or deletion.                                  |
+| S6: invalid financial input                     | Shared Zod validation enforces actual calendar dates, integer row bounds, unique/bounded participant lists, supported currency, and paid/exact-owed totals. Structural input errors return 400; domain balancing failures return 422. Missing keys and malformed JSON return 400. |
 
 Additional fixes:
 

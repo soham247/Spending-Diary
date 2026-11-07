@@ -27,12 +27,12 @@ treats personal spending as a first-class feature instead of an afterthought.
 
 ## 3. Target users
 
-| Persona | Situation | What they need most |
-|---|---|---|
-| **Flatmates** (primary) | 2–5 people sharing rent, groceries, utilities, Wi-Fi | Recurring bills, running balances, monthly settle-up |
-| **Trip groups** | 3–10 friends on a weekend or week-long trip | Fast entry on phones, multiple payers, a clean "who pays whom" at the end |
-| **Couples** | Two people with mixed shared and personal spending | Low friction, uneven splits, one running balance |
-| **College friends** | Frequent small expenses (food, cabs, tickets) | Speed, zero cost, invites that work over WhatsApp |
+| Persona                 | Situation                                            | What they need most                                                       |
+| ----------------------- | ---------------------------------------------------- | ------------------------------------------------------------------------- |
+| **Flatmates** (primary) | 2–5 people sharing rent, groceries, utilities, Wi-Fi | Recurring bills, running balances, monthly settle-up                      |
+| **Trip groups**         | 3–10 friends on a weekend or week-long trip          | Fast entry on phones, multiple payers, a clean "who pays whom" at the end |
+| **Couples**             | Two people with mixed shared and personal spending   | Low friction, uneven splits, one running balance                          |
+| **College friends**     | Frequent small expenses (food, cabs, tickets)        | Speed, zero cost, invites that work over WhatsApp                         |
 
 Primary device: Android phone on mobile data. The app must be fast and usable
 on a mid-range phone over a slow connection.
@@ -59,11 +59,11 @@ on a mid-range phone over a slow connection.
 
 ## 5. Phases
 
-| Phase | Theme | Scope |
-|---|---|---|
-| **1 — MVP** | Split and settle, correctly | Auth, onboarding, friends, groups, invites, expenses (equal / exact / percentage / shares), multi-payer, edit / delete / restore, balances, debt simplification, settle-up (UPI + cash), activity feed, web push, personal expenses, monthly insights |
-| **2 — Habit** | Make it stick | Recurring expenses, comments, receipts, budgets with alerts, reminders to settle, CSV export, per-user custom categories |
-| **3 — Delight** | Differentiate | Natural-language expense entry, receipt scanning with itemized split, multi-currency trips, trip summary, premium tier |
+| Phase           | Theme                       | Scope                                                                                                                                                                                                                                                 |
+| --------------- | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **1 — MVP**     | Split and settle, correctly | Auth, onboarding, friends, groups, invites, expenses (equal / exact / percentage / shares), multi-payer, edit / delete / restore, balances, debt simplification, settle-up (UPI + cash), activity feed, web push, personal expenses, monthly insights |
+| **2 — Habit**   | Make it stick               | Recurring expenses, comments, receipts, budgets with alerts, reminders to settle, CSV export, per-user custom categories                                                                                                                              |
+| **3 — Delight** | Differentiate               | Natural-language expense entry, receipt scanning with itemized split, multi-currency trips, trip summary, premium tier                                                                                                                                |
 
 Everything below is Phase 1 unless marked otherwise.
 
@@ -330,14 +330,14 @@ lands in the group with all three expenses and the correct balance.
 
 ## 9. Success metrics
 
-| Metric | Target (first 3 months) |
-|---|---|
-| Invite link → signed-in conversion | ≥ 50% |
-| Time from invite open to seeing balance | median < 20 s |
-| Median time to add an equal-split expense | < 10 s |
-| Week-4 retention of users in an active group | ≥ 40% |
-| Settlements recorded via UPI | ≥ 30% of all settlements |
-| Balance reconciliation mismatches | 0 |
+| Metric                                       | Target (first 3 months)  |
+| -------------------------------------------- | ------------------------ |
+| Invite link → signed-in conversion           | ≥ 50%                    |
+| Time from invite open to seeing balance      | median < 20 s            |
+| Median time to add an equal-split expense    | < 10 s                   |
+| Week-4 retention of users in an active group | ≥ 40%                    |
+| Settlements recorded via UPI                 | ≥ 30% of all settlements |
+| Balance reconciliation mismatches            | 0                        |
 
 ## 10. Open questions
 
