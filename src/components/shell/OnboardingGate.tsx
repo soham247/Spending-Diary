@@ -6,37 +6,49 @@ import { ProfileForm } from "@/components/profile/ProfileForm";
 import { LoadingState } from "@/components/common/LoadingState";
 import { ErrorState } from "@/components/common/ErrorState";
 import { Card, CardContent } from "@/components/ui/card";
+import { PageHeader } from "@/components/shell/PageHeader";
+import { PageLayout } from "@/components/shell/PageLayout";
+import { PageNoticeContext } from "@/components/shell/page-notice";
 export function OnboardingGate({ children }: { children: React.ReactNode }) {
   const profile = useProfile();
   const pathname = usePathname();
-  if (profile.isPending) return <LoadingState />;
+  if (profile.isPending)
+    return (
+      <PageLayout header={<PageHeader title="Spending Diary" />}>
+        <LoadingState />
+      </PageLayout>
+    );
   if (profile.isError)
-    return <ErrorState retry={() => void profile.refetch()} />;
+    return (
+      <PageLayout header={<PageHeader title="Spending Diary" />}>
+        <ErrorState retry={() => void profile.refetch()} />
+      </PageLayout>
+    );
   if (!profile.data.onboardedAt && pathname !== "/onboarding")
     return (
-      <div className="mx-auto max-w-md space-y-6">
-        <div className="space-y-2">
-          <h1 className="text-2xl font-semibold">Welcome to Spending Diary</h1>
-          <p className="text-sm leading-relaxed text-muted-foreground">
-            Choose the name your friends will see. Everything else is optional
-            and can be added later.
-          </p>
+      <PageLayout header={<PageHeader title="Welcome to Spending Diary" />}>
+        <div className="mx-auto max-w-md space-y-6">
+          <div className="space-y-2">
+            <p className="text-sm leading-relaxed text-muted-foreground">
+              Choose the name your friends will see. Everything else is optional
+              and can be added later.
+            </p>
+          </div>
+          <Card>
+            <CardContent>
+              <ProfileForm profile={profile.data} destination={pathname} />
+            </CardContent>
+          </Card>
         </div>
-        <Card>
-          <CardContent>
-            <ProfileForm profile={profile.data} destination={pathname} />
-          </CardContent>
-        </Card>
-      </div>
+      </PageLayout>
     );
   return (
-    <>
-      {!profile.data.notificationPrefs.pushPrompted && (
-        <div className="mb-6">
-          <PushPrompt />
-        </div>
-      )}
+    <PageNoticeContext
+      value={
+        !profile.data.notificationPrefs.pushPrompted ? <PushPrompt /> : null
+      }
+    >
       {children}
-    </>
+    </PageNoticeContext>
   );
 }

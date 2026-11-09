@@ -178,3 +178,22 @@ The user requested that Google authentication be disabled for now, while retaini
 ### D-034 - 2026-11-07 - One expense composer and participant picker
 
 The user approved the researched add-expense UX proposal. Replace the mixed context dropdown with one searchable people/group picker inside the existing Drawer. Global Add starts personal, friend entry selects that friend and the viewer, and group entry selects all active members. Never select the first friend automatically. Keep amount, description, date, category and notes when switching people or groups. Changing the selection resets allocations to equal and payer to the viewer; explain this before applying when a custom split or payer would be replaced. Cancelling keeps the existing selection and allocations. Group selection stays scoped to that group's active members. Single-payer selection returns immediately to the form; multiple payers and payer-excluded splits remain available. Show participant chips and domain-derived debt previews. Keep existing services, guards, transactions, idempotency and edit concurrency.
+
+### D-035 - 2026-11-08 - Open desktop form drawers from the side
+
+The user requested side-opening drawers for desktop. Shared FormDrawer opens from the right at 768px and above, fills viewport height and keeps a max-w-2xl width. Mobile retains the bottom drawer and drag handle. Keep the same mounted form when resizing, scrollable body, sticky save actions, focus management and draft/pending-write dismissal guards. This supersedes D-032's desktop bottom-drawer presentation.
+
+### D-037 - 2026-11-09 - Adaptive workspace and mobile quick navigation
+
+The user requested a sidebar-contained desktop toggle, independent content scrolling, better use of large screens and a floating mobile navigation pill. Keep the desktop collapse/expand control inside the sidebar, including its collapsed icon rail. Keep the page header outside the scrolling content area and expand the workspace to max-w-7xl, with People and Groups side by side on wide Home screens. On phones, expose Home, Spending, Groups and Friends in a labelled bottom pill; retain the complete sidebar menu for secondary destinations. Reserve bottom safe-area and content spacing, preserve keyboard focus and active-route semantics, and reset content scroll on route changes. This supersedes D-030's removal of bottom navigation and design section 5's narrow content cap. Financial services and permissions are unchanged.
+
+References: [Material adaptive navigation](https://developer.android.com/design/ui/mobile/guides/layout-and-content/layout-and-nav-patterns) for switching between mobile bottom navigation and larger-screen side navigation; [Spotify desktop redesign](https://newsroom.spotify.com/2023-06-20/spotify-desktop-experience-redesign-your-library-now-playing-views-customize/) for a persistent collapsible sidebar alongside the browsing workspace. The four-destination pill is Spending Diary's application of these patterns.
+
+### D-038 - 2026-11-09 - One responsive page header
+
+The user approved replacing the redundant global title bar with one shared PageHeader component per authenticated screen. It owns the page title, optional description and existing page actions at every width; the mobile sidebar trigger sits in the same row and is hidden on desktop. Headers scroll with content rather than reserving an extra fixed row. Keep the menu accessible in loading, error and onboarding states, retain one h1 per screen, and preserve focus restoration when the mobile menu closes. The desktop sidebar and mobile bottom pill remain the navigation surfaces. This supersedes D-037's separate fixed page header; money, authorization and drawer behavior are unchanged.
+
+### D-039 - 2026-11-09 - Compact persistent page headers
+
+The user requested a persistent page header for reliable mobile sidebar access and approved refining the shared layout with a mobile plus action on Expenses. Keep PageLayout headers outside the content scroll region at every width; this supersedes D-038's scrolling-header behavior. Use the same compact, accessible Add expense header action on Home, Expenses, group and friend details, with its full label on desktop. Preserve the existing palette, typography family, sidebar and bottom navigation. No financial behavior changes.
+

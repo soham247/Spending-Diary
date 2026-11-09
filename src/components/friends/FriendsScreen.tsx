@@ -2,26 +2,32 @@
 import Link from "next/link";
 import { useFriends } from "@/hooks/use-friends";
 import { AddPersonDrawer } from "./AddPersonDrawer";
-import { InvitePanel } from "@/components/invite/InvitePanel";
 import { LoadingState } from "@/components/common/LoadingState";
 import { ErrorState } from "@/components/common/ErrorState";
 import { EmptyState } from "@/components/common/EmptyState";
 import { Card } from "@/components/ui/card";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { PageHeader } from "@/components/shell/PageHeader";
+import { PageLayout } from "@/components/shell/PageLayout";
 export function FriendsScreen() {
   const friends = useFriends();
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-semibold">Friends</h1>
-      <InvitePanel input={{ type: "PERSONAL" }} />
-      <AddPersonDrawer />
+    <PageLayout
+      header={<PageHeader title="Friends" actions={<AddPersonDrawer />} />}
+      contentClassName="max-w-3xl"
+    >
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="text-sm font-medium text-muted-foreground">
+          Your friends
+        </h2>
+      </div>
       {friends.isPending ? (
         <LoadingState />
       ) : friends.isError ? (
         <ErrorState retry={() => void friends.refetch()} />
       ) : friends.data.length === 0 ? (
         <EmptyState>
-          Share your personal link or add someone by name to start splitting
-          expenses.
+          Add a friend or track someone by name to start splitting expenses.
         </EmptyState>
       ) : (
         <Card className="gap-0 py-0 divide-y divide-border">
@@ -29,20 +35,27 @@ export function FriendsScreen() {
             <Link
               key={friend.id}
               href={"/friends/" + friend.id}
-              className="block p-4 hover:bg-muted"
+              className="flex min-w-0 items-center gap-3 px-4 py-3 transition-colors hover:bg-muted focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring"
             >
-              {friend.name}
-              <span className="block text-sm text-muted-foreground">
-                {friend.blocked
-                  ? "Blocked"
-                  : friend.status === "INVITED"
-                    ? "Not on Spending Diary yet"
-                    : "Friend"}
+              <Avatar aria-hidden="true">
+                <AvatarFallback>
+                  {friend.name.slice(0, 1).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <span className="min-w-0 break-words font-medium">
+                {friend.name}
+                <span className="block text-sm font-normal text-muted-foreground">
+                  {friend.blocked
+                    ? "Blocked"
+                    : friend.status === "INVITED"
+                      ? "Not on Spending Diary yet"
+                      : "Friend"}
+                </span>
               </span>
             </Link>
           ))}
         </Card>
       )}
-    </div>
+    </PageLayout>
   );
 }

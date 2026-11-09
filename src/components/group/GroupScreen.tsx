@@ -17,13 +17,24 @@ import { EmptyState } from "@/components/common/EmptyState";
 import { GroupSettings } from "./GroupSettings";
 import { InvitePanel } from "@/components/invite/InvitePanel";
 import { Card } from "@/components/ui/card";
+import { PageHeaderAction } from "@/components/shell/PageHeaderAction";
+import { PageHeader } from "@/components/shell/PageHeader";
+import { PageLayout } from "@/components/shell/PageLayout";
 export function GroupScreen({ id }: { id: string }) {
   const group = useGroup(id);
   const profile = useProfile();
   const leave = useChangeMember();
   const router = useRouter();
-  if (group.isPending) return <LoadingState />;
-  if (group.isError) return <ErrorState retry={() => void group.refetch()} />;
+  if (group.isPending || group.isError)
+    return (
+      <PageLayout header={<PageHeader title="Group" />}>
+        {group.isPending ? (
+          <LoadingState />
+        ) : (
+          <ErrorState retry={() => void group.refetch()} />
+        )}
+      </PageLayout>
+    );
   const row = group.data;
   const name = (userId: string) =>
     row.members.find((p) => p.id === userId)?.name ?? "Former member";
@@ -55,19 +66,27 @@ export function GroupScreen({ id }: { id: string }) {
     }
   }
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold">{row.name}</h1>
-          <p className="text-muted-foreground">
-            {row.members.length} people · {row.currency}
-            {row.archivedAt ? " · Archived" : ""}
-          </p>
-        </div>
-        {row.canWrite && (
-          <ExpenseDrawer groupId={id} trigger={<Button>Add expense</Button>} />
-        )}
-      </div>
+    <PageLayout
+      header={
+        <PageHeader
+          title={row.name}
+          description={
+            <p>
+              {row.members.length} people · {row.currency}
+              {row.archivedAt ? " · Archived" : ""}
+            </p>
+          }
+          actions={
+            row.canWrite && (
+              <ExpenseDrawer
+                groupId={id}
+                trigger={<PageHeaderAction label="Add expense" />}
+              />
+            )
+          }
+        />
+      }
+    >
       {!row.archivedAt && profile.data && (
         <RecordPaymentSheet viewerId={profile.data.id} scopeId={id} />
       )}
@@ -182,6 +201,6 @@ export function GroupScreen({ id }: { id: string }) {
           Leave group
         </Button>
       )}
-    </div>
+    </PageLayout>
   );
 }

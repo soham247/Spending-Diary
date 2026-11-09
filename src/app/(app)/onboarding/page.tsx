@@ -1,5 +1,7 @@
 import { ProfileSettings } from "@/components/profile/ProfileSettings";
 import { safeRedirect } from "@/lib/utils/url";
+import { PageHeader } from "@/components/shell/PageHeader";
+import { PageLayout } from "@/components/shell/PageLayout";
 export default async function OnboardingPage({
   searchParams,
 }: {
@@ -7,12 +9,11 @@ export default async function OnboardingPage({
 }) {
   const { callbackUrl } = await searchParams;
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-semibold">Welcome to Spending Diary</h1>
+    <PageLayout header={<PageHeader title="Welcome to Spending Diary" />}>
       <p className="text-muted-foreground">
         Choose the name your friends will see. You can add a UPI ID later.
       </p>
       <ProfileSettings destination={safeRedirect(callbackUrl)} />
-    </div>
+    </PageLayout>
   );
 }

@@ -4,10 +4,14 @@ import { DeviceSettings } from "@/components/settings/DeviceSettings";
 import { AccountSettings } from "@/components/settings/AccountSettings";
 import { AppearanceSettings } from "@/components/settings/AppearanceSettings";
 import Link from "next/link";
+import { PageHeader } from "@/components/shell/PageHeader";
+import { PageLayout } from "@/components/shell/PageLayout";
 export default function SettingsPage() {
   return (
-    <div className="space-y-8">
-      <h1 className="text-2xl font-semibold">You</h1>
+    <PageLayout
+      header={<PageHeader title="You" />}
+      contentClassName="space-y-8"
+    >
       <Link
         href="/insights"
         className="inline-block underline underline-offset-4"
@@ -19,6 +23,6 @@ export default function SettingsPage() {
       <DeviceSettings />
       <AppearanceSettings />
       <AccountSettings />
-    </div>
+    </PageLayout>
   );
 }

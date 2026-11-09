@@ -159,6 +159,22 @@ html {
   color-scheme: light;
 }
 @layer utilities {
+  .page-gutter {
+    @apply px-4 sm:px-6 md:px-8 xl:px-10;
+  }
+  .app-content {
+    padding-bottom: calc(6rem + env(safe-area-inset-bottom));
+    scroll-padding-bottom: calc(6rem + env(safe-area-inset-bottom));
+  }
+  .mobile-navigation {
+    bottom: calc(1rem + env(safe-area-inset-bottom));
+  }
+  @media (width >= 48rem) {
+    .app-content {
+      padding-bottom: 0;
+      scroll-padding-bottom: 2rem;
+    }
+  }
   .sidebar-safe-bottom {
     padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
   }

@@ -177,8 +177,8 @@ Rules:
   above headings.
 - Meta lines are sentences or comma-separated phrases ("Priya paid ₹1,200,
   split 4 ways"), not strings joined with middle dots.
-- Line length stays under about 70 characters; the content column is at most
-  `max-w-2xl`.
+- Prose stays under about 70 characters per line. The workspace can expand
+  to `max-w-7xl`; forms retain their own narrower constraints.
 
 ### 3.3 Spacing, radius, elevation
 
@@ -256,39 +256,52 @@ files under `components/ui`.
 
 ### Desktop (>= 768 px)
 
-- A left sidebar starts expanded and can collapse to icons through the
-  header toggle or the standard Ctrl/Cmd+B shortcut. Collapsed items have
+- A left sidebar starts expanded and can collapse to icons through a toggle
+  inside its own header or the standard Ctrl/Cmd+B shortcut. Collapsed items have
   tooltips and retain accessible names.
 - The header contains the Spending Diary brand and an Add expense shortcut.
 - Main destinations: Home, My spending, Groups, Friends, Activity, Insights.
   Settings and Sign out stay at the bottom.
 - Active destinations include their detail routes and expose `aria-current`.
-- A compact page header contains the sidebar toggle and current context.
-  Content is left-aligned in a `max-w-3xl` container including page padding.
+- Every authenticated screen uses one shared `PageHeader` for its title,
+  optional description and actions. There is no separate shell title bar.
+  The header stays outside the scrolling content; the sidebar remains independent. The
+  shell fills the dynamic viewport and the content pane owns page scrolling.
+- Content uses the available width up to `max-w-7xl` including page padding.
+  Home shows People and Groups side by side from the `xl` breakpoint.
 
 ### Mobile (< 768 px)
 
-- The same sidebar opens as a shadcn Sheet from the header menu toggle.
-  It replaces the previous bottom navigation.
+- A floating bottom pill offers labelled Home, Spending, Groups and Friends
+  destinations. The active destination includes its detail routes.
+- The same sidebar opens as a shadcn Sheet from the header menu toggle,
+  retaining all destinations, including Activity, Insights and Settings.
+- The mobile menu button lives in the same `PageHeader` row as the title.
+  Title and actions wrap as needed; desktop hides only the menu button.
+  Loading, error and onboarding states retain a header with menu access.
 - The drawer has an explicit close button, traps focus, closes with Escape,
   and returns focus to the trigger. Choosing a destination closes it.
 - Navigation rows and action buttons have at least 44px touch targets on mobile.
-- The drawer footer reserves the device bottom safe area. Content needs no
-  bottom-nav spacer. At 360px, neither content nor drawer may overflow.
+- The drawer footer and bottom pill reserve the device bottom safe area.
+  Content and scroll padding reserve room for the pill so it cannot cover
+  the final row or a focused control. The pill hides while the menu is open.
+  At 360px, neither content nor drawer may overflow.
 - Group/friend expense actions retain their existing prefilled context.
 
 ### Sheets vs dialogs
 
 Forms use the official shadcn `Drawer` on both mobile and desktop through
-`components/common/FormDrawer`. Bottom drawers fill the mobile width and are
-centred at `max-w-2xl` on desktop. Height follows content up to the dynamic
+`components/common/FormDrawer`. Bottom drawers fill the mobile width. At the
+`md` breakpoint (768px) and above, drawers open from the right at full viewport
+height with a `max-w-2xl` width. Mobile height follows content up to the dynamic
 viewport; the header stays visible and the body scrolls with safe-area padding.
 Save actions stay sticky inside the body. The existing navigation sidebar
 continues to use its Sheet.
 
 Drawers provide Close, Escape and browser Back dismissal, return focus to their
 trigger, and confirm before discarding an edited draft. Pending writes and UPI
-confirmation block dismissal. Only the handle initiates dragging; edited drafts cannot be swiped away. Expense
+confirmation block dismissal. Only the mobile handle initiates dragging; desktop
+drawers have no drag handle. Edited drafts cannot be swiped away. Expense
 payer and split editors replace the composer body without nesting drawers.
 Group/person creation and nickname editing open from buttons instead of taking
 space above lists. Existing expense deep links still open their editor.
@@ -698,7 +711,7 @@ intentional exception. Retain Money and the credit/debit tokens.
 | `ActivityRow`       | `activity/`   | Section 6.13.                                                                                     |
 | `CategoryIcon`      | `expense/`    | Maps category to lucide icon in a muted square.                                                   |
 | `EmptyState`        | `common/`     | One sentence plus up to two actions. No illustrations.                                            |
-| `FormDrawer`        | `common/`     | Bottom Drawer at every breakpoint, guarded dismissal and shared form state.                       |
+| `FormDrawer`        | `common/`     | Bottom Drawer on mobile, right-side Drawer on desktop, guarded dismissal and shared form state.   |
 | `RowList`           | `common/`     | `bg-card rounded-xl border divide-y` surface for rows.                                            |
 
 ## 8. Patterns
@@ -813,3 +826,8 @@ Design direction: shared spending for friends; calm, exact and warm; a well-kept
 The Unslop polish keeps the selected font, palette and section order. Use a single surface for the dinner preview, a wider spending breakdown beside a compact repayment receipt, and the preset's `lg` action size. Keep labels direct, remove redundant directional icons, and use a quiet dashed divider to separate the bill/share summary from repayments. Preserve native desktop control sizing rather than introducing landing-only button heights.
 
 Auth Unslop direction: shared spending for friends; calm, exact and warm; the diary as a quiet working surface; one active email submit action and a clear verification result; the recognizable Google mark as a brand-specific exception to the interface icon set. Keep the selected font, palette and card structure. Tighten form grouping, place recovery beside the password label, and keep helper text brief. Google is disabled in both UI and the production provider configuration (D-033). Craft guidance: unslop by Damir Sokolovsky, CC BY 4.0 (credited above).
+
+### Persistent page headers (D-039)
+
+Keep one compact page header above the independently scrolling body on every authenticated screen, including loading, empty and error states. Use a solid background and bottom border, 8px vertical padding on mobile and 12px on desktop. Titles use 18px mobile and 20px desktop type; long names wrap. Add-expense header actions use a 44px plus button on mobile with an accessible action name and a visible label on desktop. Keep the mobile sidebar trigger in the title row and the desktop toggle inside the sidebar. Preserve existing theme tokens, focus restoration and bottom navigation. Polish follows the existing calm, exact diary direction, with financial content carrying the visual emphasis. Craft guidance: [Unslop by Damir Sokolovsky](https://heydamir.design/unslop), CC BY 4.0.
+

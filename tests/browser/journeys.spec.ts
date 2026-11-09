@@ -968,16 +968,28 @@ test("form Drawers protect drafts and adapt from mobile to desktop", async ({
   await expect(drawer.getByLabel("Group name")).toBeInViewport();
   await expect(drawer.getByLabel("Group name")).toHaveValue("Unsaved trip");
   await page.setViewportSize({ width: 360, height: 800 });
+  await expect(drawer).toHaveAttribute("data-vaul-drawer-direction", "bottom");
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= window.innerWidth,
     ),
   ).toBe(true);
   await page.setViewportSize({ width: 1440, height: 900 });
+  await expect(drawer).toHaveAttribute("data-vaul-drawer-direction", "right");
+  await expect(drawer.locator("[data-vaul-handle]")).toHaveCount(0);
+  await expect(drawer.getByLabel("Group name")).toHaveValue("Unsaved trip");
+  await expect
+    .poll(async () => {
+      const position = await drawer.boundingBox();
+      return position ? Math.abs(position.x + position.width - 1440) : Infinity;
+    })
+    .toBeLessThan(2);
   const bounds = await drawer.boundingBox();
   expect(bounds).not.toBeNull();
   expect(bounds!.width).toBeLessThanOrEqual(672);
-  expect(Math.abs(bounds!.x - (1440 - bounds!.width) / 2)).toBeLessThan(2);
+  expect(Math.abs(bounds!.x + bounds!.width - 1440)).toBeLessThan(2);
+  expect(bounds!.y).toBe(0);
+  expect(bounds!.height).toBe(900);
   await page.keyboard.press("Escape");
   await page.getByRole("button", { name: "Discard changes" }).click();
   await expect(drawer).toHaveCount(0);

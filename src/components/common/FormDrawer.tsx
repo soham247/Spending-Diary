@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { useUnsavedChanges } from "@/hooks/use-unsaved-changes";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface DrawerFormContext {
   setDirty: (dirty: boolean) => void;
@@ -77,6 +78,7 @@ export function FormDrawer({
   onDismiss?: () => void;
   children: ReactNode;
 }) {
+  const isMobile = useIsMobile();
   const [open, setOpen] = useState(defaultOpen);
   const [dirty, setDirty] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -145,14 +147,14 @@ export function FormDrawer({
           if (next) setOpen(true);
           else confirmDiscard(dismiss);
         }}
-        direction="bottom"
+        direction={isMobile ? "bottom" : "right"}
         dismissible={!busy && !dirty}
         handleOnly
         autoFocus
       >
         {trigger && <DrawerTrigger asChild>{trigger}</DrawerTrigger>}
         <DrawerContent
-          className="form-drawer-content mx-auto w-full sm:max-w-2xl"
+          className="form-drawer-content w-full data-[vaul-drawer-direction=bottom]:mx-auto data-[vaul-drawer-direction=bottom]:sm:max-w-2xl data-[vaul-drawer-direction=right]:w-full data-[vaul-drawer-direction=right]:sm:max-w-2xl"
           onEscapeKeyDown={(event) => {
             event.preventDefault();
             confirmDiscard(dismiss);
@@ -162,10 +164,12 @@ export function FormDrawer({
             confirmDiscard(dismiss);
           }}
         >
-          <DrawerPrimitive.Handle
-            preventCycle
-            className="mx-auto mt-3 h-1 w-12 shrink-0 rounded-full bg-muted"
-          />
+          {isMobile && (
+            <DrawerPrimitive.Handle
+              preventCycle
+              className="mx-auto mt-3 h-1 w-12 shrink-0 rounded-full bg-muted"
+            />
+          )}
           <DrawerHeader className="relative shrink-0 border-b border-border pr-16 group-data-[vaul-drawer-direction=bottom]/drawer-content:text-left">
             <DrawerTitle className="break-words">{title}</DrawerTitle>
             <DrawerDescription>{description}</DrawerDescription>
@@ -181,7 +185,7 @@ export function FormDrawer({
               <X aria-hidden="true" strokeWidth={1.75} />
             </Button>
           </DrawerHeader>
-          <div className="form-drawer-body min-h-0 overflow-y-auto overscroll-contain px-4 pt-4 sm:px-6">
+          <div className="form-drawer-body min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pt-4 sm:px-6">
             {open && children}
           </div>
         </DrawerContent>
