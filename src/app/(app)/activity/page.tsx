@@ -1,9 +1,10 @@
 ﻿import { ActivityFeed } from "@/components/activity/ActivityFeed";
+import { PageHeader } from "@/components/shell/PageHeader";
+import { PageLayout } from "@/components/shell/PageLayout";
 export default function ActivityPage() {
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-semibold">Activity</h1>
+    <PageLayout header={<PageHeader title="Activity" />}>
       <ActivityFeed />
-    </div>
+    </PageLayout>
   );
 }

@@ -1,7 +1,8 @@
 import { OnboardingGate } from "@/components/shell/OnboardingGate";
 import ReactQueryProvider from "@/components/ReactQueryProvider";
-import { AppNavigation } from "@/components/shell/AppNavigation";
 import { AppSidebar } from "@/components/shell/AppSidebar";
+import { AppContent } from "@/components/shell/AppContent";
+import { MobileNavigation } from "@/components/shell/MobileNavigation";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { assertServerSession } from "@/lib/auth/guards";
 
@@ -19,13 +20,13 @@ export default async function AppLayout({
       >
         Skip to content
       </a>
-      <SidebarProvider>
+      <SidebarProvider className="h-dvh min-h-0 overflow-hidden">
         <AppSidebar />
-        <SidebarInset id="main" tabIndex={-1} className="min-w-0">
-          <AppNavigation />
-          <div className="w-full max-w-3xl px-4 py-6 sm:px-6 md:px-8 md:py-8">
+        <SidebarInset className="min-h-0 min-w-0 overflow-hidden">
+          <AppContent>
             <OnboardingGate>{children}</OnboardingGate>
-          </div>
+          </AppContent>
+          <MobileNavigation />
         </SidebarInset>
       </SidebarProvider>
     </ReactQueryProvider>

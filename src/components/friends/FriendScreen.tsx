@@ -18,21 +18,31 @@ import { LoadingState } from "@/components/common/LoadingState";
 import { ErrorState } from "@/components/common/ErrorState";
 import { EmptyState } from "@/components/common/EmptyState";
 import { Card } from "@/components/ui/card";
+import { PageHeaderAction } from "@/components/shell/PageHeaderAction";
+import { PageHeader } from "@/components/shell/PageHeader";
+import { PageLayout } from "@/components/shell/PageLayout";
 export function FriendScreen({ id }: { id: string }) {
   const friend = useFriend(id);
   const profile = useProfile();
   const update = useUpdateFriend();
   const remove = useDeleteSettlement();
   const restore = useRestoreSettlement();
-  if (friend.isPending || profile.isPending) return <LoadingState />;
+  if (friend.isPending || profile.isPending)
+    return (
+      <PageLayout header={<PageHeader title="Friend" />}>
+        <LoadingState />
+      </PageLayout>
+    );
   if (friend.isError || profile.isError)
     return (
-      <ErrorState
-        retry={() => {
-          void friend.refetch();
-          void profile.refetch();
-        }}
-      />
+      <PageLayout header={<PageHeader title="Friend" />}>
+        <ErrorState
+          retry={() => {
+            void friend.refetch();
+            void profile.refetch();
+          }}
+        />
+      </PageLayout>
     );
   const row = friend.data;
   async function block() {
@@ -63,16 +73,21 @@ export function FriendScreen({ id }: { id: string }) {
     }
   }
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-semibold">{row.name}</h1>
-        {!row.blocked && (
-          <ExpenseDrawer
-            friendId={row.id}
-            trigger={<Button>Add expense</Button>}
-          />
-        )}
-      </div>
+    <PageLayout
+      header={
+        <PageHeader
+          title={row.name}
+          actions={
+            !row.blocked && (
+              <ExpenseDrawer
+                friendId={row.id}
+                trigger={<PageHeaderAction label="Add expense" />}
+              />
+            )
+          }
+        />
+      }
+    >
       <RecordPaymentSheet viewerId={profile.data.id} other={row} />
       {row.status === "INVITED" && (
         <InvitePanel input={{ type: "DIRECT", placeholderId: id }} />
@@ -168,6 +183,6 @@ export function FriendScreen({ id }: { id: string }) {
       >
         {row.blocked ? "Unblock friend" : "Block friend"}
       </Button>
-    </div>
+    </PageLayout>
   );
 }

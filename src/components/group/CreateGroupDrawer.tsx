@@ -1,7 +1,7 @@
 "use client";
 
 import { FormDrawer } from "@/components/common/FormDrawer";
-import { Button } from "@/components/ui/button";
+import { PageHeaderAction } from "@/components/shell/PageHeaderAction";
 import { CreateGroupForm } from "./CreateGroupForm";
 
 export function CreateGroupDrawer() {
@@ -9,7 +9,7 @@ export function CreateGroupDrawer() {
     <FormDrawer
       title="Create a group"
       description="Keep a trip, your flat, or everyday costs together."
-      trigger={<Button>Create group</Button>}
+      trigger={<PageHeaderAction label="Create group" />}
     >
       <CreateGroupForm />
     </FormDrawer>

@@ -3,18 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import {
-  Activity,
-  BookOpen,
-  ChartNoAxesColumn,
-  House,
-  LogOut,
-  Plus,
-  Settings,
-  Users,
-  Wallet,
-  X,
-} from "lucide-react";
+import { BookOpen, LogOut, Plus, Settings, X } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { signOut } from "@/lib/auth/auth-client";
@@ -31,23 +20,23 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarSeparator,
+  SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
 
-const links = [
-  { href: "/home", label: "Home", icon: House },
-  { href: "/expenses", label: "My spending", icon: Wallet },
-  { href: "/groups", label: "Groups", icon: BookOpen },
-  { href: "/friends", label: "Friends", icon: Users },
-  { href: "/activity", label: "Activity", icon: Activity },
-  { href: "/insights", label: "Insights", icon: ChartNoAxesColumn },
-];
+import {
+  isNavigationActive,
+  primaryNavigation,
+  secondaryNavigation,
+} from "./navigation";
+
+const links = [...primaryNavigation, ...secondaryNavigation];
 
 export function AppSidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const client = useQueryClient();
-  const { setOpenMobile } = useSidebar();
+  const { open, setOpenMobile } = useSidebar();
   const [signingOut, setSigningOut] = useState(false);
 
   async function logout() {
@@ -67,8 +56,8 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon" aria-label="Application sidebar">
       <SidebarHeader className="gap-4 pt-4">
-        <div className="flex items-center gap-1">
-          <SidebarMenu className="min-w-0 flex-1">
+        <div className="flex items-center gap-1 group-data-[collapsible=icon]:justify-center">
+          <SidebarMenu className="min-w-0 flex-1 group-data-[collapsible=icon]:hidden">
             <SidebarMenuItem>
               <SidebarMenuButton asChild size="lg" tooltip="Spending Diary">
                 <Link href="/home" onClick={() => setOpenMobile(false)}>
@@ -78,6 +67,11 @@ export function AppSidebar() {
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
+          <SidebarTrigger
+            className="hidden shrink-0 md:inline-flex"
+            aria-label="Toggle navigation"
+            aria-expanded={open}
+          />
           <Button
             variant="ghost"
             size="icon"
@@ -111,8 +105,7 @@ export function AppSidebar() {
             <nav aria-label="Main navigation">
               <SidebarMenu>
                 {links.map(({ href, label, icon: Icon }) => {
-                  const active =
-                    pathname === href || pathname.startsWith(href + "/");
+                  const active = isNavigationActive(pathname, href);
                   return (
                     <SidebarMenuItem key={href}>
                       <SidebarMenuButton

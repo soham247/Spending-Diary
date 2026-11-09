@@ -17,6 +17,8 @@ import { ErrorState } from "@/components/common/ErrorState";
 import { LoadingState } from "@/components/common/LoadingState";
 import { SpendingChart } from "./SpendingChart";
 import { Card } from "@/components/ui/card";
+import { PageHeader } from "@/components/shell/PageHeader";
+import { PageLayout } from "@/components/shell/PageLayout";
 export function InsightsScreen() {
   const [month, setMonth] = useState(() => todayDate().slice(0, 7));
   const [filter, setFilter] = useState("BOTH");
@@ -25,8 +27,7 @@ export function InsightsScreen() {
     filter === "PERSONAL" || filter === "SHARED" ? filter : undefined,
   );
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-semibold">Your spending</h1>
+    <PageLayout header={<PageHeader title="Your spending" />}>
       <div className="flex flex-wrap items-end gap-3">
         <div>
           <Label htmlFor="month">Month</Label>
@@ -85,6 +86,6 @@ export function InsightsScreen() {
         Your share of shared expenses plus your personal expenses. Payments to
         friends do not count as spending.
       </p>
-    </div>
+    </PageLayout>
   );
 }

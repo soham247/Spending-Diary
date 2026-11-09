@@ -14,6 +14,8 @@ import { Money } from "@/components/money/Money";
 import { ErrorState } from "@/components/common/ErrorState";
 import { LoadingState } from "@/components/common/LoadingState";
 import { ApiError } from "@/lib/api/client";
+import { PageHeader } from "@/components/shell/PageHeader";
+import { PageLayout } from "@/components/shell/PageLayout";
 
 export function ExpenseDetail({ id }: { id: string }) {
   const expense = useExpense(id);
@@ -44,26 +46,31 @@ export function ExpenseDetail({ id }: { id: string }) {
       toast.error("Couldn't delete. Check your connection and try again.");
     }
   }
-  if (expense.isPending) return <LoadingState />;
+  if (expense.isPending)
+    return (
+      <PageLayout header={<PageHeader title="Expense" />}>
+        <LoadingState />
+      </PageLayout>
+    );
   if (expense.isError)
     return (
-      <ErrorState
-        message={
-          expense.error instanceof ApiError &&
-          [403, 404].includes(expense.error.status)
-            ? "This page isn't available. It may have been deleted, or you may not have access."
-            : undefined
-        }
-        retry={() => void expense.refetch()}
-      />
+      <PageLayout header={<PageHeader title="Expense" />}>
+        <ErrorState
+          message={
+            expense.error instanceof ApiError &&
+            [403, 404].includes(expense.error.status)
+              ? "This page isn't available. It may have been deleted, or you may not have access."
+              : undefined
+          }
+          retry={() => void expense.refetch()}
+        />
+      </PageLayout>
     );
   const row = expense.data;
   return (
-    <div className="space-y-6">
-      <div>
-        <p className="text-sm text-muted-foreground">{row.category}</p>
-        <h1 className="text-2xl font-semibold">{row.description}</h1>
-      </div>
+    <PageLayout
+      header={<PageHeader title={row.description} description={row.category} />}
+    >
       <p className="text-3xl">
         <Money amount={row.amount} currency={row.currency} />
       </p>
@@ -109,6 +116,6 @@ export function ExpenseDetail({ id }: { id: string }) {
       <Button asChild variant="ghost">
         <Link href="/expenses">Back to expenses</Link>
       </Button>
-    </div>
+    </PageLayout>
   );
 }

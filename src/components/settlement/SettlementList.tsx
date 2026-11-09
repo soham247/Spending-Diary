@@ -14,6 +14,8 @@ import { EmptyState } from "@/components/common/EmptyState";
 import { ErrorState } from "@/components/common/ErrorState";
 import { LoadingState } from "@/components/common/LoadingState";
 import { Card } from "@/components/ui/card";
+import { PageHeader } from "@/components/shell/PageHeader";
+import { PageLayout } from "@/components/shell/PageLayout";
 export function SettlementList({
   groupId,
   friendId,
@@ -50,10 +52,9 @@ export function SettlementList({
     }
   }
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-semibold">
-        {deleted ? "Deleted payments" : "Payments"}
-      </h1>
+    <PageLayout
+      header={<PageHeader title={deleted ? "Deleted payments" : "Payments"} />}
+    >
       {profile.data && (
         <RecordPaymentSheet
           viewerId={profile.data.id}
@@ -123,6 +124,6 @@ export function SettlementList({
           Load more
         </Button>
       )}
-    </div>
+    </PageLayout>
   );
 }
