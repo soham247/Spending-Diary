@@ -1,6 +1,6 @@
 "$kind": "http-request"
 "name": "Spending rejects impossible dates"
-"order": 11000
+"order": 14000
 "method": "GET"
 "url": "{{base_url}}/api/expenses?scope=mine&from=2026-02-30"
 "queryParams":

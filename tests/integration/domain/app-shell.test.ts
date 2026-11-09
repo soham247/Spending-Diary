@@ -100,6 +100,48 @@ describe("app shell reads and profile writes", () => {
       (await listExpenses(owner, { ...filter, kind: "SHARED" })).spendingTotals,
     ).toEqual([{ currency: "INR", amount: 4500 }]);
     expect((await listExpenses(outsider, filter)).spendingTotals).toEqual([]);
+    const history = await listExpenses(owner, {
+      history: "true",
+      scope: "mine",
+    });
+    expect(history.selectedMonth).toBe("2026-11");
+    expect(history.availableMonths).toEqual(["2026-11", "2026-10"]);
+    expect(history.monthlySpending).toEqual([
+      { month: "2026-11", totals: [{ currency: "INR", amount: 22500 }] },
+    ]);
+    expect(history.items.every((row) => row.date.startsWith("2026-11"))).toBe(
+      true,
+    );
+    const allMonths = await listExpenses(owner, {
+      history: "true",
+      scope: "mine",
+      month: "all",
+    });
+    expect(allMonths.monthlySpending).toEqual([
+      { month: "2026-11", totals: [{ currency: "INR", amount: 22500 }] },
+      { month: "2026-10", totals: [{ currency: "INR", amount: 9000 }] },
+    ]);
+    const october = await listExpenses(owner, {
+      history: "true",
+      scope: "mine",
+      month: "2026-10",
+    });
+    expect(october.items).toHaveLength(1);
+    const custom = await listExpenses(owner, {
+      ...filter,
+      history: "true",
+      month: "2026-10",
+    });
+    expect(custom.monthlySpending).toEqual([
+      { month: "2026-11", totals: [{ currency: "INR", amount: 13500 }] },
+    ]);
+    expect(
+      (await listExpenses(outsider, { history: "true", scope: "mine" }))
+        .availableMonths,
+    ).toEqual([]);
+    expect(
+      (await listExpenses(owner, { history: "true", month: "2026-02" })).items,
+    ).toEqual([]);
     await deleteExpense(owner, personal);
     expect((await listExpenses(owner, filter)).spendingTotals).toEqual([
       { currency: "INR", amount: 4500 },
@@ -284,6 +326,19 @@ describe("app shell reads and profile writes", () => {
     });
     expect(spendingNext.items).toHaveLength(1);
     expect(spendingNext.spendingTotals).toEqual(spending.spendingTotals);
+    const history = await listExpenses(owner, {
+      history: "true",
+      scope: "mine",
+    });
+    expect(history.monthlySpending).toEqual([
+      { month: "2026-10", totals: [{ currency: "INR", amount: 3813 }] },
+    ]);
+    const historyNext = await listExpenses(owner, {
+      history: "true",
+      scope: "mine",
+      cursor: history.nextCursor!,
+    });
+    expect(historyNext.monthlySpending).toEqual(history.monthlySpending);
     expect((await listExpenses(outsider)).items).toEqual([]);
     expect((await listExpenses(outsider, { cursor: ids[0] })).items).toEqual(
       [],

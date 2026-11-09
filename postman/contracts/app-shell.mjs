@@ -155,4 +155,38 @@ export function appShellContract(paths, schemas) {
     },
     description: "Present for scope=mine; excludes deleted expenses.",
   };
+  list.parameters.push(
+    {
+      name: "history",
+      in: "query",
+      schema: { type: "string", enum: ["true"] },
+    },
+    {
+      name: "month",
+      in: "query",
+      schema: {
+        type: "string",
+        pattern: "^(latest|all|(?!0000)[0-9]{4}-(0[1-9]|1[0-2]))$",
+        default: "latest",
+      },
+    },
+  );
+  list.description +=
+    " history=true returns availableMonths (descending YYYY-MM), selectedMonth (YYYY-MM or null), and monthlySpending totals across every matching row, independent of pagination. month defaults to latest available month; all includes every month. Explicit from/to override month selection. Scope, kind, visibility and deleted filters apply to month availability. Monthly totals always use the viewer's owed share, exclude deleted expenses, and remain separate per currency.";
+  page.properties.availableMonths = {
+    type: "array",
+    items: { type: "string", pattern: "^[0-9]{4}-[0-9]{2}$" },
+  };
+  page.properties.selectedMonth = { type: "string", nullable: true };
+  page.properties.monthlySpending = {
+    type: "array",
+    items: {
+      type: "object",
+      required: ["month", "totals"],
+      properties: {
+        month: { type: "string" },
+        totals: page.properties.spendingTotals,
+      },
+    },
+  };
 }
