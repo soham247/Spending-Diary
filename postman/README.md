@@ -15,7 +15,7 @@ The isolated runner overrides the environment with `http://127.0.0.1:3100`. Its 
 Use Node 24 (the tested runtime), installed npm dependencies, Postman CLI and Docker Desktop. Start the disposable database once:
 
 ```powershell
-docker run --detach --rm --name spending-diary-postman-test --publish 127.0.0.1:55432:5432 --env POSTGRES_DB=spending_diary_postman_test --env POSTGRES_HOST_AUTH_METHOD=trust postgres:17-alpine
+docker run --detach --name spending-diary-postman-test --publish 127.0.0.1:55432:5432 --env POSTGRES_DB=spending_diary_postman_test --env POSTGRES_HOST_AUTH_METHOD=trust postgres:17-alpine
 npm run test:api
 ```
 
@@ -23,7 +23,7 @@ The container's trust-authenticated PostgreSQL port is bound only to loopback. T
 
 Separate authentication integration tests exercise actual verification/reset proofs against an in-memory mailbox, including single-use reset, session revocation and simulated Google ownership claims. SMTP messages and auth bodies/tokens are not logged. Signup no longer needs the standard-field fixture workaround from the baseline audit.
 
-The app and SMTP fixture stop after the run. The database container stays available for reruns; stop/remove it with `docker stop spending-diary-postman-test`. The default Next.js build directory is shared with normal dev/build commands, so finish or stop a regular dev/build process before running this suite.
+The app and SMTP fixture stop after the run. Stop the database with `docker stop spending-diary-postman-test` and restart it with `docker start spending-diary-postman-test`. Remove the stopped disposable container with `docker rm spending-diary-postman-test` only when you want to discard it. The default Next.js build directory is shared with normal dev/build commands, so finish or stop a regular dev/build process before running this suite.
 
 Override `POSTMAN_TEST_DATABASE_URL` or `POSTMAN_TEST_PORT` when necessary. The runner does not use `.env` to choose a database. Cookies and fixture IDs are written to ignored `.postman/local/local.environment.yaml`; the standard CLI transcript is saved to ignored `.postman/local/latest-run.txt`. Published environment credentials are empty.
 
