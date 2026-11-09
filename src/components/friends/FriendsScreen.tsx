@@ -2,6 +2,8 @@
 import Link from "next/link";
 import { useFriends } from "@/hooks/use-friends";
 import { AddPersonDrawer } from "./AddPersonDrawer";
+import { AddFriendDrawer } from "./AddFriendDrawer";
+import { FriendRequests } from "./FriendRequests";
 import { LoadingState } from "@/components/common/LoadingState";
 import { ErrorState } from "@/components/common/ErrorState";
 import { EmptyState } from "@/components/common/EmptyState";
@@ -13,13 +15,15 @@ export function FriendsScreen() {
   const friends = useFriends();
   return (
     <PageLayout
-      header={<PageHeader title="Friends" actions={<AddPersonDrawer />} />}
+      header={<PageHeader title="Friends" actions={<AddFriendDrawer />} />}
       contentClassName="max-w-3xl"
     >
+      <FriendRequests />
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-sm font-medium text-muted-foreground">
           Your friends
         </h2>
+        <AddPersonDrawer />
       </div>
       {friends.isPending ? (
         <LoadingState />

@@ -108,9 +108,18 @@ the same email sees the same account.
 
 ### 6.3 Friends
 
-- **FR-1** Users can add a friend by sharing their personal invite link or QR
-  code, or by adding someone by name (creating a placeholder, see 6.5).
+- **FR-1** Add friend uses one search bar for names and full emails. Names
+  search accepted friends and active shared-group members. Exact email can
+  discover another verified account only when its owner opts in; default off.
+  Email addresses are never displayed in results or connection profiles.
+  No match offers a personal connection link. Track-by-name placeholders stay
+  separate (see 6.5).
 - **FR-2** Friendships are mutual and stored once per pair.
+- **FR-6** Search and personal links create pending requests; only the
+  recipient can accept. Pending or crossed requests grant no direct-expense
+  permissions. Discovery, visibility, active identity and blocks are checked
+  again on writes. Disabling discovery closes pending incoming email-origin
+  requests; revoking a personal link closes requests made through it.
 - **FR-3** Users can have direct (non-group) expenses with any friend.
 - **FR-4** Users can block a friend. A blocked user can't add them to new
   expenses or groups. Existing balances remain visible.
@@ -142,8 +151,10 @@ the same email sees the same account.
 - **INV-2 Direct invite.** When a user adds someone who isn't on the app, the
   app creates a placeholder person and records expenses against them
   immediately. It then produces a single-use link for that person.
-- **INV-3 Personal link and QR.** Every user has a permanent link and QR code
-  that adds them as a friend.
+- **INV-3 Personal link and QR.** Users can generate, share, copy or revoke
+  their connection link and QR. Opening it offers a friend request, which its
+  owner must accept. It works while email discovery is off and reveals no
+  email, balances or expense history.
 - **INV-4** Invites are sent through the inviter's own apps: the share button
   opens the device share sheet (WhatsApp first in the list on most Android
   phones). The app itself never sends invite messages.
@@ -155,7 +166,8 @@ the same email sees the same account.
 - **INV-6** Claiming a direct invite merges the placeholder's history into the
   signed-in account, including when the claimer already had an account.
 - **INV-7** After a direct invite is claimed, the inviter is notified with the
-  claimer's name and email, and can report a wrong claim.
+  claimer's name, and can report a wrong claim. Claim emails are not exposed
+  in activity responses, including historical records.
 - **INV-8** Placeholders can't log in and never receive email.
 
 Acceptance: Priya adds "Rahul" to three expenses before Rahul has an account.

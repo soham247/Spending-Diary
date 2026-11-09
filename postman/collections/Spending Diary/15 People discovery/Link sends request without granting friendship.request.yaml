@@ -1,0 +1,29 @@
+"$kind": "http-request"
+"name": "Link sends request without granting friendship"
+"order": 18000
+"method": "POST"
+"url": "{{base_url}}/api/friends/requests"
+"settings":
+  "followRedirects": false
+"headers":
+  - "key": "Cookie"
+    "value": "{{owner_cookie}}"
+  - "key": "Origin"
+    "value": "{{base_url}}"
+  - "key": "Content-Type"
+    "value": "application/json"
+  - "key": "Idempotency-Key"
+    "value": "{{run_id}}-link-request"
+"body":
+  "type": "json"
+  "content": |-
+    {
+      "token": "{{discovery_token}}"
+    }
+"scripts":
+  - "type": "afterResponse"
+    "language": "text/javascript"
+    "code": |-
+      pm.test('HTTP 201', () => pm.response.to.have.status(201));
+      pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });
+      if (pm.response.code === 201) pm.collectionVariables.set('discovery_link_request_id', pm.response.json().data.id); pm.test('Created resource ID', () => pm.expect(pm.response.json().data.id).to.be.a('string'));

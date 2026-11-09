@@ -20,6 +20,8 @@ export function InviteLanding({
   async function join() {
     try {
       const result = await claim.mutateAsync(token);
+      if (preview.data?.type === "PERSONAL")
+        toast.success("Friend request sent. They will need to accept.");
       router.replace(result.destination);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Couldn't claim invitation");
@@ -52,6 +54,12 @@ export function InviteLanding({
       </h1>
       {row.type === "GROUP_LINK" && (
         <p className="text-muted-foreground">{row.memberCount} people</p>
+      )}
+      {row.type === "PERSONAL" && (
+        <p className="text-muted-foreground">
+          Send a friend request. You can share direct expenses after they
+          accept. Your email stays private.
+        </p>
       )}
       {row.balances.map((balance) => (
         <p key={balance.currency}>
@@ -88,7 +96,7 @@ export function InviteLanding({
               ? "Claim your history"
               : row.type === "GROUP_LINK"
                 ? "Join group"
-                : "Add friend"}
+                : "Send friend request"}
         </Button>
       ) : (
         <div className="space-y-3">

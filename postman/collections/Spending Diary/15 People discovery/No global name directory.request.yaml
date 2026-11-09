@@ -1,0 +1,27 @@
+"$kind": "http-request"
+"name": "No global name directory"
+"order": 3000
+"method": "POST"
+"url": "{{base_url}}/api/people/search"
+"settings":
+  "followRedirects": false
+"headers":
+  - "key": "Cookie"
+    "value": "{{discovery_cookie}}"
+  - "key": "Origin"
+    "value": "{{base_url}}"
+  - "key": "Content-Type"
+    "value": "application/json"
+"body":
+  "type": "json"
+  "content": |-
+    {
+      "query": "Postman"
+    }
+"scripts":
+  - "type": "afterResponse"
+    "language": "text/javascript"
+    "code": |-
+      pm.test('HTTP 200', () => pm.response.to.have.status(200));
+      pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });
+      pm.test('No unrelated users exposed by name',()=>pm.expect(pm.response.json().data).to.eql([]));

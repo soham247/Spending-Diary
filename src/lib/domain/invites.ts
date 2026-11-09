@@ -1,15 +1,16 @@
 ﻿import "server-only";
 import { createHash, createHmac } from "node:crypto";
+import { createId } from "@paralleldrive/cuid2";
 import { alias } from "drizzle-orm/pg-core";
 import { and, eq, isNull, desc } from "drizzle-orm";
-import { db, type DbTx } from "@/lib/db/client";
+import { db } from "@/lib/db/client";
 import {
   invites,
+  friendRequests,
   users,
   groups,
   groupMembers,
   contacts,
-  friendships,
   idempotencyRecords,
   balances,
   inviteClaimReports,
@@ -32,6 +33,7 @@ import {
 import { reserveIdempotency } from "./idempotency";
 import { recordActivity } from "./activity";
 import { mergePlaceholder } from "./merge";
+import { sendFriendRequest } from "./people";
 import { toSafeNumber } from "@/lib/utils/to-safe-number";
 
 function tokenFor(id: string) {
@@ -163,6 +165,15 @@ export async function revokeInvite(viewerId: string, id: string) {
       .update(invites)
       .set({ revokedAt: new Date() })
       .where(eq(invites.id, id));
+    await tx
+      .update(friendRequests)
+      .set({ status: "DECLINED", respondedAt: new Date() })
+      .where(
+        and(
+          eq(friendRequests.inviteId, id),
+          eq(friendRequests.status, "PENDING"),
+        ),
+      );
   });
 }
 export async function previewInvite(rawToken: string) {
@@ -276,19 +287,25 @@ export async function previewInvite(rawToken: string) {
     })),
   };
 }
-async function connect(tx: DbTx, viewerId: string, otherId: string) {
-  await assertCanConnect(viewerId, otherId, tx);
-  const [low, high] = orderPair(viewerId, otherId);
-  await tx
-    .insert(friendships)
-    .values({ userLowId: low, userHighId: high })
-    .onConflictDoNothing();
-}
 export async function claimGroupOrPersonalInvite(
   viewerId: string,
   rawToken: string,
 ) {
   const token = tokenSchema.parse(rawToken);
+  const [personal] = await db
+    .select({ id: invites.id })
+    .from(invites)
+    .where(
+      and(eq(invites.tokenHash, hash(token)), eq(invites.type, "PERSONAL")),
+    );
+  if (personal) {
+    await sendFriendRequest(
+      viewerId,
+      { token },
+      "personal:" + personal.id + ":" + createId(),
+    );
+    return { destination: "/friends" };
+  }
   return db.transaction(async (tx) => {
     await assertActiveViewer(viewerId, tx);
     const [row] = await tx
@@ -311,7 +328,7 @@ export async function claimGroupOrPersonalInvite(
     if (row.type === "DIRECT") {
       await mergePlaceholder(viewerId, row.inviteeUserId!, tx);
       const [claimer] = await tx
-        .select({ name: users.name, email: users.email })
+        .select({ name: users.name })
         .from(users)
         .where(eq(users.id, viewerId));
       await recordActivity(tx, viewerId, {
@@ -323,7 +340,6 @@ export async function claimGroupOrPersonalInvite(
           after: {
             userId: viewerId,
             name: claimer!.name,
-            email: claimer!.email,
           },
         },
       });
@@ -385,7 +401,7 @@ export async function claimGroupOrPersonalInvite(
           metadata: { description: "Joined " + group.name },
         });
       destination = "/groups/" + group.id;
-    } else await connect(tx, viewerId, row.inviterId);
+    } else throw new NotFoundError();
     await tx
       .update(invites)
       .set({ useCount: row.useCount + 1 })

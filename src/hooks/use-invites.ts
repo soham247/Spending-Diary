@@ -12,7 +12,12 @@ export function useCreateInvite() {
   return useMutation({ mutationFn: apiCreateInvite });
 }
 export function useRevokeInvite() {
-  return useMutation({ mutationFn: apiRevokeInvite });
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: apiRevokeInvite,
+    onSuccess: () =>
+      client.invalidateQueries({ queryKey: queryKeys.friends.requests() }),
+  });
 }
 export function useInvitePreview(token: string) {
   return useQuery({

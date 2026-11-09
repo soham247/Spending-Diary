@@ -1,6 +1,9 @@
 import "server-only";
 import type { z } from "zod";
-import { activityListSchema } from "@/lib/validation/activity";
+import {
+  activityListSchema,
+  claimActivityDetailsSchema,
+} from "@/lib/validation/activity";
 import { and, eq, desc, lt, or } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { db } from "@/lib/db/client";
@@ -76,6 +79,17 @@ export async function listActivity(
   return {
     items: rows.slice(0, 30).map((row) => ({
       ...row,
+      ...(row.type === "INVITE_CLAIMED"
+        ? {
+            metadata: {
+              description: "your invitation",
+              before:
+                claimActivityDetailsSchema.safeParse(row.metadata).data
+                  ?.before ?? {},
+              after: { name: row.actorName },
+            },
+          }
+        : {}),
       canReportClaim: row.type === "INVITE_CLAIMED" && row.actorId !== viewerId,
     })),
     nextCursor: rows.length > 30 ? rows[29]!.id : null,

@@ -48,6 +48,18 @@
     "status": "implemented"
   },
   {
+    "file": "src/app/api/friends/requests/route.ts",
+    "path": "/api/friends/requests",
+    "methods": ["GET", "POST"],
+    "status": "implemented"
+  },
+  {
+    "file": "src/app/api/friends/requests/[id]/route.ts",
+    "path": "/api/friends/requests/{id}",
+    "methods": ["PATCH"],
+    "status": "implemented"
+  },
+  {
     "file": "src/app/api/friends/route.ts",
     "path": "/api/friends",
     "methods": ["GET", "POST"],
@@ -123,6 +135,12 @@
     "file": "src/app/api/me/route.ts",
     "path": "/api/me",
     "methods": ["GET", "PATCH"],
+    "status": "implemented"
+  },
+  {
+    "file": "src/app/api/people/search/route.ts",
+    "path": "/api/people/search",
+    "methods": ["POST"],
     "status": "implemented"
   },
   {

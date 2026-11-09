@@ -1,0 +1,27 @@
+"$kind": "http-request"
+"name": "Find registered person by exact email"
+"order": 8000
+"method": "POST"
+"url": "{{base_url}}/api/people/search"
+"settings":
+  "followRedirects": false
+"headers":
+  - "key": "Cookie"
+    "value": "{{owner_cookie}}"
+  - "key": "Origin"
+    "value": "{{base_url}}"
+  - "key": "Content-Type"
+    "value": "application/json"
+"body":
+  "type": "json"
+  "content": |-
+    {
+      "query": "{{discovery_email}}"
+    }
+"scripts":
+  - "type": "afterResponse"
+    "language": "text/javascript"
+    "code": |-
+      pm.test('HTTP 200', () => pm.response.to.have.status(200));
+      pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });
+      pm.test('Minimal identity only',()=>{const p=pm.response.json().data[0];pm.expect(p.id).to.eql(pm.environment.get('discovery_id'));pm.expect(p).not.to.have.property('email');pm.expect(p).not.to.have.property('phone');pm.expect(p).not.to.have.property('balances');});

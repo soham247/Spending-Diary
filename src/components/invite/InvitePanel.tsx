@@ -18,7 +18,13 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useCreateInvite, useRevokeInvite } from "@/hooks/use-invites";
 import type { CreateInviteInput } from "@/lib/validation/invite";
-export function InvitePanel({ input }: { input: CreateInviteInput }) {
+export function InvitePanel({
+  input,
+  createLabel = "Create invite link",
+}: {
+  input: CreateInviteInput;
+  createLabel?: string;
+}) {
   const inputId = useId();
   const create = useCreateInvite();
   const revoke = useRevokeInvite();
@@ -68,11 +74,13 @@ export function InvitePanel({ input }: { input: CreateInviteInput }) {
     <div className="space-y-3">
       {!invite ? (
         <Button
+          type="button"
           variant="outline"
           onClick={() => void generate()}
+          className="min-h-11"
           disabled={create.isPending}
         >
-          {create.isPending ? "Creating…" : "Create invite link"}
+          {create.isPending ? "Creating…" : createLabel}
         </Button>
       ) : (
         <>
@@ -89,8 +97,15 @@ export function InvitePanel({ input }: { input: CreateInviteInput }) {
             onFocus={(e) => e.currentTarget.select()}
           />
           <div className="flex flex-wrap gap-3">
-            <Button onClick={() => void share()}>Share invite link</Button>
             <Button
+              type="button"
+              className="min-h-11"
+              onClick={() => void share()}
+            >
+              Share invite link
+            </Button>
+            <Button
+              type="button"
               variant="outline"
               onClick={() =>
                 void navigator.clipboard
@@ -98,12 +113,15 @@ export function InvitePanel({ input }: { input: CreateInviteInput }) {
                   .then(() => toast.success("Link copied"))
                   .catch(() => toast.error("Select and copy the link above."))
               }
+              className="min-h-11"
             >
               Copy link
             </Button>
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="outline">Revoke link</Button>
+                <Button type="button" variant="outline" className="min-h-11">
+                  Revoke link
+                </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
@@ -123,7 +141,7 @@ export function InvitePanel({ input }: { input: CreateInviteInput }) {
           </div>
           <p className="text-sm text-muted-foreground">
             {input.type === "PERSONAL"
-              ? "Your personal link does not expire."
+              ? "People with this link can send you a request. You choose whether to accept. Revoke it to stop new requests."
               : input.type === "DIRECT"
                 ? "This link can be claimed once and expires after 30 days."
                 : "This link expires after 14 days."}
