@@ -45,7 +45,10 @@ export function OnboardingGate({ children }: { children: React.ReactNode }) {
   return (
     <PageNoticeContext
       value={
-        !profile.data.notificationPrefs.pushPrompted ? <PushPrompt /> : null
+        pathname !== "/settings" &&
+        !profile.data.notificationPrefs.pushPrompted ? (
+          <PushPrompt />
+        ) : null
       }
     >
       {children}

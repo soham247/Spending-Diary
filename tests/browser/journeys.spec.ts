@@ -332,7 +332,7 @@ test("group creation and shared split preview work without horizontal overflow i
     page.getByRole("heading", { name: "Browser group dinner" }),
   ).toBeVisible();
   await page.goto("/settings");
-  await page.getByRole("button", { name: "dark", exact: true }).click();
+  await page.getByRole("radio", { name: "Dark", exact: true }).click();
   await expect(page.locator("html")).toHaveClass(/dark/);
   await page.setViewportSize({ width: 360, height: 800 });
   expect(

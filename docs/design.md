@@ -644,12 +644,27 @@ Totals cover all matching pages and exclude deleted expenses and settlements.
 Invalid date ranges show an inline error; loading and failures never show a false
 zero. Empty valid ranges show zero with guidance to change dates or add an expense.
 
-### 6.15 Settings (inside "You")
+### 6.15 Settings
 
 Grouped rows: Profile (name, photo, phone, UPI ID), Notifications (a `Switch`
 per type), Devices (sessions with "Sign out"), Appearance (Light / Dark /
 System), and at the bottom "Sign out" and "Delete account" (`destructive`,
 with an `AlertDialog` because this one is irreversible).
+
+Use the Settings page title and a consistent section layout: Profile, Privacy,
+Notifications, Signed-in devices, Appearance and Account. Stack section headings
+above controls on mobile and align them in a separate column on large screens.
+Keep section headings free of descriptive subtitles and omit the extra page
+introduction, auto-save explanation, system-theme explanation and pre-deletion
+confirmation hint. Retain necessary field labels, privacy guidance, errors and
+the irreversible-deletion explanation inside its confirmation dialog.
+
+Use the preset's controls and semantic tokens, including the CLI-generated radio
+group for Light, Dark and System. The profile has its own Save profile action;
+switches retain their existing immediate-save behavior. Align View spending
+insights with the content text at the left on mobile, and place it on the right
+from the small breakpoint. Keep the existing page shell and mobile safe areas.
+Design refinement follows [Unslop by Damir Sokolovsky](https://heydamir.design/unslop), CC BY 4.0.
 
 ## 7. Components
 
