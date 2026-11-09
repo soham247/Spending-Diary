@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, BookOpen } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import { BrandIcon } from "@/components/brand/BrandIcon";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -24,7 +25,7 @@ export default function AuthLayout({
           href="/"
           className="flex min-h-11 items-center gap-2 rounded-md text-sm font-semibold focus-visible:outline-2 focus-visible:outline-ring"
         >
-          <BookOpen className="size-5" strokeWidth={1.75} aria-hidden="true" />
+          <BrandIcon />
           Spending Diary
         </Link>
         <Button asChild variant="ghost" className="transition-colors">

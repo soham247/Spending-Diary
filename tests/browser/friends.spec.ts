@@ -43,7 +43,7 @@ test("email privacy persists, stale results cannot connect, and private links re
     ).data as { name: string; email: string; id: string };
     await recipient.goto("/settings");
     const preference = recipient.getByRole("switch", {
-      name: "Let people find me using my email",
+      name: "Find me by email",
     });
     await expect(preference).not.toBeChecked();
     await page.goto("/friends");

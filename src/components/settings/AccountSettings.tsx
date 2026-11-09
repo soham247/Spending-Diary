@@ -3,13 +3,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useAnonymizeAccount } from "@/hooks/use-sessions";
-import { signIn } from "@/lib/auth/auth-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { SettingsSection } from "./SettingsSection";
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -20,9 +19,12 @@ import {
 } from "@/components/ui/alert-dialog";
 export function AccountSettings() {
   const [password, setPassword] = useState("");
+  const [open, setOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const remove = useAnonymizeAccount();
   const router = useRouter();
   async function anonymize() {
+    setError(null);
     try {
       await remove.mutateAsync(password || undefined);
       setPassword("");
@@ -30,17 +32,27 @@ export function AccountSettings() {
       router.refresh();
     } catch (e) {
       setPassword("");
-      toast.error(e instanceof Error ? e.message : "Couldn't delete account");
+      const message =
+        e instanceof Error ? e.message : "Couldn't delete account";
+      setError(message);
+      toast.error(message);
     }
   }
   return (
-    <section className="space-y-3">
-      <h2 className="text-lg font-semibold">Account</h2>
+    <SettingsSection title="Account">
       <p className="text-sm text-muted-foreground">
         Account deletion replaces your identity with “Former member”. Shared
         financial history and balances remain.
       </p>
-      <AlertDialog>
+      <AlertDialog
+        open={open}
+        onOpenChange={(value) => {
+          if (remove.isPending) return;
+          setOpen(value);
+          setPassword("");
+          setError(null);
+        }}
+      >
         <AlertDialogTrigger asChild>
           <Button variant="destructive">Delete account</Button>
         </AlertDialogTrigger>
@@ -53,39 +65,50 @@ export function AccountSettings() {
               member.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <Label htmlFor="delete-password">
-            Current password (for password accounts)
-          </Label>
-          <Input
-            id="delete-password"
-            type="password"
-            autoComplete="current-password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-          />
-          <Button
-            variant="outline"
-            onClick={() =>
-              void signIn
-                .social({ provider: "google", callbackURL: "/settings" })
-                .catch(() => toast.error("Couldn't start Google sign-in"))
-            }
+          <form
+            onSubmit={(event) => {
+              event.preventDefault();
+              if (!remove.isPending) void anonymize();
+            }}
+            className="space-y-4"
           >
-            Sign in with Google again
-          </Button>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setPassword("")}>
-              Cancel
-            </AlertDialogCancel>
-            <AlertDialogAction
+            <Label htmlFor="delete-password">
+              Current password (for password accounts)
+            </Label>
+            <Input
+              id="delete-password"
+              type="password"
+              autoComplete="current-password"
+              value={password}
               disabled={remove.isPending}
-              onClick={() => void anonymize()}
-            >
-              Delete account
-            </AlertDialogAction>
-          </AlertDialogFooter>
+              aria-invalid={!!error}
+              aria-describedby={error ? "delete-account-error" : undefined}
+              onChange={(event) => setPassword(event.target.value)}
+            />
+            {error && (
+              <p
+                id="delete-account-error"
+                role="alert"
+                className="text-sm text-destructive"
+              >
+                {error}
+              </p>
+            )}
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={remove.isPending}>
+                Cancel
+              </AlertDialogCancel>
+              <Button
+                type="submit"
+                variant="destructive"
+                disabled={remove.isPending}
+              >
+                {remove.isPending ? "Deleting…" : "Delete account"}
+              </Button>
+            </AlertDialogFooter>
+          </form>
         </AlertDialogContent>
       </AlertDialog>
-    </section>
+    </SettingsSection>
   );
 }

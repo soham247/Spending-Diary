@@ -8,7 +8,8 @@
   event.waitUntil(
     self.registration.showNotification(data.title || "Spending Diary", {
       body: data.body || "Your shared expenses have an update.",
-      icon: "/favicon.ico",
+      icon: "/brand/icon-192.png",
+      badge: "/brand/badge-96.png",
       tag: data.tag,
       data: { url: data.url || "/activity" },
     }),

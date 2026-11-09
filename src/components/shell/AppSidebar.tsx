@@ -3,11 +3,12 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { BookOpen, LogOut, Plus, Settings, X } from "lucide-react";
+import { LogOut, Plus, Settings, X } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { signOut } from "@/lib/auth/auth-client";
 import { Button } from "@/components/ui/button";
+import { BrandIcon } from "@/components/brand/BrandIcon";
 import {
   Sidebar,
   SidebarContent,
@@ -61,7 +62,7 @@ export function AppSidebar() {
             <SidebarMenuItem>
               <SidebarMenuButton asChild size="lg" tooltip="Spending Diary">
                 <Link href="/home" onClick={() => setOpenMobile(false)}>
-                  <BookOpen strokeWidth={1.75} aria-hidden="true" />
+                  <BrandIcon />
                   <span className="font-semibold">Spending Diary</span>
                 </Link>
               </SidebarMenuButton>

@@ -6,13 +6,11 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { ErrorState } from "@/components/common/ErrorState";
 import { LoadingState } from "@/components/common/LoadingState";
+import { SettingsSection } from "./SettingsSection";
 
 export function DiscoverySettings() {
   const profile = useProfile();
   const update = useUpdateProfile();
-  if (profile.isPending) return <LoadingState />;
-  if (profile.isError)
-    return <ErrorState retry={() => void profile.refetch()} />;
   async function change(value: boolean) {
     try {
       await update.mutateAsync({ discoverableByEmail: value });
@@ -22,25 +20,34 @@ export function DiscoverySettings() {
     }
   }
   return (
-    <section className="max-w-md space-y-3" aria-label="Privacy">
-      <h2 className="text-lg font-semibold">Privacy</h2>
-      <div className="flex min-h-11 items-center justify-between gap-4">
-        <Label htmlFor="email-discovery">
-          Let people find me using my email
-        </Label>
-        <Switch
-          id="email-discovery"
-          checked={profile.data.discoverableByEmail}
-          disabled={update.isPending}
-          onCheckedChange={(value) => void change(value)}
-          aria-describedby="email-discovery-help"
-        />
-      </div>
-      <p id="email-discovery-help" className="text-sm text-muted-foreground">
-        People who know your full email can send a request. Your email stays
-        private. Turning this off also closes pending requests found through
-        your email. Your friends, shared groups and connection links still work.
-      </p>
-    </section>
+    <SettingsSection title="Privacy">
+      {profile.isPending ? (
+        <LoadingState />
+      ) : profile.isError ? (
+        <ErrorState retry={() => void profile.refetch()} />
+      ) : (
+        <>
+          <div className="flex items-center justify-between gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="email-discovery">Find me by email</Label>
+              <p
+                id="email-discovery-help"
+                className="text-sm text-muted-foreground"
+              >
+                People who know your full email can send a friend request. Your
+                email stays private.
+              </p>
+            </div>
+            <Switch
+              id="email-discovery"
+              checked={profile.data.discoverableByEmail}
+              disabled={update.isPending}
+              onCheckedChange={(value) => void change(value)}
+              aria-describedby="email-discovery-help"
+            />
+          </div>
+        </>
+      )}
+    </SettingsSection>
   );
 }

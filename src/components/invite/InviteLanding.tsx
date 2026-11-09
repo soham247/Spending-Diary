@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Money } from "@/components/money/Money";
 import { LoadingState } from "@/components/common/LoadingState";
 import { Card } from "@/components/ui/card";
+import { BrandIcon } from "@/components/brand/BrandIcon";
 export function InviteLanding({
   token,
   signedIn,
@@ -44,7 +45,10 @@ export function InviteLanding({
   const callback = "/j/" + token;
   return (
     <div className="space-y-6">
-      <p className="font-semibold">Spending Diary</p>
+      <p className="flex items-center gap-2 font-semibold">
+        <BrandIcon />
+        Spending Diary
+      </p>
       <h1 className="text-2xl font-semibold">
         {row.type === "GROUP_LINK"
           ? row.inviterName + " invited you to " + row.groupName

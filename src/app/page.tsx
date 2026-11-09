@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowRight, BookOpen } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import { BrandIcon } from "@/components/brand/BrandIcon";
 import { getOptionalSession } from "@/lib/auth/guards";
 import { Button } from "@/components/ui/button";
 import { BalancePreview } from "@/components/landing/BalancePreview";
@@ -23,11 +24,7 @@ export default async function LandingPage() {
           aria-label="Spending Diary home"
           className="flex min-h-11 items-center gap-2 rounded-md font-semibold focus-visible:outline-2 focus-visible:outline-ring"
         >
-          <BookOpen
-            className="size-5 shrink-0"
-            strokeWidth={1.75}
-            aria-hidden="true"
-          />
+          <BrandIcon />
           Spending Diary
         </Link>
         <nav
@@ -170,7 +167,10 @@ export default async function LandingPage() {
         </section>
       </main>
       <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-border py-5 text-xs text-muted-foreground">
-        <span>Spending Diary</span>
+        <span className="flex items-center gap-2">
+          <BrandIcon className="size-5" />
+          Spending Diary
+        </span>
         <span>Shared expenses. Personal spending</span>
       </footer>
     </div>
