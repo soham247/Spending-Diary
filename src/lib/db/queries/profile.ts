@@ -11,6 +11,7 @@ export async function getProfile(viewerId: string) {
       id: users.id,
       name: users.name,
       email: users.email,
+      discoverableByEmail: users.discoverableByEmail,
       image: users.image,
       phone: users.phone,
       upiId: users.upiId,

@@ -9,6 +9,8 @@ import {
   restoreSettlement,
 } from "@/lib/domain/settlements";
 import { listSettlements } from "@/lib/db/queries/settlements";
+import { listFriendRequests } from "@/lib/db/queries/people";
+import { respondFriendRequest } from "@/lib/domain/people";
 let owner: string;
 let member: string;
 let outsider: string;
@@ -24,6 +26,8 @@ beforeEach(async () => {
   );
   const invite = await createInvite(owner, { type: "PERSONAL" }, createId());
   await claimGroupOrPersonalInvite(member, invite.token);
+  const [request] = (await listFriendRequests(owner)).items;
+  await respondFriendRequest(owner, request!.id, { action: "ACCEPT" });
 });
 describe("payment history", () => {
   it("paginates date ties, scopes cursors and restores deleted payments", async () => {

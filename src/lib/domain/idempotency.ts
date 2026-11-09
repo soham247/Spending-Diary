@@ -28,7 +28,8 @@ export async function reserveIdempotency(
     | "group"
     | "placeholder"
     | "invite"
-    | "invite-report",
+    | "invite-report"
+    | "friend-request",
   key: string,
   input: unknown,
 ) {

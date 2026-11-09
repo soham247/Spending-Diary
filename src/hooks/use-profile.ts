@@ -10,8 +10,12 @@ export function useUpdateProfile() {
   const client = useQueryClient();
   return useMutation({
     mutationFn: apiUpdateProfile,
-    onSuccess: (profile) => {
+    onSuccess: async (profile) => {
       client.setQueryData(queryKeys.me(), profile);
+      await Promise.all([
+        client.invalidateQueries({ queryKey: queryKeys.me() }),
+        client.invalidateQueries({ queryKey: queryKeys.friends.all() }),
+      ]);
     },
   });
 }

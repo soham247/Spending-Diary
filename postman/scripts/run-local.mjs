@@ -177,7 +177,8 @@ try {
   console.log(
     "Creating disposable users and signing in through the real application APIs; SMTP is local-only.",
   );
-  for (const role of ["owner", "friend", "outsider"]) {
+  for (const role of ["owner", "friend", "outsider", "discovery"]) {
+    if (role === "discovery") await delay(11000);
     const email = `${role}-${runId}@example.test`;
     const password = randomBytes(24).toString("base64url");
     const { user } = await (

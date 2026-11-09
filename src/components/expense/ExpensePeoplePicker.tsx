@@ -1,8 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Check } from "lucide-react";
 import { useGroup } from "@/hooks/use-groups";
 import { Button } from "@/components/ui/button";
@@ -13,7 +11,7 @@ import { Card } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { LoadingState } from "@/components/common/LoadingState";
 import { ErrorState } from "@/components/common/ErrorState";
-import { useFormDrawer } from "@/components/common/FormDrawer";
+import { PeopleSearchResults } from "@/components/friends/PeopleSearchResults";
 
 type Person = { id: string; name: string };
 export type ExpenseComposer = {
@@ -43,8 +41,13 @@ export function ExpensePeoplePicker({
   onCancel: () => void;
 }) {
   const [scope, setScope] = useState(selection.groupId);
-  const drawer = useFormDrawer();
-  const router = useRouter();
+  const [addedPeople, setAddedPeople] = useState<Person[]>([]);
+  const friends = [
+    ...composer.friends,
+    ...addedPeople.filter(
+      (person) => !composer.friends.some((friend) => friend.id === person.id),
+    ),
+  ];
   const [selectedIds, setSelectedIds] = useState(
     selection.groupId ? [composer.viewer.id] : selection.selectedIds,
   );
@@ -73,9 +76,13 @@ export function ExpensePeoplePicker({
       <Input
         id="expense-people-search"
         name="people-search"
+        maxLength={254}
+        spellCheck={false}
+        autoCapitalize="none"
+        autoCorrect="off"
         autoComplete="off"
         type="search"
-        placeholder="Search by name…"
+        placeholder="Search by name or full email"
         value={search}
         onChange={(event) => setSearch(event.target.value)}
         onKeyDown={(event) => {
@@ -141,7 +148,7 @@ export function ExpensePeoplePicker({
       <section aria-label="Friends" className="space-y-2">
         <h3 className="font-medium">Friends</h3>
         <Card className="gap-0 divide-y divide-border py-0">
-          {[composer.viewer, ...composer.friends]
+          {[composer.viewer, ...friends]
             .filter(
               (person) => person.id === composer.viewer.id || matches(person),
             )
@@ -169,25 +176,24 @@ export function ExpensePeoplePicker({
               </div>
             ))}
         </Card>
-        {!composer.friends.filter(matches).length && (
-          <p className="text-sm text-muted-foreground">
-            No matching friends.{" "}
-            <Link
-              className="underline"
-              href="/friends"
-              onClick={(event) => {
-                if (!drawer) return;
-                event.preventDefault();
-                drawer.confirmDiscard(() =>
-                  drawer.complete(() => router.push("/friends")),
-                );
-              }}
-            >
-              Add a friend
-            </Link>{" "}
-            to split with someone new.
-          </p>
-        )}
+        <PeopleSearchResults
+          excludeIds={friends.map((person) => person.id)}
+          query={search}
+          selectedIds={scope ? [] : selectedIds}
+          onSelect={(person) => {
+            setScope(null);
+            setAddedPeople((current) => [
+              ...current.filter((item) => item.id !== person.id),
+              person,
+            ]);
+            setSelectedIds((current) => [
+              ...new Set([
+                ...(scope ? [composer.viewer.id] : current),
+                person.id,
+              ]),
+            ]);
+          }}
+        />
       </section>
       {changed && resetWarning && (
         <Alert>
@@ -221,7 +227,7 @@ export function ExpensePeoplePicker({
             else if (!scope)
               onApply({
                 groupId: null,
-                people: [composer.viewer, ...composer.friends],
+                people: [composer.viewer, ...friends],
                 selectedIds,
               });
           }}

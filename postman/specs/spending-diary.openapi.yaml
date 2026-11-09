@@ -490,6 +490,221 @@
           "description": "Version or idempotency conflict"
         "422":
           "description": "Domain invariant violated"
+  "/api/friends/requests":
+    "get":
+      "operationId": "listFriendRequests"
+      "tags":
+        - "Friends"
+      "security":
+        - "sessionCookie": []
+      "responses":
+        "200":
+          "description": "Success"
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "required":
+                  - "data"
+                "properties":
+                  "data":
+                    "$ref": "#/components/schemas/FriendRequestPage"
+        "400":
+          "description": "Application error"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/Error"
+        "401":
+          "description": "Application error"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/Error"
+        "403":
+          "description": "Application error"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/Error"
+        "404":
+          "description": "Application error"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/Error"
+        "409":
+          "description": "Application error"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/Error"
+        "429":
+          "description": "Application error"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/Error"
+      "parameters":
+        - "name": "cursor"
+          "in": "query"
+          "schema":
+            "type": "string"
+            "minLength": 1
+            "maxLength": 128
+    "post":
+      "operationId": "createFriendRequest"
+      "tags":
+        - "Friends"
+      "security":
+        - "sessionCookie": []
+      "responses":
+        "201":
+          "description": "Success"
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "required":
+                  - "data"
+                "properties":
+                  "data":
+                    "type": "object"
+                    "required":
+                      - "id"
+                    "properties":
+                      "id":
+                        "type": "string"
+                        "minLength": 1
+                        "maxLength": 128
+        "400":
+          "description": "Application error"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/Error"
+        "401":
+          "description": "Application error"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/Error"
+        "403":
+          "description": "Application error"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/Error"
+        "404":
+          "description": "Application error"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/Error"
+        "409":
+          "description": "Application error"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/Error"
+        "429":
+          "description": "Application error"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/Error"
+      "description": "Requires live proof: shared active group for userId; enabled discovery and matching full email for userId+email; or a valid PERSONAL token. IDs and stale search results alone confer no authority. Pending requests grant no financial or group permissions. Crossed requests reuse pending state without accepting. Rate limit: 10 request attempts/minute/viewer, including failed or repeated requests. Declined non-link requests have a 7-day resend cooldown; a link can bypass an email-origin decline, while the same declined link retains its cooldown."
+      "parameters":
+        - "name": "Idempotency-Key"
+          "in": "header"
+          "required": true
+          "schema":
+            "type": "string"
+            "minLength": 1
+            "maxLength": 200
+      "requestBody":
+        "required": true
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "#/components/schemas/CreateFriendRequest"
+  "/api/friends/requests/{id}":
+    "patch":
+      "operationId": "respondFriendRequest"
+      "tags":
+        - "Friends"
+      "security":
+        - "sessionCookie": []
+      "responses":
+        "200":
+          "description": "Success"
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "required":
+                  - "data"
+                "properties":
+                  "data":
+                    "type": "object"
+                    "required":
+                      - "id"
+                    "properties":
+                      "id":
+                        "type": "string"
+                        "minLength": 1
+                        "maxLength": 128
+        "400":
+          "description": "Application error"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/Error"
+        "401":
+          "description": "Application error"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/Error"
+        "403":
+          "description": "Application error"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/Error"
+        "404":
+          "description": "Application error"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/Error"
+        "409":
+          "description": "Application error"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/Error"
+        "429":
+          "description": "Application error"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/Error"
+      "description": "Only recipient may respond. Acceptance rechecks privacy, active accounts, blocking, shared group or unrevoked personal link. Repeating same response succeeds; reversing a completed response returns 409. Creates one canonical friendship without changing money or memberships."
+      "parameters":
+        - "name": "id"
+          "in": "path"
+          "required": true
+          "schema":
+            "type": "string"
+            "minLength": 1
+            "maxLength": 128
+      "requestBody":
+        "required": true
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "#/components/schemas/RespondFriendRequest"
   "/api/friends":
     "get":
       "operationId": "get_api_friends"
@@ -958,6 +1173,7 @@
           "application/json":
             "schema":
               "$ref": "#/components/schemas/ClaimInvite"
+      "description": "DIRECT claims placeholder history; GROUP_LINK explicitly joins a group; PERSONAL sends a pending friend request and returns /friends without creating a friendship. Browser requests must use the application origin."
   "/api/invites/preview":
     "get":
       "operationId": "get_api_invites_preview"
@@ -1234,6 +1450,12 @@
                 "$ref": "#/components/schemas/Error"
         "401":
           "description": "Unauthenticated"
+        "403":
+          "description": "Application error"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/Error"
         "404":
           "description": "Not found or not visible"
       "requestBody":
@@ -1242,6 +1464,71 @@
           "application/json":
             "schema":
               "$ref": "#/components/schemas/UpdateProfile"
+  "/api/people/search":
+    "post":
+      "operationId": "searchPeople"
+      "tags":
+        - "Friends"
+      "security":
+        - "sessionCookie": []
+      "responses":
+        "200":
+          "description": "Success"
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "required":
+                  - "data"
+                "properties":
+                  "data":
+                    "type": "array"
+                    "maxItems": 30
+                    "items":
+                      "$ref": "#/components/schemas/PersonSearchResult"
+        "400":
+          "description": "Application error"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/Error"
+        "401":
+          "description": "Application error"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/Error"
+        "403":
+          "description": "Application error"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/Error"
+        "404":
+          "description": "Application error"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/Error"
+        "409":
+          "description": "Application error"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/Error"
+        "429":
+          "description": "Application error"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/Error"
+      "description": "Names search accepted friends and active members of active shared groups. Exact email discovers other users only when they opted in. Self, blocked, deleted and unverified accounts are excluded. No email, phone, UPI or financial data is returned. Search wildcard characters are literal. Rate limit: 30/minute/viewer. POST keeps emails out of query URLs; no Idempotency-Key is needed for this read. Results are no-store."
+      "requestBody":
+        "required": true
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "#/components/schemas/PeopleSearch"
   "/api/push/config":
     "get":
       "operationId": "get_api_push_config"
@@ -1893,6 +2180,9 @@
           "type": "string"
           "enum":
             - "INR"
+        "discoverableByEmail":
+          "type": "boolean"
+          "default": false
     "UpdateProfile":
       "type": "object"
       "additionalProperties": false
@@ -1919,6 +2209,9 @@
           "type": "string"
           "enum":
             - "INR"
+        "discoverableByEmail":
+          "type": "boolean"
+          "description": "Off by default. Disabling also closes pending email-origin requests; unrelated profile updates never change this setting."
     "CreateGroup":
       "type": "object"
       "required":
@@ -2122,3 +2415,123 @@
                 "restricted":
                   "type": "boolean"
                   "description": "Only repayment up to the outstanding pairwise debt is permitted."
+    "PeopleSearch":
+      "type": "object"
+      "required":
+        - "query"
+      "additionalProperties": false
+      "properties":
+        "query":
+          "type": "string"
+          "minLength": 1
+          "maxLength": 254
+    "PersonSearchResult":
+      "type": "object"
+      "required":
+        - "id"
+        - "name"
+        - "relationship"
+        - "requestId"
+        - "source"
+      "additionalProperties": false
+      "properties":
+        "id":
+          "type": "string"
+          "minLength": 1
+          "maxLength": 128
+        "name":
+          "type": "string"
+        "relationship":
+          "type": "string"
+          "enum":
+            - "FRIEND"
+            - "NONE"
+            - "INCOMING"
+            - "OUTGOING"
+        "requestId":
+          "type": "string"
+          "minLength": 1
+          "maxLength": 128
+          "nullable": true
+        "source":
+          "type": "string"
+          "enum":
+            - "CONTEXT"
+            - "EMAIL"
+    "CreateFriendRequest":
+      "type": "object"
+      "additionalProperties": false
+      "properties":
+        "userId":
+          "type": "string"
+          "minLength": 1
+          "maxLength": 128
+        "email":
+          "type": "string"
+          "format": "email"
+          "maxLength": 254
+        "token":
+          "type": "string"
+          "pattern": "^[a-f0-9]{64}$"
+      "oneOf":
+        - "required":
+            - "userId"
+          "not":
+            "required":
+              - "token"
+        - "required":
+            - "token"
+          "not":
+            "anyOf":
+              - "required":
+                  - "userId"
+              - "required":
+                  - "email"
+    "RespondFriendRequest":
+      "type": "object"
+      "required":
+        - "action"
+      "additionalProperties": false
+      "properties":
+        "action":
+          "type": "string"
+          "enum":
+            - "ACCEPT"
+            - "DECLINE"
+    "FriendRequest":
+      "type": "object"
+      "required":
+        - "id"
+        - "userId"
+        - "name"
+        - "incoming"
+      "additionalProperties": false
+      "properties":
+        "id":
+          "type": "string"
+          "minLength": 1
+          "maxLength": 128
+        "userId":
+          "type": "string"
+          "minLength": 1
+          "maxLength": 128
+        "name":
+          "type": "string"
+        "incoming":
+          "type": "boolean"
+    "FriendRequestPage":
+      "type": "object"
+      "required":
+        - "items"
+        - "nextCursor"
+      "properties":
+        "items":
+          "type": "array"
+          "maxItems": 30
+          "items":
+            "$ref": "#/components/schemas/FriendRequest"
+        "nextCursor":
+          "type": "string"
+          "minLength": 1
+          "maxLength": 128
+          "nullable": true

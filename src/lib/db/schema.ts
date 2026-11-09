@@ -101,6 +101,9 @@ export const users = pgTable("users", {
   // App fields
   status: userStatusEnum("status").notNull().default("ACTIVE"),
   phone: text("phone"),
+  discoverableByEmail: boolean("discoverable_by_email")
+    .notNull()
+    .default(false),
   upiId: text("upi_id"),
   defaultCurrency: char("default_currency", { length: 3 })
     .notNull()
@@ -198,7 +201,7 @@ export const idempotencyRecords = pgTable(
     primaryKey({ columns: [t.viewerId, t.operation, t.key] }),
     check(
       "ck_idempotency_operation",
-      sql`${t.operation} IN ('expense', 'settlement', 'group', 'placeholder', 'invite', 'invite-report')`,
+      sql`${t.operation} IN ('expense', 'settlement', 'group', 'placeholder', 'invite', 'invite-report', 'friend-request')`,
     ),
     check("ck_idempotency_key", sql`char_length(${t.key}) BETWEEN 1 AND 200`),
   ],
@@ -252,6 +255,53 @@ export const groups = pgTable("groups", {
   createdAt: createdAt(),
   updatedAt: updatedAt(),
 });
+
+export const friendRequests = pgTable(
+  "friend_requests",
+  {
+    id: id(),
+    userLowId: text("user_low_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "restrict" }),
+    userHighId: text("user_high_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "restrict" }),
+    requesterId: text("requester_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "restrict" }),
+    source: text("source").notNull(),
+    inviteId: text("invite_id").references(() => invites.id, {
+      onDelete: "restrict",
+    }),
+    status: text("status").notNull().default("PENDING"),
+    createdAt: createdAt(),
+    respondedAt: timestamp("responded_at", tz),
+  },
+  (t) => [
+    check("ck_friend_request_pair", sql`${t.userLowId} < ${t.userHighId}`),
+    check(
+      "ck_friend_request_requester",
+      sql`${t.requesterId} IN (${t.userLowId}, ${t.userHighId})`,
+    ),
+    check(
+      "ck_friend_request_status",
+      sql`${t.status} IN ('PENDING', 'ACCEPTED', 'DECLINED')`,
+    ),
+    check(
+      "ck_friend_request_source",
+      sql`${t.source} IN ('EMAIL', 'CONTEXT', 'LINK')`,
+    ),
+    check(
+      "ck_friend_request_invite",
+      sql`(${t.source} = 'LINK') = (${t.inviteId} IS NOT NULL)`,
+    ),
+    uniqueIndex("uq_friend_request_pending")
+      .on(t.userLowId, t.userHighId)
+      .where(sql`${t.status} = 'PENDING'`),
+    index("idx_friend_requests_low").on(t.userLowId, t.status),
+    index("idx_friend_requests_high").on(t.userHighId, t.status),
+  ],
+);
 
 export const groupMembers = pgTable(
   "group_members",

@@ -43,6 +43,13 @@
       "when": 1793268940524,
       "tag": "0005_superb_colossus",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1794109986788,
+      "tag": "0006_brainy_jackal",
+      "breakpoints": true
     }
   ]
 }

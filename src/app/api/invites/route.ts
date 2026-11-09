@@ -2,8 +2,10 @@
 import { routeHandler, requireIdempotencyKey } from "@/lib/api/route-handler";
 import { createInvite } from "@/lib/domain/invites";
 import { createInviteSchema } from "@/lib/validation/invite";
+import { requireSameOrigin } from "@/lib/api/request-origin";
 export const POST = routeHandler(async (req) => {
   const { userId } = await requireSession(req);
+  requireSameOrigin(req);
   const key = requireIdempotencyKey(req);
   return Response.json(
     {

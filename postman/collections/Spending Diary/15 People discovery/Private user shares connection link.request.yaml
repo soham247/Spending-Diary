@@ -1,0 +1,29 @@
+"$kind": "http-request"
+"name": "Private user shares connection link"
+"order": 17000
+"method": "POST"
+"url": "{{base_url}}/api/invites"
+"settings":
+  "followRedirects": false
+"headers":
+  - "key": "Cookie"
+    "value": "{{discovery_cookie}}"
+  - "key": "Origin"
+    "value": "{{base_url}}"
+  - "key": "Content-Type"
+    "value": "application/json"
+  - "key": "Idempotency-Key"
+    "value": "{{run_id}}-private-link"
+"body":
+  "type": "json"
+  "content": |-
+    {
+      "type": "PERSONAL"
+    }
+"scripts":
+  - "type": "afterResponse"
+    "language": "text/javascript"
+    "code": |-
+      pm.test('HTTP 201', () => pm.response.to.have.status(201));
+      pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });
+      pm.collectionVariables.set('discovery_token',pm.response.json().data.token);

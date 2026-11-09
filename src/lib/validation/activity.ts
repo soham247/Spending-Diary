@@ -27,5 +27,5 @@ export const activityVerbs: Record<string, string> = {
 };
 export const claimActivityDetailsSchema = z.object({
   before: z.object({ inviteId: z.string() }),
-  after: z.object({ name: z.string(), email: z.string() }),
+  after: z.object({ name: z.string() }),
 });

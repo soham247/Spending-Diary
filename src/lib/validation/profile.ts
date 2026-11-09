@@ -6,6 +6,7 @@ import { z } from "zod";
 import { currencySchema } from "./money";
 
 export const updateProfileSchema = z.strictObject({
+  discoverableByEmail: z.boolean().optional(),
   notificationPrefs: notificationPreferencesSchema.optional(),
   completeOnboarding: z.boolean().optional(),
   name: z.string().trim().min(1, "Enter your name").max(100).optional(),
@@ -21,6 +22,7 @@ export const updateProfileSchema = z.strictObject({
 });
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
 export interface Profile {
+  discoverableByEmail: boolean;
   id: string;
   name: string;
   email: string;

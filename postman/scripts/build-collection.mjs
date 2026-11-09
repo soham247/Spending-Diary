@@ -4,6 +4,7 @@ import { productTests } from "../contracts/product-tests.mjs";
 import { productContract } from "../contracts/product.mjs";
 import { appShellContract } from "../contracts/app-shell.mjs";
 import { paymentContract } from "../contracts/payments.mjs";
+import { peopleContract, peopleTests } from "../contracts/people.mjs";
 
 const directory = "postman/collections/Spending Diary";
 const folders = new Map();
@@ -749,11 +750,13 @@ const variables = [
   "owner_id",
   "friend_id",
   "outsider_id",
+  "discovery_id",
   "group_id",
   "settlement_group_id",
   "owner_cookie",
   "friend_cookie",
   "outsider_cookie",
+  "discovery_cookie",
   "anon_cookie",
 ];
 add("11 App shell", "Profile requires authentication", "GET", "/api/me", {
@@ -786,6 +789,7 @@ add("11 App shell", "Outsider sees no expenses", "GET", "/api/expenses", {
   code: `pm.test('Private expenses stay private',()=>pm.expect(pm.response.json().data.items).to.eql([]));`,
 });
 productTests(add, remember, expense);
+
 add(
   "11 App shell",
   "Personal spending requires authentication",
@@ -826,6 +830,7 @@ add(
     code: `pm.test('Session scopes spending',()=>{const d=pm.response.json().data;pm.expect(d.items).to.eql([]);pm.expect(d.spendingTotals).to.eql([]);});`,
   },
 );
+peopleTests(add, remember);
 await save(`${directory}/.resources/definition.yaml`, {
   $kind: "collection",
   name: "Spending Diary",
@@ -1135,6 +1140,7 @@ paths["/api/auth/get-session"] = {
 appShellContract(paths, schemas);
 productContract(paths, schemas);
 paymentContract(paths, schemas);
+peopleContract(paths, schemas);
 await save("postman/specs/spending-diary.openapi.yaml", {
   openapi: "3.0.3",
   info: {

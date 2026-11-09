@@ -3,6 +3,7 @@ import { NotificationSettings } from "@/components/settings/NotificationSettings
 import { DeviceSettings } from "@/components/settings/DeviceSettings";
 import { AccountSettings } from "@/components/settings/AccountSettings";
 import { AppearanceSettings } from "@/components/settings/AppearanceSettings";
+import { DiscoverySettings } from "@/components/settings/DiscoverySettings";
 import Link from "next/link";
 import { PageHeader } from "@/components/shell/PageHeader";
 import { PageLayout } from "@/components/shell/PageLayout";
@@ -19,6 +20,7 @@ export default function SettingsPage() {
         View spending insights
       </Link>
       <ProfileSettings />
+      <DiscoverySettings />
       <NotificationSettings />
       <DeviceSettings />
       <AppearanceSettings />

@@ -511,3 +511,9 @@ Creation idempotency also covers groups, placeholders, invitations and invitatio
 Account/profile settings validate notification_prefs through the shared schema. Actor events are excluded from push delivery; delivery tracking is independent of read state and financial commits.
 
 D-026 defines collapsed-settlement behavior during identity claims: retain original endpoints, soft-delete the collapsed settlement and void its ledger entries. Colliding participant rows sum paid/owed exactly and use exact splits for subsequent edits. D-027 defines reporting for manual review without automatic reversal.
+
+### Friend discovery and requests (D-036)
+
+The users table has discoverable_by_email boolean NOT NULL DEFAULT false. Only the viewer's own profile API can update this preference. friend_requests stores a canonical user_low_id < user_high_id pair, requester_id constrained to that pair, source (EMAIL, CONTEXT or LINK), an invite_id only for LINK, status (PENDING, ACCEPTED or DECLINED), and creation/response timestamps. Identity and invite foreign keys restrict deletion. A partial unique index permits only one pending request per pair; indexes on each pair side and status support viewer-scoped inbox reads. Requests create no balances, ledger entries, participant rows or group memberships. Acceptance, privacy changes, revocation and block checks enforce D-036. Idempotency records now allow the friend-request operation.
+
+Inbox reads return items and nextCursor, ordered by creation timestamp then ID. Cursor comparisons use a database timestamp subquery to preserve PostgreSQL precision. Cursors must belong to the viewer's own request pair; an accepted or declined cursor can continue a page without skipping the remaining pending requests.

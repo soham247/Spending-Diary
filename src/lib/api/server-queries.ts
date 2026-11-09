@@ -5,6 +5,7 @@ export { getProfile } from "@/lib/db/queries/profile";
 export { listExpenses } from "@/lib/db/queries/expenses";
 export { listGroups, getGroup } from "@/lib/db/queries/groups";
 export { listFriends, getFriend } from "@/lib/db/queries/friends";
+export { listFriendRequests } from "@/lib/db/queries/people";
 export { getInsights } from "@/lib/db/queries/insights";
 
 export { listActivity } from "@/lib/db/queries/activity";

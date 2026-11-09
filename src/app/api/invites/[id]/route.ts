@@ -1,12 +1,14 @@
 ﻿import { requireSession } from "@/lib/auth/guards";
 import { mapError } from "@/lib/api/route-handler";
 import { revokeInvite } from "@/lib/domain/invites";
+import { requireSameOrigin } from "@/lib/api/request-origin";
 export async function DELETE(
   req: Request,
   ctx: { params: Promise<{ id: string }> },
 ) {
   try {
     const { userId } = await requireSession(req);
+    requireSameOrigin(req);
     const { id } = await ctx.params;
     await revokeInvite(userId, id);
     return Response.json({ data: { id } });

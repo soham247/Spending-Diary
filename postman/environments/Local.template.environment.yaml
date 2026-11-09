@@ -24,6 +24,10 @@
     "value": ""
     "enabled": true
     "type": "default"
+  - "key": "discovery_id"
+    "value": ""
+    "enabled": true
+    "type": "default"
   - "key": "group_id"
     "value": ""
     "enabled": true
@@ -41,6 +45,10 @@
     "enabled": true
     "type": "secret"
   - "key": "outsider_cookie"
+    "value": ""
+    "enabled": true
+    "type": "secret"
+  - "key": "discovery_cookie"
     "value": ""
     "enabled": true
     "type": "secret"

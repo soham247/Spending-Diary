@@ -29,6 +29,10 @@
       "value": ""
     },
     {
+      "key": "discovery_id",
+      "value": ""
+    },
+    {
       "key": "group_id",
       "value": ""
     },
@@ -46,6 +50,10 @@
     },
     {
       "key": "outsider_cookie",
+      "value": ""
+    },
+    {
+      "key": "discovery_cookie",
       "value": ""
     },
     {
@@ -5682,6 +5690,945 @@
                   "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
                   "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
                   "pm.test('Payer owes zero and both consumers owe 4500',()=>{const e=pm.response.json().data;const payer=e.participants.find(p=>p.userId===pm.environment.get('owner_id'));pm.expect(payer.paid).to.eql(9000);pm.expect(payer.owed).to.eql(0);pm.expect(payer.includedInSplit).to.eql(false);pm.expect(e.participants.filter(p=>p.userId!==payer.userId).map(p=>p.owed)).to.eql([4500,4500]);});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "15 People discovery",
+      "item": [
+        {
+          "name": "Search requires authentication",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/people/search",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{anon_cookie}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"someone@example.test\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "disableCookies": true
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Empty search is invalid",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/people/search",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{owner_cookie}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \" \"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "disableCookies": true
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "No global name directory",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/people/search",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{discovery_cookie}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"Postman\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "disableCookies": true
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
+                  "pm.test('No unrelated users exposed by name',()=>pm.expect(pm.response.json().data).to.eql([]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Missing person can be invited",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/people/search",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{owner_cookie}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"missing-{{run_id}}@example.test\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "disableCookies": true
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
+                  "pm.test('No match',()=>pm.expect(pm.response.json().data).to.eql([]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Read target email fixture",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/me",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{discovery_cookie}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              }
+            ]
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "disableCookies": true
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
+                  "pm.collectionVariables.set('discovery_email',pm.response.json().data.email);pm.test('Private by default',()=>pm.expect(pm.response.json().data.discoverableByEmail).to.eql(false));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Opt-out conceals existing account",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/people/search",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{owner_cookie}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"{{discovery_email}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "disableCookies": true
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
+                  "pm.test('Private account not exposed',()=>pm.expect(pm.response.json().data).to.eql([]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Enable email discovery",
+          "request": {
+            "method": "PATCH",
+            "url": "{{base_url}}/api/me",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{discovery_cookie}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"discoverableByEmail\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "disableCookies": true
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Find registered person by exact email",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/people/search",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{owner_cookie}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"{{discovery_email}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "disableCookies": true
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
+                  "pm.test('Minimal identity only',()=>{const p=pm.response.json().data[0];pm.expect(p.id).to.eql(pm.environment.get('discovery_id'));pm.expect(p).not.to.have.property('email');pm.expect(p).not.to.have.property('phone');pm.expect(p).not.to.have.property('balances');});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Requests require idempotency",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/friends/requests",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{owner_cookie}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{discovery_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "disableCookies": true
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "User ID cannot bypass discovery",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/friends/requests",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{owner_cookie}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{run_id}}-id-bypass"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{discovery_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "disableCookies": true
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', () => pm.response.to.have.status(404));",
+                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Send email connection request",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/friends/requests",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{owner_cookie}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{run_id}}-discovery"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{discovery_id}}\",\n  \"email\": \"{{discovery_email}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "disableCookies": true
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
+                  "if (pm.response.code === 201) pm.collectionVariables.set('discovery_request_id', pm.response.json().data.id); pm.test('Created resource ID', () => pm.expect(pm.response.json().data.id).to.be.a('string'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Unrelated user cannot accept request",
+          "request": {
+            "method": "PATCH",
+            "url": "{{base_url}}/api/friends/requests/{{discovery_request_id}}",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{friend_cookie}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"ACCEPT\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "disableCookies": true
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', () => pm.response.to.have.status(404));",
+                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Recipient sees request",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/friends/requests",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{discovery_cookie}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              }
+            ]
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "disableCookies": true
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
+                  "pm.test('Incoming request',()=>pm.expect(pm.response.json().data.items.some(r=>r.id===pm.collectionVariables.get('discovery_request_id')&&r.incoming)).to.eql(true));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Opt-out closes email requests",
+          "request": {
+            "method": "PATCH",
+            "url": "{{base_url}}/api/me",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{discovery_cookie}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"discoverableByEmail\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "disableCookies": true
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cannot accept closed email request",
+          "request": {
+            "method": "PATCH",
+            "url": "{{base_url}}/api/friends/requests/{{discovery_request_id}}",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{discovery_cookie}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"ACCEPT\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "disableCookies": true
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 409', () => pm.response.to.have.status(409));",
+                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Stale result cannot send a request",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/friends/requests",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{owner_cookie}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{run_id}}-stale"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{discovery_id}}\",\n  \"email\": \"{{discovery_email}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "disableCookies": true
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', () => pm.response.to.have.status(404));",
+                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Private user shares connection link",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/invites",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{discovery_cookie}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{run_id}}-private-link"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"PERSONAL\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "disableCookies": true
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
+                  "pm.collectionVariables.set('discovery_token',pm.response.json().data.token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Link sends request without granting friendship",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/friends/requests",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{owner_cookie}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{run_id}}-link-request"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{discovery_token}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "disableCookies": true
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
+                  "if (pm.response.code === 201) pm.collectionVariables.set('discovery_link_request_id', pm.response.json().data.id); pm.test('Created resource ID', () => pm.expect(pm.response.json().data.id).to.be.a('string'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Private recipient accepts link request",
+          "request": {
+            "method": "PATCH",
+            "url": "{{base_url}}/api/friends/requests/{{discovery_link_request_id}}",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{discovery_cookie}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"ACCEPT\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "disableCookies": true
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Acceptance is repeatable",
+          "request": {
+            "method": "PATCH",
+            "url": "{{base_url}}/api/friends/requests/{{discovery_link_request_id}}",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{discovery_cookie}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{base_url}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"ACCEPT\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "disableCookies": true
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });",
+                  ""
                 ]
               }
             }

@@ -21,7 +21,7 @@ export function InviteClaimNotice({ metadata }: { metadata: unknown }) {
   return (
     <div className="space-y-2 p-4">
       <p className="text-sm text-muted-foreground">
-        Claimed by {details.data.after.name} ({details.data.after.email})
+        Claimed by {details.data.after.name}
       </p>
       <Button
         variant="outline"

@@ -58,6 +58,7 @@ export async function anonymizeAccount(
         name: "Former member",
         email: "deleted+" + viewerId + "@spendingdiary.invalid",
         emailVerified: false,
+        discoverableByEmail: false,
         phone: null,
         upiId: null,
         image: null,
