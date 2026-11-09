@@ -30,6 +30,7 @@ import {
   type ExpenseListInput,
 } from "@/lib/validation/expense";
 import { toSafeNumber } from "@/lib/utils/to-safe-number";
+import { nextMonthStart } from "@/lib/utils/expense-month";
 
 export async function listExpenses(
   viewerId: string,
@@ -70,10 +71,8 @@ export async function listExpenses(
       : isNull(expenses.deletedAt),
     input.kind ? eq(expenses.kind, input.kind) : undefined,
   );
-  const rangeFilter = and(
+  const scopeFilter = and(
     filter,
-    input.from ? gte(expenses.date, input.from) : undefined,
-    input.to ? lte(expenses.date, input.to) : undefined,
     input.scope === "mine"
       ? exists(
           db
@@ -89,6 +88,75 @@ export async function listExpenses(
         )
       : undefined,
   );
+  const dates = input.history
+    ? await db
+        .selectDistinct({ date: expenses.date })
+        .from(expenses)
+        .where(scopeFilter)
+        .orderBy(desc(expenses.date))
+    : [];
+  const availableMonths = [
+    ...new Set(dates.map((row) => row.date.slice(0, 7))),
+  ];
+  const selectedMonth =
+    input.from || input.to || input.month === "all"
+      ? null
+      : input.month && input.month !== "latest"
+        ? input.month
+        : (availableMonths[0] ?? null);
+  const rangeFilter = and(
+    scopeFilter,
+    input.from ? gte(expenses.date, input.from) : undefined,
+    input.to ? lte(expenses.date, input.to) : undefined,
+    input.history && selectedMonth
+      ? gte(expenses.date, selectedMonth + "-01")
+      : undefined,
+    input.history && selectedMonth
+      ? lt(expenses.date, nextMonthStart(selectedMonth))
+      : undefined,
+  );
+  const dailyTotals = input.history
+    ? await db
+        .select({
+          date: expenses.date,
+          currency: expenses.currency,
+          amount: sum(expenseParticipants.owed),
+        })
+        .from(expenses)
+        .leftJoin(
+          expenseParticipants,
+          and(
+            eq(expenseParticipants.expenseId, expenses.id),
+            eq(expenseParticipants.userId, viewerId),
+          ),
+        )
+        .where(and(rangeFilter, isNull(expenses.deletedAt)))
+        .groupBy(expenses.date, expenses.currency)
+        .orderBy(desc(expenses.date), expenses.currency)
+    : [];
+  const monthly = new Map<string, Map<string, bigint>>();
+  for (const row of dailyTotals) {
+    const month = row.date.slice(0, 7);
+    const totals = monthly.get(month) ?? new Map<string, bigint>();
+    totals.set(
+      row.currency,
+      (totals.get(row.currency) ?? BigInt(0)) + BigInt(row.amount ?? "0"),
+    );
+    monthly.set(month, totals);
+  }
+  const history = input.history
+    ? {
+        availableMonths,
+        selectedMonth,
+        monthlySpending: [...monthly].map(([month, totals]) => ({
+          month,
+          totals: [...totals].map(([currency, amount]) => ({
+            currency,
+            amount: toSafeNumber(amount),
+          })),
+        })),
+      }
+    : {};
   const totals =
     input.scope === "mine"
       ? await db
@@ -119,7 +187,7 @@ export async function listExpenses(
         .where(and(rangeFilter, eq(expenses.id, input.cursor)))
     : [];
   if (input.cursor && !anchor)
-    return { items: [], nextCursor: null, spendingTotals };
+    return { items: [], nextCursor: null, spendingTotals, ...history };
   const rows = await db
     .select({
       ...getTableColumns(expenses),
@@ -150,6 +218,7 @@ export async function listExpenses(
     items: rows.slice(0, 30),
     nextCursor: rows.length > 30 ? rows[29]!.id : null,
     spendingTotals,
+    ...history,
   };
 }
 

@@ -35,6 +35,12 @@ export interface ExpensePage {
   items: (Expense & { yourShare: number | null })[];
   nextCursor: string | null;
   spendingTotals?: { currency: string; amount: number }[];
+  availableMonths?: string[];
+  selectedMonth?: string | null;
+  monthlySpending?: {
+    month: string;
+    totals: { currency: string; amount: number }[];
+  }[];
 }
 export function apiListExpenses(input: ExpenseListInput = {}) {
   const params = new URLSearchParams(

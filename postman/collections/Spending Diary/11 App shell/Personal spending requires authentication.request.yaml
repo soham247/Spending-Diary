@@ -1,6 +1,6 @@
 "$kind": "http-request"
 "name": "Personal spending requires authentication"
-"order": 8000
+"order": 11000
 "method": "GET"
 "url": "{{base_url}}/api/expenses?scope=mine"
 "queryParams":

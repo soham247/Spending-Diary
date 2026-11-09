@@ -173,6 +173,11 @@ export const expenseListSchema = z
     kind: z.enum(["PERSONAL", "SHARED"]).optional(),
     deleted: z.enum(["true", "false"]).default("false"),
     scope: z.enum(["all", "mine"]).optional(),
+    history: z.literal("true").optional(),
+    month: z
+      .string()
+      .regex(/^(latest|all|(?!0000)\d{4}-(0[1-9]|1[0-2]))$/)
+      .optional(),
     from: calendarDate.optional(),
     to: calendarDate.optional(),
   })

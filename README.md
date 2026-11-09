@@ -16,6 +16,23 @@ Install dependencies with npm ci. Apply reviewed migrations with npm run db:migr
 
 Copy .env.test.example to .env.test and set TEST_DATABASE_URL to a disposable database ending in _test. Integration tests migrate and clear that database. Keep it separate from application data.
 
+For the default local setup, start Docker Desktop and run these PowerShell commands once:
+
+```powershell
+Copy-Item .env.test.example .env.test
+docker run --detach --name spending-diary-postman-test --publish 127.0.0.1:55432:5432 --env POSTGRES_DB=spending_diary_postman_test --env POSTGRES_HOST_AUTH_METHOD=trust postgres:17-alpine
+npx playwright install chromium
+```
+
+The template already matches this container and the HTTP/browser runner. For later sessions, start the existing container and run the checks:
+
+```powershell
+docker start spending-diary-postman-test
+npm run preflight
+```
+
+`.env.test.example` is a tracked template containing local defaults. `.env.test` is your ignored local configuration; do not add real credentials to the example. A shell-level `TEST_DATABASE_URL` overrides the file, so remove a stale override with `Remove-Item Env:TEST_DATABASE_URL -ErrorAction SilentlyContinue` if needed. To run only the unit tests without PostgreSQL, use `npm run test:unit`.
+
 - npm run preflight: run before pushing; includes typecheck, lint, unit/integration tests, Postman artifact lint, production builds, HTTP regression tests and Chromium acceptance journeys. Stops on the first failure. Requires the test databases, Postman CLI and installed Chromium described below.
 - npm run verify: TypeScript, ESLint, unit/integration tests, Postman artifact lint and production build.
 - npm run test:api: HTTP regression tests against a separate loopback database.

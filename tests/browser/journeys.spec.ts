@@ -62,7 +62,7 @@ test("retired pages and the expense creation URL are no longer served", async ({
   expect(response.status()).toBe(405);
 });
 
-test("my spending defaults to month-to-date and supports date filters on mobile", async ({
+test("expense history defaults to the latest month and supports mobile filters", async ({
   page,
   context,
 }) => {
@@ -74,42 +74,85 @@ test("my spending defaults to month-to-date and supports date filters on mobile"
     headers: { "Idempotency-Key": crypto.randomUUID() },
   });
   expect(response.ok()).toBe(true);
-  await page.goto("/expenses");
-  await expect(
-    page.getByRole("tab", { name: "My spending", exact: true }),
-  ).toHaveAttribute("aria-selected", "true");
-  await expect(
-    page.getByRole("heading", { name: "You spent this month" }),
-  ).toBeVisible();
-  await expect(page.getByRole("link", { name: description })).toHaveCount(0);
-  await page.getByLabel("From", { exact: true }).fill("2025-02-14");
-  await page.getByLabel("To", { exact: true }).fill("2025-02-14");
-  await expect(
-    page.getByRole("region", { name: "Your spending total" }),
-  ).toContainText("123.45");
-  await expect(page.getByRole("link", { name: description })).toBeVisible();
-  await page.setViewportSize({ width: 360, height: 800 });
-  expect(
-    await page.evaluate(
-      () => document.documentElement.scrollWidth <= window.innerWidth,
-    ),
-  ).toBe(true);
-  await page.screenshot({
-    path: ".postman/local/personal-spending-mobile.png",
-    fullPage: true,
+  const latest = await context.request.post("/api/expenses", {
+    data: { ...expense("Latest history fixture"), date: "2098-12-15" },
+    headers: { "Idempotency-Key": crypto.randomUUID() },
   });
-  await page.getByLabel("From", { exact: true }).fill("2025-02-15");
-  await expect(
-    page.getByRole("alert").filter({ hasText: "Choose valid dates" }),
-  ).toBeVisible();
-  await page.getByLabel("To", { exact: true }).fill("2025-02-15");
-  await expect(
-    page.getByText("No spending in this date range.", { exact: false }),
-  ).toBeVisible();
-  await page.getByRole("button", { name: "This month", exact: true }).click();
-  await expect(
-    page.getByRole("heading", { name: "You spent this month" }),
-  ).toBeVisible();
+  expect(latest.ok()).toBe(true);
+  const latestBody = (await latest.json()) as { data: { id: string } };
+  try {
+    await page.setViewportSize({ width: 360, height: 800 });
+    await page.goto("/expenses");
+    await expect(
+      page.getByRole("heading", { name: "December ’98" }),
+    ).toBeVisible();
+    await expect(page.getByRole("tab")).toHaveCount(0);
+    await expect(page.getByRole("link", { name: description })).toHaveCount(0);
+    await page.getByRole("combobox", { name: "Month" }).click();
+    await page
+      .getByRole("option", { name: "February ’25", exact: true })
+      .click();
+    await expect(
+      page.getByRole("link").filter({ hasText: description }),
+    ).toBeVisible();
+    await expect(page.getByLabel("Monthly spending")).toContainText("123.45");
+    await page
+      .getByRole("link", { name: "View insights for February ’25" })
+      .click();
+    await expect(page).toHaveURL(/\/insights\?month=2025-02$/);
+    await expect(page.getByLabel("Month", { exact: true })).toHaveValue(
+      "2025-02",
+    );
+    await expect(page.getByText(/You spent/)).toContainText("123.45");
+    await page.goBack();
+    await expect(
+      page.getByRole("heading", { name: "February ’25" }),
+    ).toBeVisible();
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= window.innerWidth,
+      ),
+    ).toBe(true);
+    await page.screenshot({
+      path: ".postman/local/personal-spending-mobile.png",
+      fullPage: true,
+    });
+    await page.getByRole("button", { name: "Filters", exact: true }).click();
+    const dialog = page.getByRole("dialog");
+    await expect(
+      dialog.getByRole("heading", { name: "Filter expenses" }),
+    ).toBeVisible();
+    await expect(dialog).toHaveAttribute("data-side", "bottom");
+    await dialog.getByLabel("Include group expenses without my share").check();
+    await dialog.getByRole("button", { name: "Apply filters" }).click();
+    await expect(page).toHaveURL(/scope=all/);
+    await page.getByRole("button", { name: "Personal", exact: true }).click();
+    await expect(
+      page.getByRole("button", { name: "Personal", exact: true }),
+    ).toHaveAttribute("aria-pressed", "true");
+    await page.goto("/expenses?from=2025-02-14&to=2025-02-14");
+    await expect(
+      page.getByRole("link").filter({ hasText: description }),
+    ).toBeVisible();
+    await page.goto("/expenses?from=2025-02-15&to=2025-02-15");
+    await expect(
+      page.getByText("No expenses match these filters"),
+    ).toBeVisible();
+    await page.getByRole("button", { name: "Reset filters" }).click();
+    await expect(
+      page.getByRole("heading", { name: "December ’98" }),
+    ).toBeVisible();
+    await page.getByRole("combobox", { name: "Month" }).click();
+    await page.getByRole("option", { name: "All months", exact: true }).click();
+    await expect(
+      page.getByRole("heading", { name: "December ’98" }),
+    ).toBeVisible();
+  } finally {
+    const cleanup = await context.request.delete(
+      "/api/expenses/" + latestBody.data.id,
+    );
+    expect(cleanup.ok()).toBe(true);
+  }
 });
 test("insights renders the upgraded spending chart on mobile", async ({
   page,

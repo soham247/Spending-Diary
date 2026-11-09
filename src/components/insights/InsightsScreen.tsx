@@ -19,8 +19,10 @@ import { SpendingChart } from "./SpendingChart";
 import { Card } from "@/components/ui/card";
 import { PageHeader } from "@/components/shell/PageHeader";
 import { PageLayout } from "@/components/shell/PageLayout";
-export function InsightsScreen() {
-  const [month, setMonth] = useState(() => todayDate().slice(0, 7));
+export function InsightsScreen({ initialMonth }: { initialMonth?: string }) {
+  const [month, setMonth] = useState(
+    () => initialMonth ?? todayDate().slice(0, 7),
+  );
   const [filter, setFilter] = useState("BOTH");
   const query = useInsights(
     month,

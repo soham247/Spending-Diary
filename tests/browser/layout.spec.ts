@@ -106,6 +106,58 @@ test("pages share one responsive title row with mobile menu access", async ({
       if (path === "/expenses") {
         const add = header.getByRole("button", { name: "Add expense" });
         await expect(add).toBeVisible();
+        if (width < 768) {
+          await expect(add).toHaveCSS("width", "44px");
+          await expect(add).toHaveCSS("height", "44px");
+          await expect(add.locator("span")).toBeHidden();
+          const menuBox = await menu.boundingBox();
+          const actionBox = await add.boundingBox();
+          expect(actionBox!.y).toBe(menuBox!.y);
+        } else {
+          await expect(add.locator("span")).toBeVisible();
+        }
+        const before = await header.boundingBox();
+        const toolbar = page.locator("[data-page-toolbar]");
+        await expect(
+          toolbar.getByRole("combobox", { name: "Month" }),
+        ).toBeVisible();
+        const filters = toolbar.getByRole("button", {
+          name: "Filters",
+          exact: true,
+        });
+        await filters.click();
+        const filterDialog = page.getByRole("dialog");
+        await expect(filterDialog).toHaveAttribute(
+          "data-side",
+          width < 768 ? "bottom" : "right",
+        );
+        const fromDate = filterDialog.getByLabel("From", { exact: true });
+        await fromDate.click();
+        await expect(page.getByRole("dialog").getByRole("grid")).toBeVisible();
+        await page.keyboard.press("Escape");
+        await expect(fromDate).toBeFocused();
+        await page.keyboard.press("Escape");
+        await expect(header.getByRole("tablist")).toHaveCount(0);
+        if (width === 1536) {
+          await expect(
+            page.locator("[data-page-scroll] h2").first(),
+          ).toBeVisible();
+          await page.screenshot({
+            path: ".postman/local/expenses-history-desktop.png",
+          });
+        }
+        const toolbarBefore = await toolbar.boundingBox();
+        expect(toolbarBefore!.y).toBeGreaterThanOrEqual(
+          before!.y + before!.height,
+        );
+        await page.locator("[data-page-scroll]").evaluate((node) => {
+          node.scrollTop = node.scrollHeight;
+        });
+        expect(await header.boundingBox()).toEqual(before);
+        expect(await toolbar.boundingBox()).toEqual(toolbarBefore);
+        await expect(
+          toolbar.getByRole("group", { name: "Expense type" }),
+        ).toBeVisible();
         await add.click();
         await expect(page.getByRole("dialog")).toBeVisible();
         await page.keyboard.press("Escape");
