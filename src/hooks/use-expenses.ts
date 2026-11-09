@@ -1,4 +1,5 @@
 "use client";
+import { useEffect } from "react";
 import {
   useInfiniteQuery,
   useMutation,
@@ -38,6 +39,35 @@ export function useExpense(id: string) {
     queryKey: queryKeys.expenses.detail(id),
     queryFn: () => apiGetExpense(id),
   });
+}
+export function useExpenseHistoryScroll(key: string, ready: boolean) {
+  useEffect(() => {
+    if (!ready) return;
+    const container = document.querySelector<HTMLElement>("[data-page-scroll]");
+    if (!container) return;
+    const storageKey = "expense-history-scroll:" + key;
+    let frame = 0;
+    try {
+      const top = Number(sessionStorage.getItem(storageKey) ?? 0);
+      frame = requestAnimationFrame(() => {
+        container.scrollTop = Number.isFinite(top) ? top : 0;
+      });
+    } catch {
+      container.scrollTop = 0;
+    }
+    function save() {
+      try {
+        sessionStorage.setItem(storageKey, String(container!.scrollTop));
+      } catch {
+        /* Storage may be unavailable */
+      }
+    }
+    container.addEventListener("scroll", save, { passive: true });
+    return () => {
+      cancelAnimationFrame(frame);
+      container.removeEventListener("scroll", save);
+    };
+  }, [key, ready]);
 }
 function useInvalidateExpenses() {
   const client = useQueryClient();

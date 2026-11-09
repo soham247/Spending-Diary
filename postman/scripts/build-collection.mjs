@@ -789,7 +789,32 @@ add("11 App shell", "Outsider sees no expenses", "GET", "/api/expenses", {
   code: `pm.test('Private expenses stay private',()=>pm.expect(pm.response.json().data.items).to.eql([]));`,
 });
 productTests(add, remember, expense);
-
+add(
+  "11 App shell",
+  "Monthly history defaults to latest",
+  "GET",
+  "/api/expenses?history=true&scope=mine",
+  {
+    code: `pm.test('Latest month and complete monthly totals',()=>{const d=pm.response.json().data;pm.expect(d.availableMonths).to.be.an('array');pm.expect(d.selectedMonth).to.eql(d.availableMonths[0]??null);d.items.forEach(e=>pm.expect(e.date.slice(0,7)).to.eql(d.selectedMonth));d.monthlySpending.forEach(m=>{pm.expect(m.month).to.eql(d.selectedMonth);m.totals.forEach(t=>pm.expect(Number.isSafeInteger(t.amount)).to.eql(true));});});`,
+  },
+);
+add(
+  "11 App shell",
+  "Monthly history rejects invalid months",
+  "GET",
+  "/api/expenses?history=true&month=2026-13",
+  { status: 400 },
+);
+add(
+  "11 App shell",
+  "Monthly history stays private",
+  "GET",
+  "/api/expenses?history=true&scope=mine&month=all",
+  {
+    role: "outsider",
+    code: `pm.test('No private month metadata',()=>{const d=pm.response.json().data;pm.expect(d.items).to.eql([]);pm.expect(d.availableMonths).to.eql([]);pm.expect(d.monthlySpending).to.eql([]);});`,
+  },
+);
 add(
   "11 App shell",
   "Personal spending requires authentication",

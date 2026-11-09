@@ -1,6 +1,6 @@
 "$kind": "http-request"
 "name": "Personal spending uses owed shares"
-"order": 9000
+"order": 12000
 "method": "GET"
 "url": "{{base_url}}/api/expenses?scope=mine&from=2000-01-01&to=2099-12-31"
 "queryParams":
