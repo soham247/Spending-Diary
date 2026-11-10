@@ -2,6 +2,9 @@ import nodemailer from "nodemailer";
 import type { Transporter } from "nodemailer";
 import { isPlaceholderEmail } from "@/lib/utils/email";
 import { accountEmail } from "./templates";
+import { maySendEmail } from "@/lib/rate-limit/email";
+import type { EmailPurpose } from "@/lib/rate-limit/policies";
+import { queueAfterTransactionHook } from "@better-auth/core/context";
 
 let transporter: Transporter | null = null;
 
@@ -53,22 +56,23 @@ export function getTestMailbox(): TestMessage[] | null {
 async function send(
   to: string,
   message: ReturnType<typeof accountEmail>,
+  purpose: EmailPurpose,
 ): Promise<void> {
   if (isPlaceholderEmail(to)) {
-    console.warn("[mail] Refusing to send to placeholder address:", to);
     return;
   }
+  if (!(await maySendEmail(to, purpose))) return;
 
-  // Test mode: capture synchronously
-  if (testMailbox !== null) {
-    testMailbox.push({ to, ...message });
-    return;
-  }
-
-  await getTransporter().sendMail({
-    from: mailFrom,
-    to,
-    ...message,
+  await queueAfterTransactionHook(async () => {
+    if (testMailbox !== null) {
+      testMailbox.push({ to, ...message });
+      return;
+    }
+    try {
+      await getTransporter().sendMail({ from: mailFrom, to, ...message });
+    } catch {
+      console.warn("[mail] Account email delivery failed", { purpose });
+    }
   });
 }
 
@@ -76,12 +80,16 @@ export async function sendVerificationEmail(opts: {
   to: string;
   url: string;
 }): Promise<void> {
-  await send(opts.to, accountEmail("verification", opts.url));
+  await send(opts.to, accountEmail("verification", opts.url), "verification");
 }
 
 export async function sendPasswordResetEmail(opts: {
   to: string;
   url: string;
 }): Promise<void> {
-  await send(opts.to, accountEmail("password-reset", opts.url));
+  await send(
+    opts.to,
+    accountEmail("password-reset", opts.url),
+    "password-reset",
+  );
 }

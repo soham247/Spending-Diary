@@ -1,6 +1,6 @@
 import { schedulePush } from "@/lib/push/schedule";
 import { ZodError } from "zod";
-import { AppError, ValidationError } from "@/lib/utils/errors";
+import { AppError, RateLimitError, ValidationError } from "@/lib/utils/errors";
 
 export function routeHandler(
   fn: (req: Request) => Promise<Response>,
@@ -48,7 +48,13 @@ export function mapError(error: unknown): Response {
           ...(error.fields ? { fields: error.fields } : {}),
         },
       },
-      { status: error.statusCode },
+      {
+        status: error.statusCode,
+        headers:
+          error instanceof RateLimitError
+            ? { "Retry-After": String(error.retryAfter) }
+            : undefined,
+      },
     );
   }
   console.error(

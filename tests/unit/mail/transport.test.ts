@@ -12,6 +12,9 @@ const { sendMail } = vi.hoisted(() => ({
 vi.mock("nodemailer", () => ({
   default: { createTransport: () => ({ sendMail }) },
 }));
+vi.mock("@/lib/rate-limit/email", () => ({
+  maySendEmail: vi.fn().mockResolvedValue(true),
+}));
 
 afterEach(() => {
   setTestMailbox(null);

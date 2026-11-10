@@ -14,6 +14,8 @@ The isolated runner overrides the environment with `http://127.0.0.1:3100`. Its 
 
 Use Node 24 (the tested runtime), installed npm dependencies, Postman CLI and Docker Desktop. Start the disposable database once:
 
+Also start the [local Redis and HTTP fixtures](../docs/upstash-rollout.md#operator-setup). The runner supplies fixture-only Redis credentials and a fresh namespace; it never uses production Redis settings.
+
 ```powershell
 docker run --detach --name spending-diary-postman-test --publish 127.0.0.1:55432:5432 --env POSTGRES_DB=spending_diary_postman_test --env POSTGRES_HOST_AUTH_METHOD=trust postgres:17-alpine
 npm run test:api

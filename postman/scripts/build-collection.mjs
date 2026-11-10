@@ -5,6 +5,7 @@ import { productContract } from "../contracts/product.mjs";
 import { appShellContract } from "../contracts/app-shell.mjs";
 import { paymentContract } from "../contracts/payments.mjs";
 import { peopleContract, peopleTests } from "../contracts/people.mjs";
+import { rateLimitContract, rateLimitTests } from "../contracts/rate-limits.mjs";
 
 const directory = "postman/collections/Spending Diary";
 const folders = new Map();
@@ -856,6 +857,7 @@ add(
   },
 );
 peopleTests(add, remember);
+rateLimitTests(add);
 await save(`${directory}/.resources/definition.yaml`, {
   $kind: "collection",
   name: "Spending Diary",
@@ -1166,6 +1168,7 @@ appShellContract(paths, schemas);
 productContract(paths, schemas);
 paymentContract(paths, schemas);
 peopleContract(paths, schemas);
+rateLimitContract(paths);
 await save("postman/specs/spending-diary.openapi.yaml", {
   openapi: "3.0.3",
   info: {
