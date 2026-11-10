@@ -3,7 +3,8 @@ import {
   useDrawerFormState,
   useFormDrawer,
 } from "@/components/common/FormDrawer";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { BackButton } from "@/components/common/BackButton";
+import { ChevronRight } from "lucide-react";
 import {
   Accordion,
   AccordionContent,
@@ -223,7 +224,6 @@ export function SharedExpenseForm({
             <Label htmlFor="amount">Amount (INR)</Label>
             <Input
               id="amount"
-              autoFocus
               inputMode="decimal"
               autoComplete="off"
               className="h-16 text-4xl tabular-nums md:text-4xl"
@@ -390,10 +390,7 @@ export function SharedExpenseForm({
         </div>
         {view !== "expense" && view !== "people" && (
           <div className="flex items-center gap-3">
-            <Button type="button" variant="ghost" onClick={backToExpense}>
-              <ChevronLeft aria-hidden="true" />
-              Back
-            </Button>
+            <BackButton label="Back to expense" onClick={backToExpense} />
             <h2
               ref={editorHeading}
               tabIndex={-1}

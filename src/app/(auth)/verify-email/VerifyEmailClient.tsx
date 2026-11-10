@@ -1,7 +1,8 @@
 "use client";
 
+import { BackButton } from "@/components/common/BackButton";
+
 import { useState } from "react";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -52,6 +53,12 @@ export default function VerifyEmailClient({ nextUrl, errorParam }: Props) {
   if (errorMessage) {
     return (
       <div className="space-y-6">
+        <div className="flex">
+          <BackButton
+            href={"/login?callbackUrl=" + encodeURIComponent(nextUrl)}
+            label="Back to sign in"
+          />
+        </div>
         <div className="space-y-2 text-center">
           <h1 className="text-xl font-semibold">Link not valid</h1>
           <p className="text-sm text-muted-foreground">{errorMessage}</p>
@@ -89,15 +96,6 @@ export default function VerifyEmailClient({ nextUrl, errorParam }: Props) {
             </Button>
           </form>
         )}
-
-        <p className="text-center text-sm text-muted-foreground">
-          <Link
-            href="/login"
-            className="underline underline-offset-4 hover:text-foreground"
-          >
-            Back to sign in
-          </Link>
-        </p>
       </div>
     );
   }
@@ -105,6 +103,12 @@ export default function VerifyEmailClient({ nextUrl, errorParam }: Props) {
   // No session, no error → user landed directly on /verify-email
   return (
     <div className="space-y-6 text-center">
+      <div className="flex">
+        <BackButton
+          href={"/login?callbackUrl=" + encodeURIComponent(nextUrl)}
+          label="Back to sign in"
+        />
+      </div>
       <div className="space-y-2">
         <h1 className="text-xl font-semibold">Check your inbox</h1>
         <p className="text-sm text-muted-foreground">
@@ -146,13 +150,6 @@ export default function VerifyEmailClient({ nextUrl, errorParam }: Props) {
           </Button>
         </form>
       )}
-
-      <Link
-        href="/login"
-        className="block text-sm text-muted-foreground hover:text-foreground underline underline-offset-4"
-      >
-        Back to sign in
-      </Link>
     </div>
   );
 }

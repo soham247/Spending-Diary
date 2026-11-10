@@ -21,6 +21,8 @@ export interface Expense {
   deletedAt: string | null;
 }
 export interface ExpenseDetail extends Expense {
+  createdById: string;
+  createdAt: string;
   canEdit: boolean;
   participants: {
     userId: string;

@@ -22,7 +22,6 @@ export function AmountInput({
       id={id}
       ref={ref}
       aria-invalid={invalid}
-      autoFocus
       inputMode="decimal"
       autoComplete="off"
       value={value}

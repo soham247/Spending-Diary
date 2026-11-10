@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { BackButton } from "@/components/common/BackButton";
 import { BrandIcon } from "@/components/brand/BrandIcon";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
 export const metadata: Metadata = { title: "Sign in - Spending Diary" };
@@ -21,23 +20,16 @@ export default function AuthLayout({
         Skip to content
       </a>
       <header className="sticky top-0 z-40 mx-auto flex min-h-16 w-full max-w-6xl items-center justify-between gap-3 bg-background px-4 sm:px-6">
-        <Link
-          href="/"
-          className="flex min-h-11 items-center gap-2 rounded-md text-sm font-semibold focus-visible:outline-2 focus-visible:outline-ring"
-        >
-          <BrandIcon />
-          Spending Diary
-        </Link>
-        <Button asChild variant="ghost" className="transition-colors">
-          <Link href="/">
-            <ArrowLeft
-              className="size-4"
-              strokeWidth={1.75}
-              aria-hidden="true"
-            />
-            Home
+        <div className="flex items-center gap-2">
+          <BackButton href="/" label="Back to home" />
+          <Link
+            href="/"
+            className="flex min-h-11 items-center gap-2 rounded-md text-sm font-semibold focus-visible:outline-2 focus-visible:outline-ring"
+          >
+            <BrandIcon />
+            Spending Diary
           </Link>
-        </Button>
+        </div>
       </header>
       <main
         id="auth-main"

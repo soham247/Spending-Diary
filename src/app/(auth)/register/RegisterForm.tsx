@@ -1,5 +1,7 @@
 "use client";
 
+import { BackButton } from "@/components/common/BackButton";
+
 import { authFormError } from "@/lib/auth/form-error";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -62,6 +64,9 @@ export default function RegisterForm({ callbackUrl }: { callbackUrl: string }) {
   if (sentEmail)
     return (
       <div className="space-y-5" role="status">
+        <div className="flex">
+          <BackButton href={signInUrl} label="Back to sign in" />
+        </div>
         <span className="flex size-12 items-center justify-center rounded-lg bg-muted">
           <Mail
             className="size-5 text-muted-foreground"
@@ -89,16 +94,13 @@ export default function RegisterForm({ callbackUrl }: { callbackUrl: string }) {
             Request another link
           </Link>
         </Button>
-        <Link
-          href={signInUrl}
-          className="inline-flex min-h-11 items-center rounded-sm text-sm underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-ring"
-        >
-          Back to sign in
-        </Link>
       </div>
     );
   return (
     <div className="space-y-5">
+      <div className="flex">
+        <BackButton href={signInUrl} label="Back to sign in" />
+      </div>
       <div className="space-y-2">
         <h1 className="text-2xl font-medium tracking-tight">
           Create your account

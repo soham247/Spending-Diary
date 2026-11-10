@@ -1,9 +1,11 @@
 "use client";
 
+import { BackButton } from "@/components/common/BackButton";
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
+  ArrowLeft,
   ArrowUpRight,
   MoreHorizontal,
   SlidersHorizontal,
@@ -129,6 +131,21 @@ export function ExpenseList({
     <PageLayout
       header={
         <PageHeader
+          back={
+            deleted ? (
+              <BackButton
+                label="Back to expenses"
+                onClick={() =>
+                  update({
+                    deleted: undefined,
+                    month: undefined,
+                    from: undefined,
+                    to: undefined,
+                  })
+                }
+              />
+            ) : undefined
+          }
           title={deleted ? "Deleted expenses" : "Expenses"}
           actions={
             <>
@@ -153,7 +170,13 @@ export function ExpenseList({
                       })
                     }
                   >
-                    {deleted ? "Back to expenses" : "Deleted expenses"}
+                    {deleted ? (
+                      <>
+                        <ArrowLeft aria-hidden="true" /> Back to expenses
+                      </>
+                    ) : (
+                      "Deleted expenses"
+                    )}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -365,6 +388,7 @@ export function ExpenseList({
                       <ExpenseHistoryRow
                         key={expense.id}
                         expense={expense}
+                        returnTo={pathname + "?" + params.toString()}
                         onRestore={deleted ? (id) => void undo(id) : undefined}
                         restoring={restore.isPending}
                       />
