@@ -96,6 +96,13 @@ test("expense history defaults to the latest month and supports mobile filters",
       page.getByRole("link").filter({ hasText: description }),
     ).toBeVisible();
     await expect(page.getByLabel("Monthly spending")).toContainText("123.45");
+    const historyUrl = page.url();
+    await page.getByRole("link").filter({ hasText: description }).click();
+    await page
+      .getByRole("link", { name: "Back to expenses", exact: true })
+      .click();
+    await expect(page).toHaveURL(historyUrl);
+    await expect(page.getByLabel("Monthly spending")).toContainText("123.45");
     await page
       .getByRole("link", { name: "View insights for February ’25" })
       .click();
@@ -205,7 +212,7 @@ test("personal expense create, edit, delete and undo work on mobile", async ({
   await page.getByLabel("Amount (INR)").fill("1,200.50");
   await page.getByLabel("What was it for?").fill(description);
   await page.getByRole("button", { name: "Save", exact: true }).click();
-  await expect(page).toHaveURL(/\/expenses\/[^/]+$/);
+  await expect(page).toHaveURL(/\/expenses\/[^/?]+(?:\?.*)?$/);
   await expect(page.getByRole("heading", { name: description })).toBeVisible();
   await expect(page.getByText(/1,200\.50/).first()).toBeVisible();
   await page.screenshot({
@@ -216,9 +223,14 @@ test("personal expense create, edit, delete and undo work on mobile", async ({
   await page.getByLabel("What was it for?").fill(description + " edited");
   await page.getByRole("button", { name: "Save", exact: true }).click();
   await expect(
-    page.getByRole("heading", { name: description + " edited" }),
+    page.getByRole("heading", { name: description + " edited", exact: true }),
   ).toBeVisible();
-  await page.getByRole("button", { name: "Delete", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Expense actions", exact: true })
+    .click();
+  await page
+    .getByRole("menuitem", { name: "Delete expense", exact: true })
+    .click();
   await page.getByRole("button", { name: "Undo", exact: true }).click();
   await expect(
     page.getByRole("link", { name: description + " edited" }),
@@ -615,7 +627,7 @@ test("a payer can stay outside the cost split in every split mode", async ({
     await page.getByLabel("What was it for?").fill(description + " edited");
     await page.getByRole("button", { name: "Save", exact: true }).click();
     await expect(
-      page.getByRole("heading", { name: description + " edited" }),
+      page.getByRole("heading", { name: description + " edited", exact: true }),
     ).toBeVisible();
   }
 });
@@ -1037,6 +1049,84 @@ test("form Drawers protect drafts and adapt from mobile to desktop", async ({
   await page.getByRole("button", { name: "Discard changes" }).click();
   await expect(drawer).toHaveCount(0);
   await expect(trigger).toBeFocused();
+});
+
+test("desktop expense drawer focuses a delayed amount field without stealing user focus", async ({
+  page,
+  context,
+}) => {
+  await login(context);
+  await completeProfile(context.request);
+  await page.setViewportSize({ width: 1440, height: 900 });
+  for (const interact of [false, true]) {
+    let release: () => void = () => {};
+    const pending = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    await page.route("**/api/friends", async (route) => {
+      await pending;
+      await route.continue();
+    });
+    await page.goto("/expenses");
+    const trigger = page.getByRole("button", {
+      name: "Add expense",
+      exact: true,
+    });
+    await trigger.click();
+    const drawer = page.getByRole("dialog", {
+      name: "Add expense",
+      exact: true,
+    });
+    const heading = drawer.getByRole("heading", {
+      name: "Add expense",
+      exact: true,
+    });
+    await expect(heading).toBeFocused();
+    const close = drawer.getByRole("button", {
+      name: "Close form",
+      exact: true,
+    });
+    if (interact) await close.focus();
+    release();
+    const amount = drawer.getByLabel("Amount (INR)");
+    await expect(amount).toBeVisible();
+    await expect(interact ? close : amount).toBeFocused();
+    await close.click();
+    await expect(drawer).toHaveCount(0);
+    await expect(trigger).toBeFocused();
+    await page.unroute("**/api/friends");
+  }
+});
+
+test("mobile expense drawer waits for a tap before focusing an input", async ({
+  page,
+  context,
+}) => {
+  await login(context);
+  await completeProfile(context.request);
+  await page.goto("/expenses");
+  const trigger = page.getByRole("button", {
+    name: "Add expense",
+    exact: true,
+  });
+  await trigger.click();
+  const drawer = page.getByRole("dialog", { name: "Add expense", exact: true });
+  const amount = drawer.getByLabel("Amount (INR)");
+  await expect(amount).toBeVisible();
+  await expect(
+    drawer.getByRole("heading", { name: "Add expense" }),
+  ).toBeFocused();
+  await expect(amount).not.toBeFocused();
+  await amount.click();
+  await expect(amount).toBeFocused();
+  await expect(amount).toBeInViewport();
+  await drawer.getByRole("button", { name: "Close form" }).click();
+  await expect(trigger).toBeFocused();
+  await trigger.click();
+  await expect(
+    drawer.getByRole("heading", { name: "Add expense" }),
+  ).toBeFocused();
+  await expect(drawer.getByLabel("Amount (INR)")).not.toBeFocused();
 });
 
 test("expense draft survives changing people and group, with explicit split reset", async ({

@@ -1,4 +1,5 @@
 "use client";
+import { BackButton } from "@/components/common/BackButton";
 import { ExpenseDrawer } from "@/components/expense/ExpenseDrawer";
 import Link from "next/link";
 import { AddPersonDrawer } from "@/components/friends/AddPersonDrawer";
@@ -27,7 +28,14 @@ export function GroupScreen({ id }: { id: string }) {
   const router = useRouter();
   if (group.isPending || group.isError)
     return (
-      <PageLayout header={<PageHeader title="Group" />}>
+      <PageLayout
+        header={
+          <PageHeader
+            title="Group"
+            back={<BackButton href="/groups" label="Back to groups" />}
+          />
+        }
+      >
         {group.isPending ? (
           <LoadingState />
         ) : (
@@ -69,6 +77,7 @@ export function GroupScreen({ id }: { id: string }) {
     <PageLayout
       header={
         <PageHeader
+          back={<BackButton href="/groups" label="Back to groups" />}
           title={row.name}
           description={
             <p>
