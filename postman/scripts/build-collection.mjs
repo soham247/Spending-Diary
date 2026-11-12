@@ -5,7 +5,10 @@ import { productContract } from "../contracts/product.mjs";
 import { appShellContract } from "../contracts/app-shell.mjs";
 import { paymentContract } from "../contracts/payments.mjs";
 import { peopleContract, peopleTests } from "../contracts/people.mjs";
-import { rateLimitContract, rateLimitTests } from "../contracts/rate-limits.mjs";
+import {
+  rateLimitContract,
+  rateLimitTests,
+} from "../contracts/rate-limits.mjs";
 
 const directory = "postman/collections/Spending Diary";
 const folders = new Map();
