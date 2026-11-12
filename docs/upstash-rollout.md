@@ -186,12 +186,12 @@ region. No read replicas or analytics in this rollout.
 
 Server-only configuration:
 
-| Variable                   | Purpose                                        |
-| -------------------------- | ---------------------------------------------- |
-| `UPSTASH_REDIS_REST_URL`   | HTTPS endpoint                                 |
-| `UPSTASH_REDIS_REST_TOKEN` | Server write credential, never `NEXT_PUBLIC_*` |
-| `RATE_LIMIT_KEY_SECRET`    | Independent HMAC secret                        |
-| `RATE_LIMIT_NAMESPACE`     | Stable project/environment namespace           |
+| Variable                | Purpose                                        |
+| ----------------------- | ---------------------------------------------- |
+| `KV_REST_API_URL`       | HTTPS endpoint                                 |
+| `KV_REST_API_TOKEN`     | Server write credential, never `NEXT_PUBLIC_*` |
+| `RATE_LIMIT_KEY_SECRET` | Independent HMAC secret                        |
+| `RATE_LIMIT_NAMESPACE`  | Stable project/environment namespace           |
 
 Example key: `sd:production:rl:v1:people-search:60:30:<hmac>`.
 HMAC the viewer ID, auth-generated key or normalized recipient with purpose
@@ -298,10 +298,15 @@ this architecture change.
 
 ## Operator setup
 
+The client reads Vercel's generated `KV_REST_API_URL` and `KV_REST_API_TOKEN`
+directly, including in local `.env`. No duplicate Upstash-named aliases are needed.
+Use the read/write token; `KV_REST_API_READ_ONLY_TOKEN`, `KV_URL` and `REDIS_URL`
+are not used by this client. This configuration choice is recorded in D-044.
+
 Before deploying this code, create a Free Upstash database near the Vercel function
 region and configure these server-only production environment variables:
 
-- `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` from the provider.
+- `KV_REST_API_URL` and `KV_REST_API_TOKEN` from the provider.
 - `RATE_LIMIT_KEY_SECRET`: a new random secret of at least 32 characters.
 - `RATE_LIMIT_NAMESPACE=sd:production`, stable across deployments.
 

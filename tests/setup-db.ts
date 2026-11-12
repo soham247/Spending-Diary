@@ -8,8 +8,8 @@ config({ path: resolve(process.cwd(), ".env.test"), quiet: true });
 process.env.DATABASE_URL = process.env.TEST_DATABASE_URL!;
 process.env.BETTER_AUTH_SECRET ??=
   "isolated-vitest-secret-at-least-32-characters";
-process.env.UPSTASH_REDIS_REST_URL = "http://127.0.0.1:58080";
-process.env.UPSTASH_REDIS_REST_TOKEN = "local-test-token";
+process.env.KV_REST_API_URL = "http://127.0.0.1:58080";
+process.env.KV_REST_API_TOKEN = "local-test-token";
 process.env.RATE_LIMIT_KEY_SECRET =
   "isolated-rate-limit-secret-at-least-32-characters";
 beforeEach(() => {

@@ -220,3 +220,7 @@ The user selected Upstash and requested a first-rollout architecture. Move short
 ### D-043 - 2026-11-10 - Implement Upstash rollout and recipient cooldowns
 
 The user instructed us to proceed with the documented rollout, including one account email per recipient and purpose per minute and five per hour across verification and password reset. Use generic recipient-level suppression and fail closed with temporary errors when protection is unavailable. Inspection of Better Auth 1.7.18 showed custom-storage errors escape its HTTP error handler; use its supported effective-rule callback and request plugin together to return native 429/503 responses. Preflight reset, resend and signup before identity lookup or writes, carry allowance in request-scoped state, and send SMTP through the after-transaction hook. Postgres remains authoritative for sessions and financial state. Production provisioning and Vercel/provider smoke checks remain deployment work.
+
+### D-044 - 2026-11-12 - Use Vercel's generated KV environment variables
+
+The user requested using the Redis variables automatically created by the Vercel Upstash integration. Read KV_REST_API_URL and the read/write KV_REST_API_TOKEN directly in local development and Vercel. This replaces the duplicate UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN aliases in the rollout instructions. RATE_LIMIT_KEY_SECRET and RATE_LIMIT_NAMESPACE remain app-owned configuration. No rate-limit policy or HTTP contract changes.

@@ -9,7 +9,7 @@ beforeEach(() => {
   vi.stubEnv("VERCEL", "");
   vi.stubEnv("RATE_LIMIT_NAMESPACE", "sd:unit");
   vi.stubEnv("RATE_LIMIT_KEY_SECRET", "a-test-key-with-at-least-32-characters");
-  vi.stubEnv("UPSTASH_REDIS_REST_TOKEN", "fixture-only");
+  vi.stubEnv("KV_REST_API_TOKEN", "fixture-only");
   vi.spyOn(console, "warn").mockImplementation(() => {});
 });
 afterEach(async () => {
@@ -46,7 +46,7 @@ describe("rate limit HTTP failure boundary", () => {
         server!.listen(0, "127.0.0.1", resolve),
       );
       vi.stubEnv(
-        "UPSTASH_REDIS_REST_URL",
+        "KV_REST_API_URL",
         `http://127.0.0.1:${(server.address() as AddressInfo).port}`,
       );
       const { enforceLimit } = await import("@/lib/rate-limit/consume");
@@ -67,7 +67,7 @@ describe("rate limit HTTP failure boundary", () => {
     },
   );
   it("does not allow requests with missing configuration", async () => {
-    vi.stubEnv("UPSTASH_REDIS_REST_URL", "");
+    vi.stubEnv("KV_REST_API_URL", "");
     const { enforceLimit } = await import("@/lib/rate-limit/consume");
     await expect(
       enforceLimit("viewer", {
