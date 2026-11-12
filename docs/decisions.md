@@ -227,4 +227,4 @@ The user requested using the Redis variables automatically created by the Vercel
 
 ### D-045 - 2026-11-12 - Eight-character minimum passwords
 
-The user requested reducing the minimum password length to 8 characters. Use the same 8-to-128-character policy in Better Auth, sign-up and password reset, without composition rules or trimming. Sign-in continues to pass credentials unchanged to Better Auth. Verification, account linking, rate limits and reset protections remain unchanged.
+Supersedes D-022's password minimum; its other password and abuse protections remain in effect. The user requested reducing the minimum password length to 8 characters. Use the same 8-to-128-character policy in Better Auth, sign-up and password reset, without composition rules or trimming. Sign-in continues to pass credentials unchanged to Better Auth. Verification, account linking, rate limits and reset protections remain unchanged.

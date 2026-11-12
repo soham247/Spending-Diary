@@ -32,6 +32,60 @@ function friendFixture(id: string, name: string, net = 0): FriendList[number] {
   };
 }
 
+for (const scenario of ["list", "friend"] as const) {
+  test(`${scenario} shows retry after a cached background refresh fails`, async ({
+    page,
+    context,
+  }) => {
+    await login(context, "owner");
+    const friend = friendFixture("aman", "Aman");
+    let failing = false;
+    await page.route(/\/api\/friends$/, (route) =>
+      route.fulfill({ json: { data: [friend] } }),
+    );
+    await page.route(/\/api\/friends\/aman$/, (route) =>
+      route.fulfill({
+        json: {
+          data: {
+            ...friend,
+            pair: { low: "aman", high: "viewer" },
+            expenses: [],
+            settlements: [],
+          },
+        },
+      }),
+    );
+    await page.route(
+      scenario === "list" ? /\/api\/friends$/ : /\/api\/friends\/aman$/,
+      (route) =>
+        failing
+          ? route.fulfill({
+              status: 503,
+              json: { error: { code: "UNAVAILABLE", message: "Try again" } },
+            })
+          : route.fallback(),
+    );
+    await page.goto(scenario === "list" ? "/friends" : "/friends/aman");
+    const content =
+      scenario === "list"
+        ? page.getByRole("link", { name: /Aman/ })
+        : page.getByRole("region", { name: "Friend summary" });
+    await expect(content).toBeVisible();
+    failing = true;
+    await page.clock.setFixedTime(new Date(Date.now() + 60_000));
+    await page.evaluate(() =>
+      window.dispatchEvent(new Event("visibilitychange")),
+    );
+    const retry = page.getByRole("button", { name: "Try again", exact: true });
+    await expect(retry).toBeVisible();
+    await expect(content).toHaveCount(0);
+    failing = false;
+    await retry.click();
+    await expect(retry).toHaveCount(0);
+    await expect(content).toBeVisible();
+  });
+}
+
 test("friend tabs show expense shares, payment metadata and offsetting scope balances", async ({
   page,
   context,

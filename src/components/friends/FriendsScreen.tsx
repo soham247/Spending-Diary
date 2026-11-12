@@ -144,7 +144,7 @@ export function FriendsScreen() {
         </div>
         {friends.isPending ? (
           <FriendsLoading />
-        ) : !friends.data ? (
+        ) : friends.isError || !friends.data ? (
           <ErrorState
             message="Couldn't load your friends. Try again."
             retry={() => void friends.refetch()}

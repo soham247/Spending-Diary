@@ -59,7 +59,7 @@ export function FriendScreen({
         <FriendsLoading />
       </PageLayout>
     );
-  if (!friend.data || !profile.data)
+  if (friend.isError || profile.isError || !friend.data || !profile.data)
     return (
       <PageLayout
         header={<PageHeader title="Friend" back={back} />}

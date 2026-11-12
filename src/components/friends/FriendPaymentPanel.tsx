@@ -11,7 +11,7 @@ import {
 export function FriendPaymentPanel({ other }: Pick<SettlePanelProps, "other">) {
   const profile = useProfile();
   if (profile.isPending) return <LoadingState />;
-  if (!profile.data)
+  if (profile.isError || !profile.data)
     return (
       <ErrorState
         message="Couldn't load your payment details. Try again."
