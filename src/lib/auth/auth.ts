@@ -5,6 +5,8 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "@/lib/db/client";
 import * as schema from "@/lib/db/schema";
 import { isPlaceholderEmail } from "@/lib/utils/email";
+import { authRateLimits } from "@/lib/rate-limit/better-auth-storage";
+import { preflightEmail } from "@/lib/rate-limit/email";
 import {
   sendVerificationEmail,
   sendPasswordResetEmail,
@@ -21,6 +23,7 @@ function ineligibleIdentity(user: { email: string }): boolean {
 
 export type BetterAuthOptions = Parameters<typeof betterAuth>[0];
 export function createAuth(overrides: Partial<BetterAuthOptions> = {}) {
+  const limits = authRateLimits();
   const appUrl =
     process.env.NEXT_PUBLIC_APP_URL ??
     (process.env.VERCEL_URL
@@ -71,10 +74,29 @@ export function createAuth(overrides: Partial<BetterAuthOptions> = {}) {
       },
     },
     socialProviders: {},
-    rateLimit: { enabled: true, storage: "database", window: 60, max: 30 },
+    rateLimit: limits.rateLimit,
+    plugins: [limits.plugin],
+    advanced: {
+      ipAddress: {
+        ipAddressHeaders: process.env.VERCEL ? ["x-forwarded-for"] : [],
+      },
+    },
     hooks: {
       before: createAuthMiddleware(async (ctx) => {
         const body = ctx.body as Record<string, unknown> | undefined;
+        if (
+          typeof body?.email === "string" &&
+          (ctx.path === "/request-password-reset" ||
+            ctx.path === "/send-verification-email" ||
+            ctx.path === "/sign-up/email")
+        ) {
+          await preflightEmail(
+            body.email,
+            ctx.path === "/request-password-reset"
+              ? "password-reset"
+              : "verification",
+          );
+        }
         if (
           ctx.path === "/sign-in/email" &&
           typeof body?.email === "string" &&

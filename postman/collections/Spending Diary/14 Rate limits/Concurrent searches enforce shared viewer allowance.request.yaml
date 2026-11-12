@@ -1,0 +1,27 @@
+"$kind": "http-request"
+"name": "Concurrent searches enforce shared viewer allowance"
+"order": 1000
+"method": "POST"
+"url": "{{base_url}}/api/people/search"
+"settings":
+  "followRedirects": false
+"headers":
+  - "key": "Cookie"
+    "value": "{{outsider_cookie}}"
+  - "key": "Origin"
+    "value": "{{base_url}}"
+  - "key": "Content-Type"
+    "value": "application/json"
+"body":
+  "type": "json"
+  "content": |-
+    {
+      "query": "No matching fixture"
+    }
+"scripts":
+  - "type": "afterResponse"
+    "language": "text/javascript"
+    "code": |-
+      pm.test('HTTP 200', () => pm.response.to.have.status(200));
+      pm.test('JSON response envelope', () => { const b = pm.response.json(); if (pm.response.code < 400) pm.expect(b).to.have.property('data'); else { pm.expect(b.error.code).to.be.a('string'); pm.expect(b.error.message).to.be.a('string'); } });
+      const req={url:pm.environment.get('base_url')+'/api/people/search',method:'POST',header:{'Content-Type':'application/json','Origin':pm.environment.get('base_url'),'Cookie':pm.environment.get('outsider_cookie')},body:{mode:'raw',raw:JSON.stringify({query:'No matching fixture'})}}; const replies=await Promise.all(Array.from({length:30},()=>pm.sendRequest(req))); pm.test('Concurrent searches reach the shared limit',()=>{pm.expect(replies.filter(r=>r.code===200).length).to.eql(29);pm.expect(replies.filter(r=>r.code===429).length).to.eql(1);const denied=replies.find(r=>r.code===429);pm.expect(denied.json().error.code).to.eql('RATE_LIMITED');pm.expect(Number(denied.headers.get('Retry-After'))).to.be.above(0);});

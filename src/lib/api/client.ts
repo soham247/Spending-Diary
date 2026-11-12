@@ -4,6 +4,7 @@ export class ApiError extends Error {
     public code: string,
     message: string,
     public fields?: Record<string, string>,
+    public retryAfter?: number,
   ) {
     super(message);
   }
@@ -17,6 +18,9 @@ export async function responseData<T>(response: Response): Promise<T> {
       body.error?.message ??
         "Couldn't save. Check your connection and try again.",
       body.error?.fields,
+      response.headers.has("Retry-After")
+        ? Number(response.headers.get("Retry-After"))
+        : undefined,
     );
   return body.data as T;
 }

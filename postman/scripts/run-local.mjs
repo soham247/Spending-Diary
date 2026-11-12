@@ -111,6 +111,11 @@ try {
     SMTP_PORT: String(smtp.port),
     SMTP_USER: "",
     SMTP_PASS: "",
+    KV_REST_API_URL: "http://127.0.0.1:58080",
+    KV_REST_API_TOKEN: "local-test-token",
+    RATE_LIMIT_KEY_SECRET: randomBytes(32).toString("hex"),
+    RATE_LIMIT_NAMESPACE: "sd:postman:" + randomBytes(8).toString("hex"),
+    VERCEL: "",
   };
   if (appEnvironment.NO_COLOR !== undefined) delete appEnvironment.FORCE_COLOR;
   if (production) {

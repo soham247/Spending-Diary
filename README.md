@@ -43,6 +43,8 @@ Install Chromium with npx playwright install chromium before running browser tes
 
 ## Deployment
 
+Configure the server-only Upstash endpoint, token, rate-limit HMAC secret and stable namespace before deploying. Missing Redis configuration intentionally blocks protected auth and people actions with 503. See [Upstash rollout and local fixtures](docs/upstash-rollout.md#operator-setup). Sessions and financial data remain in Postgres.
+
 Apply migrations before deploying application code. Set NEXT_PUBLIC_APP_URL to the deployed origin and configure matching Google OAuth callbacks, SMTP, VAPID keys and CRON_SECRET. Keep BETTER_AUTH_SECRET stable; invitation token recovery also uses it.
 
 Before release, verify live Google ownership linking, verification/reset email delivery and sender DNS, mobile UPI payment return, Web Push, installation, keyboard navigation, light/dark themes and mobile performance. Local fixtures and Chromium tests do not establish live-provider behavior.

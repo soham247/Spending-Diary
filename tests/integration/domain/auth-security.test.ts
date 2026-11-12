@@ -1,15 +1,9 @@
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { randomBytes } from "node:crypto";
 import { and, eq } from "drizzle-orm";
 import { createAuth } from "@/lib/auth/auth";
 import { db } from "@/lib/db/client";
-import {
-  accounts,
-  rateLimits,
-  sessions,
-  users,
-  verifications,
-} from "@/lib/db/schema";
+import { accounts, sessions, users, verifications } from "@/lib/db/schema";
 import { setTestMailbox } from "@/lib/mail/transport";
 
 const base = "http://localhost:3000";
@@ -57,10 +51,12 @@ function mailUrl() {
   return new URL(href);
 }
 beforeEach(() => {
+  vi.stubEnv("VERCEL", "1");
   mailbox = [];
   setTestMailbox(mailbox);
 });
 afterEach(() => {
+  vi.unstubAllEnvs();
   setTestMailbox(null);
 });
 describe("Better Auth security", () => {
@@ -226,7 +222,6 @@ describe("Better Auth security", () => {
     const body = { email: "missing@example.test", password: freshPassword() };
     const first = await post(auth, "sign-in/email", body, ip);
     expect(first.status).toBe(401);
-    expect(await db.select().from(rateLimits)).not.toHaveLength(0);
     const secondAuth = configuredAuth();
     await post(secondAuth, "sign-in/email", body, ip);
     await post(auth, "sign-in/email", body, ip);

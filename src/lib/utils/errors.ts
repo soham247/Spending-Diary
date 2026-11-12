@@ -18,6 +18,22 @@ export class UnauthorizedError extends AppError {
   }
 }
 
+export class RateLimitError extends AppError {
+  constructor(public readonly retryAfter: number) {
+    super("Too many requests. Please try again later.", "RATE_LIMITED", 429);
+  }
+}
+
+export class RateLimitUnavailableError extends AppError {
+  constructor() {
+    super(
+      "This action is temporarily unavailable. Please try again later.",
+      "RATE_LIMIT_UNAVAILABLE",
+      503,
+    );
+  }
+}
+
 export class ForbiddenError extends AppError {
   constructor(message = "You do not have permission to perform this action") {
     super(message, "FORBIDDEN", 403);
@@ -66,7 +82,13 @@ export function toErrorResponse(err: unknown): NextResponse<ErrorResponseBody> {
           ...(err.fields ? { fields: err.fields } : {}),
         },
       },
-      { status: err.statusCode },
+      {
+        status: err.statusCode,
+        headers:
+          err instanceof RateLimitError
+            ? { "Retry-After": String(err.retryAfter) }
+            : undefined,
+      },
     );
   }
 

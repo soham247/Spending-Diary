@@ -3,7 +3,6 @@ import { createHash } from "node:crypto";
 import { and, eq, gte, inArray, isNull } from "drizzle-orm";
 import { db, type DbTx } from "@/lib/db/client";
 import {
-  emailRateLimits,
   friendRequests,
   friendships,
   idempotencyRecords,
@@ -11,7 +10,9 @@ import {
   users,
 } from "@/lib/db/schema";
 import { assertActiveViewer, assertCanConnect } from "@/lib/auth/guards";
-import { AppError, ConflictError, NotFoundError } from "@/lib/utils/errors";
+import { ConflictError, NotFoundError } from "@/lib/utils/errors";
+import { enforceLimit } from "@/lib/rate-limit/consume";
+import { peoplePolicies } from "@/lib/rate-limit/policies";
 import { orderPair } from "@/lib/utils/order-pair";
 import { searchPeople, sharedGroupPeople } from "@/lib/db/queries/people";
 import {
@@ -23,49 +24,11 @@ import {
 } from "@/lib/validation/people";
 import { reserveIdempotency } from "./idempotency";
 
-async function limit(
-  viewerId: string,
-  operation: string,
-  maximum: number,
-  tx: DbTx,
-) {
-  const key = `people:${operation}:${viewerId}`;
-  const now = new Date();
-  const [row] = await tx
-    .select()
-    .from(emailRateLimits)
-    .where(eq(emailRateLimits.key, key));
-  const active = row && row.windowEndsAt > now;
-  if (active && row.count >= maximum)
-    throw new AppError(
-      "Please wait a minute before trying again.",
-      "RATE_LIMITED",
-      429,
-    );
-  await tx
-    .insert(emailRateLimits)
-    .values({ key, count: 1, windowEndsAt: new Date(now.getTime() + 60000) })
-    .onConflictDoUpdate({
-      target: emailRateLimits.key,
-      set: {
-        count: active ? row.count + 1 : 1,
-        windowEndsAt: active
-          ? row.windowEndsAt
-          : new Date(now.getTime() + 60000),
-      },
-    });
-}
-
 export async function findPeople(viewerId: string, raw: string) {
   const { query } = peopleSearchSchema.parse({ query: raw });
+  await enforceLimit(viewerId, peoplePolicies.search);
   return db.transaction(async (tx) => {
-    await tx
-      .select({ id: users.id })
-      .from(users)
-      .where(eq(users.id, viewerId))
-      .for("update");
     await assertActiveViewer(viewerId, tx);
-    await limit(viewerId, "search", 30, tx);
     return searchPeople(viewerId, query, tx);
   });
 }
@@ -124,15 +87,7 @@ export async function sendFriendRequest(
   key: string,
 ) {
   const input = createFriendRequestSchema.parse(raw);
-  await db.transaction(async (tx) => {
-    await tx
-      .select({ id: users.id })
-      .from(users)
-      .where(eq(users.id, viewerId))
-      .for("update");
-    await assertActiveViewer(viewerId, tx);
-    await limit(viewerId, "request", 10, tx);
-  });
+  await enforceLimit(viewerId, peoplePolicies.request);
   return db.transaction(async (tx) => {
     const [link] = input.token
       ? await tx
