@@ -17,11 +17,11 @@ describe("auth form validation", () => {
   it("applies the signup password policy without composition rules", () => {
     const input = { name: "Priya", email: "priya@example.com" };
     expect(
-      registerFormSchema.safeParse({ ...input, password: "a".repeat(9) })
+      registerFormSchema.safeParse({ ...input, password: "a".repeat(7) })
         .success,
     ).toBe(false);
     expect(
-      registerFormSchema.safeParse({ ...input, password: "a".repeat(10) })
+      registerFormSchema.safeParse({ ...input, password: "a".repeat(8) })
         .success,
     ).toBe(true);
     expect(

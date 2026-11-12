@@ -14,6 +14,7 @@ import {
 } from "@/lib/validation/settlement-draft";
 import { amountInputValue, todayDate } from "@/lib/validation/personal-expense";
 import { Money } from "@/components/money/Money";
+import { AmountInput } from "@/components/money/AmountInput";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -146,11 +147,11 @@ export function PaymentForm({
   return (
     <div className="space-y-4">
       <fieldset
-        className="space-y-4"
+        className="grid min-w-0 grid-cols-1 gap-5 sm:grid-cols-2"
         disabled={create.isPending || awaitingUpi}
       >
         {!scopeId && (
-          <div className="space-y-2">
+          <div className="min-w-0 space-y-2">
             <Label htmlFor={id + "scope"}>Payment scope</Label>
             <Select
               value={selectedScope}
@@ -161,7 +162,10 @@ export function PaymentForm({
               }}
               disabled={create.isPending || awaitingUpi}
             >
-              <SelectTrigger id={id + "scope"}>
+              <SelectTrigger
+                id={id + "scope"}
+                className="min-h-11 w-full min-w-0"
+              >
                 <SelectValue placeholder="Choose Direct or a group" />
               </SelectTrigger>
               <SelectContent>
@@ -175,13 +179,13 @@ export function PaymentForm({
           </div>
         )}
         {scopeId && (
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground sm:col-span-2">
             Payment scope: {scope?.name}
           </p>
         )}
         {!other && (
-          <div className="space-y-2">
-            <Label htmlFor={id + "person"}>Other person</Label>
+          <div className="min-w-0 space-y-2">
+            <Label htmlFor={id + "person"}>Person</Label>
             <Select
               value={personId}
               onValueChange={(value) => {
@@ -190,7 +194,10 @@ export function PaymentForm({
               }}
               disabled={create.isPending || awaitingUpi}
             >
-              <SelectTrigger id={id + "person"}>
+              <SelectTrigger
+                id={id + "person"}
+                className="min-h-11 w-full min-w-0"
+              >
                 <SelectValue placeholder="Choose a person" />
               </SelectTrigger>
               <SelectContent>
@@ -203,28 +210,31 @@ export function PaymentForm({
             </Select>
           </div>
         )}
-        <div className="space-y-2">
-          <Label htmlFor={id + "direction"}>Payer → receiver</Label>
+        <div className="min-w-0 space-y-2 sm:col-span-2">
+          <Label htmlFor={id + "direction"}>Paid by</Label>
           <Select
             value={values.viewerPays ? "pay" : "receive"}
             onValueChange={(value) => change({ viewerPays: value === "pay" })}
             disabled={create.isPending || awaitingUpi}
           >
-            <SelectTrigger id={id + "direction"}>
+            <SelectTrigger
+              id={id + "direction"}
+              className="min-h-11 w-full min-w-0"
+            >
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="pay">
-                You → {person?.name ?? "other person"}
+                You paid {person?.name ?? "the other person"}
               </SelectItem>
               <SelectItem value="receive">
-                {person?.name ?? "Other person"} → you
+                {person?.name ?? "The other person"} paid you
               </SelectItem>
             </SelectContent>
           </Select>
         </div>
         {person && (
-          <p>
+          <p className="border-b border-dashed border-border pb-5 text-sm sm:col-span-2">
             {person.net === 0 ? (
               "You are settled up in this scope."
             ) : (
@@ -241,27 +251,27 @@ export function PaymentForm({
             )}
           </p>
         )}
-        <div className="space-y-2">
+        <div className="min-w-0 space-y-2 sm:col-span-2">
           <Label htmlFor={id + "amount"}>
             Payment amount ({scope?.currency ?? "INR"})
           </Label>
-          <Input
+          <AmountInput
             id={id + "amount"}
-            inputMode="decimal"
             value={values.amount}
-            onChange={(event) => change({ amount: event.target.value })}
+            onChange={(amount) => change({ amount })}
           />
         </div>
-        <div className="space-y-2">
+        <div className="min-w-0 space-y-2">
           <Label htmlFor={id + "date"}>Payment date</Label>
           <Input
             id={id + "date"}
             type="date"
+            className="min-h-11 min-w-0 w-full"
             value={values.date}
             onChange={(event) => change({ date: event.target.value })}
           />
         </div>
-        <div className="space-y-2">
+        <div className="min-w-0 space-y-2">
           <Label htmlFor={id + "method"}>Payment method</Label>
           <Select
             value={values.method}
@@ -270,7 +280,10 @@ export function PaymentForm({
             }
             disabled={create.isPending || awaitingUpi}
           >
-            <SelectTrigger id={id + "method"}>
+            <SelectTrigger
+              id={id + "method"}
+              className="min-h-11 w-full min-w-0"
+            >
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -280,7 +293,7 @@ export function PaymentForm({
             </SelectContent>
           </Select>
         </div>
-        <div className="space-y-2">
+        <div className="min-w-0 space-y-2 sm:col-span-2">
           <Label htmlFor={id + "note"}>Note (optional)</Label>
           <Textarea
             id={id + "note"}
@@ -302,7 +315,7 @@ export function PaymentForm({
         </p>
       )}
       {awaitingUpi ? (
-        <div className="form-drawer-actions flex flex-wrap gap-3">
+        <div className="form-drawer-actions flex flex-wrap gap-3 border-t border-border">
           <p className="w-full">
             {returned
               ? "Did your payment go through?"
@@ -326,9 +339,10 @@ export function PaymentForm({
           </Button>
         </div>
       ) : (
-        <div className="form-drawer-actions flex flex-wrap gap-3">
+        <div className="form-drawer-actions flex flex-wrap gap-3 border-t border-border">
           {values.viewerPays && person?.upiId && scope?.currency === "INR" && (
             <Button
+              className="min-h-11 flex-1"
               disabled={!!error || create.isPending}
               onClick={() => submit("upi")}
             >
@@ -336,7 +350,12 @@ export function PaymentForm({
             </Button>
           )}
           <Button
-            variant="outline"
+            variant={
+              values.viewerPays && person?.upiId && scope?.currency === "INR"
+                ? "outline"
+                : "default"
+            }
+            className="min-h-11 flex-1"
             disabled={!!error || create.isPending}
             onClick={() => submit("record")}
           >

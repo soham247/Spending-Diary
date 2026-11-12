@@ -105,7 +105,7 @@ test("signup confirms verification and preserves the callback without creating a
     .getByRole("button", { name: "Create account", exact: true })
     .click();
   await expect(
-    page.getByText("Use at least 10 characters", { exact: true }),
+    page.getByText("Use at least 8 characters", { exact: true }),
   ).toBeVisible();
   await page
     .getByLabel("Password", { exact: true })

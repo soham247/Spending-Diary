@@ -1,4 +1,9 @@
 ﻿import { FriendsScreen } from "@/components/friends/FriendsScreen";
+import { Suspense } from "react";
 export default function FriendsPage() {
-  return <FriendsScreen />;
+  return (
+    <Suspense>
+      <FriendsScreen />
+    </Suspense>
+  );
 }

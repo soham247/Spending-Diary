@@ -60,6 +60,54 @@ afterEach(() => {
   setTestMailbox(null);
 });
 describe("Better Auth security", () => {
+  it("accepts eight-character passwords and rejects seven for signup and reset", async () => {
+    const auth = configuredAuth();
+    expect(
+      (
+        await post(auth, "sign-up/email", {
+          email: "short-policy@example.test",
+          password: "a".repeat(7),
+          name: "Password policy fixture",
+        })
+      ).status,
+    ).toBe(400);
+    const email = "password-policy@example.test";
+    const password = "a".repeat(8);
+    const id = await signup(auth, email, password);
+    await db.update(users).set({ emailVerified: true }).where(eq(users.id, id));
+    expect(
+      (await post(auth, "sign-in/email", { email, password })).status,
+    ).toBe(200);
+    expect(
+      (
+        await post(auth, "request-password-reset", {
+          email,
+          redirectTo: base + "/reset-password",
+        })
+      ).status,
+    ).toBe(200);
+    const token = mailUrl().pathname.split("/").at(-1)!;
+    expect(
+      (
+        await post(auth, "reset-password", {
+          token,
+          newPassword: "b".repeat(7),
+        })
+      ).status,
+    ).toBe(400);
+    expect(
+      (
+        await post(auth, "reset-password", {
+          token,
+          newPassword: "b".repeat(8),
+        })
+      ).status,
+    ).toBe(200);
+    expect(
+      (await post(auth, "sign-in/email", { email, password: "b".repeat(8) }))
+        .status,
+    ).toBe(200);
+  });
   it("signs up, requires verification, then signs in with a real verified mailbox proof", async () => {
     const auth = configuredAuth();
     const password = freshPassword();

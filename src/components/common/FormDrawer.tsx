@@ -69,6 +69,7 @@ export function FormDrawer({
   trigger,
   defaultOpen = false,
   onDismiss,
+  onClosed,
   children,
 }: {
   title: string;
@@ -76,6 +77,7 @@ export function FormDrawer({
   trigger?: ReactElement;
   defaultOpen?: boolean;
   onDismiss?: () => void;
+  onClosed?: () => void;
   children: ReactNode;
 }) {
   const isMobile = useIsMobile();
@@ -159,6 +161,14 @@ export function FormDrawer({
         {trigger && <DrawerTrigger asChild>{trigger}</DrawerTrigger>}
         <DrawerContent
           ref={contentRef}
+          onCloseAutoFocus={
+            onClosed
+              ? (event) => {
+                  event.preventDefault();
+                  onClosed();
+                }
+              : undefined
+          }
           className="form-drawer-content w-full data-[vaul-drawer-direction=bottom]:mx-auto data-[vaul-drawer-direction=bottom]:sm:max-w-2xl data-[vaul-drawer-direction=right]:w-full data-[vaul-drawer-direction=right]:sm:max-w-2xl"
           onOpenAutoFocus={(event) => {
             stopWaitingForInput.current?.();

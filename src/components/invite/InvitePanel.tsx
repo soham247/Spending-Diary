@@ -141,7 +141,7 @@ export function InvitePanel({
           </div>
           <p className="text-sm text-muted-foreground">
             {input.type === "PERSONAL"
-              ? "People with this link can send you a request. You choose whether to accept. Revoke it to stop new requests."
+              ? "You choose whether to accept connection requests"
               : input.type === "DIRECT"
                 ? "This link can be claimed once and expires after 30 days."
                 : "This link expires after 14 days."}

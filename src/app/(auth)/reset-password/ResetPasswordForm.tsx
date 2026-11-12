@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth/auth-client";
+import { newPasswordSchema, passwordPolicy } from "@/lib/validation/auth";
 
 interface Props {
   token?: string;
@@ -32,8 +33,9 @@ export default function ResetPasswordForm({ token, errorParam }: Props) {
       setError("Passwords don't match.");
       return;
     }
-    if (password.length < 10) {
-      setError("Password must be at least 10 characters.");
+    const validation = newPasswordSchema.safeParse(password);
+    if (!validation.success) {
+      setError(validation.error.issues[0]?.message ?? "Enter a valid password");
       return;
     }
     setLoading(true);
@@ -97,7 +99,7 @@ export default function ResetPasswordForm({ token, errorParam }: Props) {
       <div className="space-y-1 text-center">
         <h1 className="text-xl font-semibold">Set a new password</h1>
         <p className="text-sm text-muted-foreground">
-          Choose a strong password of at least 10 characters.
+          Use at least {passwordPolicy.minLength} characters
         </p>
       </div>
 
@@ -117,10 +119,10 @@ export default function ResetPasswordForm({ token, errorParam }: Props) {
             id="password"
             type="password"
             autoComplete="new-password"
-            placeholder="at least 10 characters"
+            placeholder={`at least ${passwordPolicy.minLength} characters`}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            minLength={10}
+            minLength={passwordPolicy.minLength}
             required
             autoFocus
           />
