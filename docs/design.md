@@ -452,7 +452,10 @@ equally.
 └──────────────────────────────┘
 ```
 
-- **Amount first.** The amount field is autofocused, `text-4xl tabular-nums`,
+- **Amount first.** Desktop drawers focus the first available input, waiting for
+  asynchronously loaded forms unless the user has already moved focus. Mobile
+  drawers focus their title so the keyboard opens only after tapping a field.
+  The amount field uses `text-4xl tabular-nums`,
   with `inputMode="decimal"` for the numeric keyboard. It accepts "1200",
   "1,200", and "1200.5"; parsing goes through `toMinor()`.
 - **Description** suggests the category from keywords (e.g. "uber" → Transport)
@@ -518,12 +521,29 @@ Percentages, Shares**. Below it, one row per person.
 
 ### 6.9 Expense detail
 
-Header: category icon, description, total (`Money tone="neutral"`), date, and
-"Added by Aman on 28 Sep". Then two short lists: "Paid by" and "Split", each
-row with a person and an amount. Then the viewer's line in words ("You owe
-Priya ₹800"). Actions: "Edit" (primary) and a `DropdownMenu` with "Delete".
-Below: a "History" section showing activity for this expense
-("Aman changed the amount from ₹900 to ₹1,200").
+Keep the persistent header with description, category, Back, an accessible
+pencil Edit icon and an expense-actions dropdown containing Delete expense.
+Back retains the originating
+history filters. Use a compact reading width, readable calendar date, group
+context or Direct expense, bill total (`Money tone="neutral"`) and creator
+attribution when the creator's name is available. Shared expenses pair Your share
+with You paid, then divided Paid by and split lists. Label the saved split method
+and show percentage/share weights. Payer-only participants stay in Paid by and
+out of the split; included zero-share participants remain in the split.
+These amounts describe this expense, never a current outstanding balance.
+Personal expenses show one amount without repeating payer and split lists.
+Notes have a heading and wrap long text. History shows the latest three events,
+expandable before/after changes and Show older activity. Unknown legacy snapshots
+retain a plain event summary. Loading and retry states remain local to the share
+and history sections, without showing a false zero.
+
+Expense-detail polish keeps the selected Nova theme, Oxanium font, section order
+and pencil Edit control. Group the bill and personal share in one summary with
+16px internal spacing and a quiet dashed receipt divider. Use 24px between
+sections, 16px medium-weight section headings, and neutral tabular amounts.
+Keep divided participant lists in their existing surfaces; History uses a simple
+ruled timeline. Expanded events show their before/after details once, without
+repeating the collapsed preview. Craft guidance: [unslop by Damir Sokolovsky](https://heydamir.design/unslop), CC BY 4.0.
 
 Delete doesn't use a confirmation dialog. It removes the row, navigates back,
 and shows a toast: "Expense deleted" with "Undo". Deletion is reversible, so a
@@ -861,3 +881,8 @@ On Expenses, the month selector, Filters action and Both/Personal/Shared quick f
 Each active month header is one full-width link with a quiet ArrowUpRight icon beside the spending amount and an accessible View insights for [month] label. It navigates in the same tab to /insights?month=YYYY-MM. Keep a 44px touch target, a visible keyboard focus outline and a quiet hover surface. Insights validates the month using its shared input schema and defaults to the current month when the URL value is missing or invalid. Deleted-history headings omit the link because deleted expenses do not count as spending.
 
 Default to the latest month with matching expenses. The selector lists available calendar months with years and All months; custom dates override month selection. Use November ’26 month headings with right-aligned viewer spending totals computed across all pages, separately per currency. Shared rows pair a prominent owed share with a quieter Bill amount; personal rows show one amount. Whole rows open details, titles wrap to two lines, dates use readable day/month text and amounts stay aligned. Include group expenses without my share is an advanced opt-in; those rows say No share. Deleted expenses live in the overflow menu and offer Restore without a spending total. Advanced filters use a bottom sheet on phones and a right sheet on desktop, with draft values, inline date errors, Reset and Apply filters. Preserve filters in the URL and scroll on returning from details. Loading and errors never display a false zero. Keep a quiet empty state with Reset filters. The history begins directly below the controls, without the explanatory row or large summary card. Maintain Nova tokens, selected font, 44px mobile controls, visible focus, clear bottom-navigation space and reduced motion. Craft guidance: [unslop by Damir Sokolovsky](https://heydamir.design/unslop), CC BY 4.0.
+
+
+### Back navigation (D-041)
+
+Use the shared BackButton for return navigation: one ArrowLeft icon, a 44px ghost target at every width, a destination-specific accessible name and native tooltip. Place it at the start of detail page headers and auth content, and beside form-step headings. On detail screens, the back arrow replaces the mobile sidebar toggle; main screens retain the menu toggle. The desktop sidebar keeps its own toggle. This follows the user's explicit preference and supersedes the every-screen menu requirement in D-039. Detail arrows navigate to explicit parent destinations; expense history passes its URL into details so returning restores filters and existing scroll restoration. Direct expense links fall back to Expenses. Form-step arrows return inside the open drawer and restore focus without discarding the expense draft. Menus retain text alongside their back icon for scanning. Loading and error states retain the same return control. This navigation exception supersedes the general preference for text labels in section 2.

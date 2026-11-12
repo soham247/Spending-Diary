@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { BackButton } from "@/components/common/BackButton";
 import { Check } from "lucide-react";
 import { useGroup } from "@/hooks/use-groups";
 import { Button } from "@/components/ui/button";
@@ -66,12 +67,12 @@ export function ExpensePeoplePicker({
     !!scope && (group.isPending || group.isError || !group.data?.canWrite);
   return (
     <div className="space-y-4">
-      <Button type="button" variant="ghost" onClick={onCancel}>
-        Back to expense
-      </Button>
-      <h2 ref={heading} tabIndex={-1} className="text-lg font-semibold">
-        Who is this expense with?
-      </h2>
+      <div className="flex items-center gap-3">
+        <BackButton label="Back to expense" onClick={onCancel} />
+        <h2 ref={heading} tabIndex={-1} className="text-lg font-semibold">
+          Who is this expense with?
+        </h2>
+      </div>
       <Label htmlFor="expense-people-search">Find people or groups</Label>
       <Input
         id="expense-people-search"

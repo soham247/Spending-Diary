@@ -6,9 +6,11 @@ import { Button } from "@/components/ui/button";
 
 export function ExpenseHistoryRow({
   expense,
+  returnTo,
   onRestore,
   restoring,
 }: {
+  returnTo: string;
   expense: ExpensePage["items"][number];
   onRestore?: (id: string) => void;
   restoring: boolean;
@@ -56,7 +58,9 @@ export function ExpenseHistoryRow({
     </div>
   ) : (
     <Link
-      href={"/expenses/" + expense.id}
+      href={
+        "/expenses/" + expense.id + "?returnTo=" + encodeURIComponent(returnTo)
+      }
       className={
         rowClass +
         " transition-colors hover:bg-muted focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring"

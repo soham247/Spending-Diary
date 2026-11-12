@@ -1,5 +1,7 @@
 "use client";
 
+import { BackButton } from "@/components/common/BackButton";
+
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -55,6 +57,9 @@ export default function ResetPasswordForm({ token, errorParam }: Props) {
   if (tokenMissing || errorParam) {
     return (
       <div className="space-y-6 text-center">
+        <div className="flex">
+          <BackButton href="/login" label="Back to sign in" />
+        </div>
         <div className="space-y-2">
           <h1 className="text-xl font-semibold">Link not valid</h1>
           <p className="text-sm text-muted-foreground">
@@ -66,12 +71,6 @@ export default function ResetPasswordForm({ token, errorParam }: Props) {
             Request a new link
           </Button>
         </Link>
-        <Link
-          href="/login"
-          className="block text-sm text-muted-foreground hover:text-foreground underline underline-offset-4"
-        >
-          Back to sign in
-        </Link>
       </div>
     );
   }
@@ -79,6 +78,9 @@ export default function ResetPasswordForm({ token, errorParam }: Props) {
   if (done) {
     return (
       <div className="space-y-4 text-center">
+        <div className="flex">
+          <BackButton href="/login" label="Back to sign in" />
+        </div>
         <h1 className="text-xl font-semibold">Password updated</h1>
         <p className="text-sm text-muted-foreground">
           Your password has been changed. Redirecting to sign in…
@@ -89,6 +91,9 @@ export default function ResetPasswordForm({ token, errorParam }: Props) {
 
   return (
     <div className="space-y-6">
+      <div className="flex">
+        <BackButton href="/login" label="Back to sign in" />
+      </div>
       <div className="space-y-1 text-center">
         <h1 className="text-xl font-semibold">Set a new password</h1>
         <p className="text-sm text-muted-foreground">

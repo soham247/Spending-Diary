@@ -1,7 +1,7 @@
 # Upstash: first rollout architecture
 
 Date: 2026-11-10. Status: implemented locally; production provisioning and provider smoke checks pending.
-Decision: [D-041](decisions.md#d-041---2026-11-09---upstash-for-shared-rate-limiting).
+Decision: [D-042](decisions.md#d-042---2026-11-09---upstash-for-shared-rate-limiting).
 
 ## Scope and boundaries
 
@@ -233,7 +233,7 @@ free quota; 503 is the explicitly accepted outcome when protection is unavailabl
 
 ## Implementation sequence and acceptance gates
 
-1. Recipient thresholds and failure policy are confirmed (D-042).
+1. Recipient thresholds and failure policy are confirmed (D-043).
 2. Update the local OpenAPI contract and collection generator for affected app
    429/503 responses and headers, preserving auth-native responses. Lint and
    generate tests before implementation. Do not publish cloud Postman artifacts.

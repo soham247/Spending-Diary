@@ -1,4 +1,5 @@
 "use client";
+import { BackButton } from "@/components/common/BackButton";
 import { ExpenseDrawer } from "@/components/expense/ExpenseDrawer";
 import Link from "next/link";
 import { NicknameDrawer } from "./NicknameDrawer";
@@ -29,13 +30,27 @@ export function FriendScreen({ id }: { id: string }) {
   const restore = useRestoreSettlement();
   if (friend.isPending || profile.isPending)
     return (
-      <PageLayout header={<PageHeader title="Friend" />}>
+      <PageLayout
+        header={
+          <PageHeader
+            title="Friend"
+            back={<BackButton href="/friends" label="Back to friends" />}
+          />
+        }
+      >
         <LoadingState />
       </PageLayout>
     );
   if (friend.isError || profile.isError)
     return (
-      <PageLayout header={<PageHeader title="Friend" />}>
+      <PageLayout
+        header={
+          <PageHeader
+            title="Friend"
+            back={<BackButton href="/friends" label="Back to friends" />}
+          />
+        }
+      >
         <ErrorState
           retry={() => {
             void friend.refetch();
@@ -76,6 +91,7 @@ export function FriendScreen({ id }: { id: string }) {
     <PageLayout
       header={
         <PageHeader
+          back={<BackButton href="/friends" label="Back to friends" />}
           title={row.name}
           actions={
             !row.blocked && (

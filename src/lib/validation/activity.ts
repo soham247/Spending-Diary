@@ -1,4 +1,32 @@
 ﻿import { z } from "zod";
+import {
+  calendarDate,
+  currencySchema,
+  minorAmount,
+  nonnegativeAmount,
+} from "./money";
+
+export const expenseActivitySnapshotSchema = z.object({
+  amount: minorAmount.optional(),
+  currency: currencySchema.optional(),
+  description: z.string().optional(),
+  date: calendarDate.optional(),
+  category: z.string().optional(),
+  notes: z.string().nullable().optional(),
+  splitType: z.enum(["EQUAL", "EXACT", "PERCENTAGE", "SHARES"]).optional(),
+  participants: z
+    .array(
+      z.object({
+        userId: z.string(),
+        paid: nonnegativeAmount,
+        owed: nonnegativeAmount,
+        splitInput: z.string().nullable().optional(),
+        includedInSplit: z.boolean().optional(),
+      }),
+    )
+    .optional(),
+});
+
 export const activityMetadataSchema = z.object({
   description: z.string(),
   amount: z.number().int().optional(),

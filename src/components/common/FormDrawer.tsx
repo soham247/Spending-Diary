@@ -79,6 +79,9 @@ export function FormDrawer({
   children: ReactNode;
 }) {
   const isMobile = useIsMobile();
+  const contentRef = useRef<HTMLDivElement>(null);
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const stopWaitingForInput = useRef<(() => void) | null>(null);
   const [open, setOpen] = useState(defaultOpen);
   const [dirty, setDirty] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -86,6 +89,7 @@ export function FormDrawer({
   const historyId = useId();
   const historyGeneration = useRef({ generation: 0 });
   const afterClose = useRef<(() => void) | undefined>(undefined);
+  useEffect(() => () => stopWaitingForInput.current?.(), [open]);
   function complete(action?: () => void) {
     afterClose.current = action;
     setOpen(false);
@@ -154,7 +158,50 @@ export function FormDrawer({
       >
         {trigger && <DrawerTrigger asChild>{trigger}</DrawerTrigger>}
         <DrawerContent
+          ref={contentRef}
           className="form-drawer-content w-full data-[vaul-drawer-direction=bottom]:mx-auto data-[vaul-drawer-direction=bottom]:sm:max-w-2xl data-[vaul-drawer-direction=right]:w-full data-[vaul-drawer-direction=right]:sm:max-w-2xl"
+          onOpenAutoFocus={(event) => {
+            stopWaitingForInput.current?.();
+            const content = contentRef.current;
+            const title = titleRef.current;
+            if (!content || !title) return;
+            event.preventDefault();
+            title.focus({ preventScroll: true });
+            if (window.matchMedia("(max-width: 767px)").matches) return;
+            const firstInput = () =>
+              content.querySelector<HTMLInputElement>(
+                'input:not([type="hidden"]):not(:disabled)',
+              );
+            const input = firstInput();
+            if (input) {
+              input.focus({ preventScroll: true });
+              return;
+            }
+            const stop = () => {
+              observer.disconnect();
+              content.removeEventListener("focusin", stop);
+              content.removeEventListener("pointerdown", stop);
+              content.removeEventListener("keydown", stop);
+              stopWaitingForInput.current = null;
+            };
+            const observer = new MutationObserver(() => {
+              const ready = firstInput();
+              if (!ready) return;
+              stop();
+              if (document.activeElement === title)
+                ready.focus({ preventScroll: true });
+            });
+            observer.observe(content, {
+              childList: true,
+              subtree: true,
+              attributes: true,
+              attributeFilter: ["disabled"],
+            });
+            content.addEventListener("focusin", stop);
+            content.addEventListener("pointerdown", stop);
+            content.addEventListener("keydown", stop);
+            stopWaitingForInput.current = stop;
+          }}
           onEscapeKeyDown={(event) => {
             event.preventDefault();
             confirmDiscard(dismiss);
@@ -171,7 +218,9 @@ export function FormDrawer({
             />
           )}
           <DrawerHeader className="relative shrink-0 border-b border-border pr-16 group-data-[vaul-drawer-direction=bottom]/drawer-content:text-left">
-            <DrawerTitle className="break-words">{title}</DrawerTitle>
+            <DrawerTitle ref={titleRef} tabIndex={-1} className="break-words">
+              {title}
+            </DrawerTitle>
             <DrawerDescription>{description}</DrawerDescription>
             <Button
               type="button"
