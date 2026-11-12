@@ -40,7 +40,14 @@ export function ExpenseDetail({
   id: string;
   returnTo: string;
 }) {
-  const back = <BackButton href={returnTo} label="Back to expenses" />;
+  const back = (
+    <BackButton
+      href={returnTo}
+      label={
+        returnTo.startsWith("/friends/") ? "Back to friend" : "Back to expenses"
+      }
+    />
+  );
   const expense = useExpense(id);
   const profile = useProfile();
   const group = useGroup(expense.data?.groupId ?? "");

@@ -224,3 +224,7 @@ The user instructed us to proceed with the documented rollout, including one acc
 ### D-044 - 2026-11-12 - Use Vercel's generated KV environment variables
 
 The user requested using the Redis variables automatically created by the Vercel Upstash integration. Read KV_REST_API_URL and the read/write KV_REST_API_TOKEN directly in local development and Vercel. This replaces the duplicate UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN aliases in the rollout instructions. RATE_LIMIT_KEY_SECRET and RATE_LIMIT_NAMESPACE remain app-owned configuration. No rate-limit policy or HTTP contract changes.
+
+### D-045 - 2026-11-12 - Eight-character minimum passwords
+
+Supersedes D-022's password minimum; its other password and abuse protections remain in effect. The user requested reducing the minimum password length to 8 characters. Use the same 8-to-128-character policy in Better Auth, sign-up and password reset, without composition rules or trimming. Sign-in continues to pass credentials unchanged to Better Auth. Verification, account linking, rate limits and reset protections remain unchanged.

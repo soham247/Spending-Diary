@@ -25,7 +25,7 @@ export function rateLimitContract(paths) {
       "sign-up/email",
       {
         email: { type: "string", format: "email" },
-        password: { type: "string", minLength: 10, maxLength: 128 },
+        password: { type: "string", minLength: 8, maxLength: 128 },
         name: { type: "string" },
       },
       ["email", "password", "name"],

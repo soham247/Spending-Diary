@@ -1980,7 +1980,7 @@
                   "format": "email"
                 "password":
                   "type": "string"
-                  "minLength": 10
+                  "minLength": 8
                   "maxLength": 128
                 "name":
                   "type": "string"

@@ -766,7 +766,7 @@ test("custom group payments confirm advances and reversals, retain notes, and su
     .getByRole("button", { name: "Record payment", exact: true })
     .click();
   const sheet = page.getByRole("dialog");
-  await sheet.getByLabel("Other person", { exact: true }).click();
+  await sheet.getByLabel("Person", { exact: true }).click();
   await page.getByRole("option", { name: friendName, exact: true }).click();
   await sheet.getByLabel("Payment amount (INR)").fill("200");
   await sheet.getByLabel("Note (optional)").fill("Advance for the trip");
@@ -791,11 +791,11 @@ test("custom group payments confirm advances and reversals, retain notes, and su
   await page
     .getByRole("button", { name: "Record payment", exact: true })
     .click();
-  await sheet.getByLabel("Other person", { exact: true }).click();
+  await sheet.getByLabel("Person", { exact: true }).click();
   await page.getByRole("option", { name: friendName, exact: true }).click();
-  await sheet.getByLabel("Payer → receiver").click();
+  await sheet.getByLabel("Paid by").click();
   await page
-    .getByRole("option", { name: friendName + " → you", exact: true })
+    .getByRole("option", { name: friendName + " paid you", exact: true })
     .click();
   await sheet.getByLabel("Payment amount (INR)").fill("250");
   await sheet

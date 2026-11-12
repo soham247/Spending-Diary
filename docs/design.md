@@ -321,7 +321,7 @@ Use shared Zod form schemas and react-hook-form, field errors linked through ari
 
 ### 6.2 Signup and verification
 
-Signup shares the login layout and disabled Google option, adding name and a new-password field. The existing policy is 10 to 128 characters, without composition rules. Successful signup clears the password and shows "Check your inbox", the destination email, a request-another-link action and a sign-in link preserving the callback. Verification remains required before sign-in (D-019/D-020); there are no magic links or /auth/confirm flows. Forgot/reset-password pages inherit the shared auth shell without changing their behavior.
+Signup shares the login layout and disabled Google option, adding name and a new-password field. The existing policy is 8 to 128 characters, without composition rules. Successful signup clears the password and shows "Check your inbox", the destination email, a request-another-link action and a sign-in link preserving the callback. Verification remains required before sign-in (D-019/D-020); there are no magic links or /auth/confirm flows. Forgot/reset-password pages inherit the shared auth shell without changing their behavior.
 
 ### 6.3 Onboarding
 
@@ -423,6 +423,54 @@ Same structure as the group screen: balance sentence ("Aman owes you
 ₹1,850"), "Settle up" and "Remind" (Phase 2), then a list of every shared
 expense and settlement with that person across groups and direct, each row
 showing which group it came from in the meta line.
+
+Friends exposes a labelled Pay a friend action in the persistent header beside
+Add friend, at every screen width. It opens the existing payment drawer with
+Direct selected and no friend preselected. Users choose the person, scope,
+direction, amount and method using the same payment flow as friend details.
+
+Each friend row also has a separate three-dot button with text-only Pay [name],
+Edit nickname and Block/Unblock items. Pay opens the existing payment form with
+that friend selected and Direct as the initial scope. Keep the row link and
+menu button separate, preserve draft protection, restore focus to the row menu
+button when its drawer closes and retain Undo for blocking. Existing server
+guards still restrict payments involving blocked friends to eligible repayments.
+
+The approved shared-ledger polish retains Nova, Oxanium and text-only menus.
+Friends uses 12px control grouping and a quiet Track by name action; hover and
+focus surfaces extend across the full friend row. Detail summaries avoid
+repeating the header name, emphasize the overall amount at 30px and group scope
+balances into one divided surface with secondary settlement buttons. Keep
+Shared expenses and Payments tabs, with one visible label per tab section.
+Payment drawers retain field order and behavior, use full-width 44px selects,
+the shared 64px AmountInput with 36px figures, and paired date/method fields on
+larger screens. Person and Paid by labels use payment sentences for direction.
+Keep loading, retry, no-eligible-person states, draft protection, payment
+confirmation and UPI return handling. The primary footer action is UPI when
+available, otherwise Record payment. Craft guidance remains
+[unslop by Damir Sokolovsky](https://heydamir.design/unslop), CC BY 4.0.
+
+Friends uses the compact Expenses header, a searchable alphabetical list and
+All, Outstanding, Settled up and Blocked filters. Search and filters stay in
+the URL and survive returning from a friend. Each row shows a signed net
+balance separately per currency; tracked names and blocked friends retain
+their status labels. Loading never implies a zero balance. No-match results
+offer Reset filters.
+
+Friend details use the same centered content width and section rhythm as
+expense details. Show the overall balance per currency, then settlement
+shortcuts for each nonzero direct or group scope, including offsetting scopes.
+Keep Record payment available and explain blocked relationships. Below the
+balance and invitation sections, Shared expenses and Payments are keyboard
+accessible tabs, with Shared expenses selected first. Show the fetched history
+page and link to each complete filtered history. Reuse ExpenseHistoryRow
+for the viewer's share, secondary bill total and return navigation. Payment
+rows show date, scope, method and notes; deletion lives in the row menu with
+Undo. Both tabs have explicit empty states.
+
+Research: [Splitwise's balance and friend details](https://blog.splitwise.com/2019/07/09/splitwise-redesigned/)
+and [NN/g's actionable empty states](https://www.nngroup.com/articles/empty-state-interface-design/).
+Craft guidance: [unslop by Damir Sokolovsky](https://heydamir.design/unslop), CC BY 4.0.
 
 ### 6.7 Add or edit expense
 
@@ -866,6 +914,20 @@ Auth Unslop direction: shared spending for friends; calm, exact and warm; the di
 
 Friends has one primary Add friend action with a search input labelled Search by name or full email. Name searches cover existing friends and active shared-group members. A complete email can find another account only when its owner opts in under Settings > Privacy. Email discovery is off by default, and email addresses never appear in search results or connection profiles. An unmatched search says No matching person found and offers a personal connection link with share, copy, QR and revoke actions. Known friends open their existing detail page; unrelated accounts offer Send friend request; pending requests show their direction.
 
+Add friend follows the approved shared-ledger polish: a short Send a request or
+share a link subtitle, one labelled 44px search field and a separate Connect
+with a link section before a query is entered. Keep the initial view limited
+to controls and section labels; show acceptance guidance after sending a request
+or generating a link, without repeated explanatory paragraphs.
+Create connection link generates the link; existing share, copy, QR and revoke
+actions remain available afterwards. Clear search restores focus to the input.
+Results use divided person rows with the name above quiet relationship context.
+Search loading uses two compact row placeholders; errors offer an inline retry
+without navigating away. No-match states use a simple divider and invitation
+action, avoiding a second boxed panel around the generated link. Shared expense
+picker behavior, privacy and request acceptance remain unchanged. Craft guidance:
+[unslop by Damir Sokolovsky](https://heydamir.design/unslop), CC BY 4.0.
+
 Incoming requests appear in Friends with Accept and Decline; outgoing requests show Request pending. Opening a connection link offers Send friend request and explains that acceptance is required. Pending requests never appear as eligible direct-expense participants. Loading, retryable error and no-match states remain explicit. The expense people picker embeds the same discovery results and invitation actions without navigating away or submitting the expense. Existing selection, amount, description, date, category, notes and allocations stay intact until the user applies a selection. Track-by-name placeholders retain their distinct history-claim invitation flow.
 
 Request inboxes use viewer-scoped cursor pagination with 30 items per page. Both parties can compare an eight-character request code through an existing trusted conversation when display names are ambiguous; the code is a display aid and never an authorization credential. Declining a request closes it permanently; repeat requests from the same sender are throttled for seven days, including reuse of the same declined connection link. A different valid connection link may still be used after an email-origin decline. Failed and repeated request attempts count toward the per-viewer limit.
@@ -881,7 +943,6 @@ On Expenses, the month selector, Filters action and Both/Personal/Shared quick f
 Each active month header is one full-width link with a quiet ArrowUpRight icon beside the spending amount and an accessible View insights for [month] label. It navigates in the same tab to /insights?month=YYYY-MM. Keep a 44px touch target, a visible keyboard focus outline and a quiet hover surface. Insights validates the month using its shared input schema and defaults to the current month when the URL value is missing or invalid. Deleted-history headings omit the link because deleted expenses do not count as spending.
 
 Default to the latest month with matching expenses. The selector lists available calendar months with years and All months; custom dates override month selection. Use November ’26 month headings with right-aligned viewer spending totals computed across all pages, separately per currency. Shared rows pair a prominent owed share with a quieter Bill amount; personal rows show one amount. Whole rows open details, titles wrap to two lines, dates use readable day/month text and amounts stay aligned. Include group expenses without my share is an advanced opt-in; those rows say No share. Deleted expenses live in the overflow menu and offer Restore without a spending total. Advanced filters use a bottom sheet on phones and a right sheet on desktop, with draft values, inline date errors, Reset and Apply filters. Preserve filters in the URL and scroll on returning from details. Loading and errors never display a false zero. Keep a quiet empty state with Reset filters. The history begins directly below the controls, without the explanatory row or large summary card. Maintain Nova tokens, selected font, 44px mobile controls, visible focus, clear bottom-navigation space and reduced motion. Craft guidance: [unslop by Damir Sokolovsky](https://heydamir.design/unslop), CC BY 4.0.
-
 
 ### Back navigation (D-041)
 

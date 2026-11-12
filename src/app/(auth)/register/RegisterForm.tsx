@@ -16,6 +16,7 @@ import { Separator } from "@/components/ui/separator";
 import { PasswordInput } from "@/components/auth/PasswordInput";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 import {
+  passwordPolicy,
   registerFormSchema,
   type RegisterFormInput,
 } from "@/lib/validation/auth";
@@ -186,7 +187,8 @@ export default function RegisterForm({ callbackUrl }: { callbackUrl: string }) {
               }
             />
             <p id="password-help" className="text-xs text-muted-foreground">
-              10 to 128 characters
+              {passwordPolicy.minLength} to {passwordPolicy.maxLength}{" "}
+              characters
             </p>
             {errors.password && (
               <p

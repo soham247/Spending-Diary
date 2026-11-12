@@ -11,7 +11,10 @@ export function ExpenseHistoryRow({
   restoring,
 }: {
   returnTo: string;
-  expense: ExpensePage["items"][number];
+  expense: Pick<
+    ExpensePage["items"][number],
+    "id" | "description" | "date" | "kind" | "amount" | "yourShare"
+  > & { category: string; currency: string };
   onRestore?: (id: string) => void;
   restoring: boolean;
 }) {

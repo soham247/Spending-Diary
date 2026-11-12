@@ -98,6 +98,9 @@ test("signup confirms verification and preserves the callback without creating a
   page,
 }) => {
   await page.goto("/register?callbackUrl=%2Fgroups%2Fexample");
+  await expect(
+    page.getByText("8 to 128 characters", { exact: true }),
+  ).toBeVisible();
   await page.getByLabel("Name", { exact: true }).fill("Preview person");
   await page.getByLabel("Email", { exact: true }).fill("preview@example.com");
   await page.getByLabel("Password", { exact: true }).fill("short");
@@ -105,7 +108,7 @@ test("signup confirms verification and preserves the callback without creating a
     .getByRole("button", { name: "Create account", exact: true })
     .click();
   await expect(
-    page.getByText("Use at least 10 characters", { exact: true }),
+    page.getByText("Use at least 8 characters", { exact: true }),
   ).toBeVisible();
   await page
     .getByLabel("Password", { exact: true })

@@ -9,7 +9,11 @@ export function NicknameDrawer({ id, name }: { id: string; name: string }) {
     <FormDrawer
       title="Edit nickname"
       description="Choose a name that only you see."
-      trigger={<Button variant="outline">Edit nickname</Button>}
+      trigger={
+        <Button variant="ghost" className="min-h-11">
+          Edit nickname
+        </Button>
+      }
     >
       <NicknameForm id={id} name={name} />
     </FormDrawer>

@@ -7,6 +7,7 @@ import * as schema from "@/lib/db/schema";
 import { isPlaceholderEmail } from "@/lib/utils/email";
 import { authRateLimits } from "@/lib/rate-limit/better-auth-storage";
 import { preflightEmail } from "@/lib/rate-limit/email";
+import { passwordPolicy } from "@/lib/validation/auth";
 import {
   sendVerificationEmail,
   sendPasswordResetEmail,
@@ -64,8 +65,8 @@ export function createAuth(overrides: Partial<BetterAuthOptions> = {}) {
     emailAndPassword: {
       enabled: true,
       requireEmailVerification: true,
-      minPasswordLength: 10,
-      maxPasswordLength: 128,
+      minPasswordLength: passwordPolicy.minLength,
+      maxPasswordLength: passwordPolicy.maxLength,
       resetPasswordTokenExpiresIn: 3600,
       revokeSessionsOnPasswordReset: true,
       sendResetPassword: async ({ user, url }) => {
