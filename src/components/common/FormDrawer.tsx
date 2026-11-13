@@ -2,12 +2,13 @@
 
 import {
   createContext,
+  useCallback,
   use,
   useEffect,
   useEffectEvent,
   useId,
   useRef,
-  useState,
+  useReducer,
   type ReactElement,
   type ReactNode,
 } from "react";
@@ -34,6 +35,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useUnsavedChanges } from "@/hooks/use-unsaved-changes";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { drawerFlow, type DrawerFlow } from "@/lib/state/drawer-flow";
 
 interface DrawerFormContext {
   setDirty: (dirty: boolean) => void;
@@ -84,24 +86,41 @@ export function FormDrawer({
   const contentRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const stopWaitingForInput = useRef<(() => void) | null>(null);
-  const [open, setOpen] = useState(defaultOpen);
-  const [dirty, setDirty] = useState(false);
-  const [busy, setBusy] = useState(false);
-  const [discardAction, setDiscardAction] = useState<(() => void) | null>(null);
+  const [flow, send] = useReducer(
+    drawerFlow,
+    defaultOpen,
+    (initial): DrawerFlow =>
+      initial
+        ? { status: "OPEN", dirty: false, busy: false }
+        : { status: "CLOSED" },
+  );
+  const open = flow.status !== "CLOSED";
+  const dirty = flow.status !== "CLOSED" && flow.dirty;
+  const busy = flow.status !== "CLOSED" && flow.busy;
+  const discardAction =
+    flow.status === "CONFIRMING_DISCARD" ? flow.action : null;
+  const setDirty = useCallback(
+    (value: boolean) => send({ type: "DIRTY", value }),
+    [],
+  );
+  const setBusy = useCallback(
+    (value: boolean) => send({ type: "BUSY", value }),
+    [],
+  );
   const historyId = useId();
   const historyGeneration = useRef({ generation: 0 });
   const afterClose = useRef<(() => void) | undefined>(undefined);
   useEffect(() => () => stopWaitingForInput.current?.(), [open]);
   function complete(action?: () => void) {
     afterClose.current = action;
-    setOpen(false);
+    send({ type: "COMPLETE" });
   }
   function dismiss() {
     complete(onDismiss);
   }
   function confirmDiscard(action: () => void) {
     if (busy) return;
-    if (dirty) setDiscardAction(() => action);
+    if (dirty) send({ type: "CONFIRM_DISCARD", action });
     else action();
   }
   const back = useEffectEvent(() => {
@@ -150,7 +169,7 @@ export function FormDrawer({
       <Drawer
         open={open}
         onOpenChange={(next) => {
-          if (next) setOpen(true);
+          if (next) send({ type: "OPEN" });
           else confirmDiscard(dismiss);
         }}
         direction={isMobile ? "bottom" : "right"}
@@ -252,7 +271,7 @@ export function FormDrawer({
       <AlertDialog
         open={discardAction !== null}
         onOpenChange={(next) => {
-          if (!next) setDiscardAction(null);
+          if (!next) send({ type: "KEEP_EDITING" });
         }}
       >
         <AlertDialogContent>
@@ -265,9 +284,11 @@ export function FormDrawer({
           <AlertDialogFooter>
             <AlertDialogCancel>Keep editing</AlertDialogCancel>
             <AlertDialogAction
+              disabled={busy}
               onClick={() => {
+                if (busy) return;
                 discardAction?.();
-                setDiscardAction(null);
+                send({ type: "KEEP_EDITING" });
               }}
             >
               Discard changes

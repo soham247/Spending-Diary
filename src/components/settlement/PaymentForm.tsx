@@ -3,7 +3,12 @@ import {
   useDrawerFormState,
   useFormDrawer,
 } from "@/components/common/FormDrawer";
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useReducer, useRef, useState } from "react";
+import {
+  paymentFlow,
+  awaitingUpi as isAwaitingUpi,
+  type PaymentAction,
+} from "@/lib/state/payment-flow";
 import { toast } from "sonner";
 import { useCreateSettlement } from "@/hooks/use-settlements";
 import type { PaymentContext } from "@/lib/api/settlements";
@@ -60,16 +65,15 @@ export function PaymentForm({
     method: "CASH",
   }));
   const [key, setKey] = useState(() => crypto.randomUUID());
-  const [confirmation, setConfirmation] = useState<"record" | "upi" | null>(
-    null,
-  );
-  const [awaitingUpi, setAwaitingUpi] = useState(false);
-  const [returned, setReturned] = useState(false);
+  const [flow, send] = useReducer(paymentFlow, { status: "EDITING" });
+  const recording = useRef(false);
+  const confirmation = flow.status === "CONFIRMING" ? flow.action : null;
+  const awaitingUpi = isAwaitingUpi(flow);
+  const returned =
+    (flow.status === "AWAITING_UPI" && flow.visibility === "RETURNED") ||
+    (flow.status === "RECORDING" && flow.retry === "RETURNED");
   const create = useCreateSettlement();
-  useDrawerFormState(
-    dirty,
-    create.isPending || awaitingUpi || confirmation !== null,
-  );
+  useDrawerFormState(dirty, flow.status !== "EDITING" || create.isPending);
   const choices = scopes.filter(
     (scope) =>
       (!scopeId || scope.id === scopeId) &&
@@ -90,7 +94,7 @@ export function PaymentForm({
   useEffect(() => {
     const listener = () => {
       if (document.visibilityState === "visible" && awaitingUpi)
-        setReturned(true);
+        send({ type: "RETURN" });
     };
     document.addEventListener("visibilitychange", listener);
     return () => document.removeEventListener("visibilitychange", listener);
@@ -99,25 +103,35 @@ export function PaymentForm({
     setDirty(true);
     setValues((current) => ({ ...current, ...patch }));
     setKey(crypto.randomUUID());
-    setConfirmation(null);
+    send({ type: "CHANGE" });
   }
   async function record(method = values.method) {
-    if (!draft) return;
+    if (
+      !draft ||
+      recording.current ||
+      paymentFlow(flow, { type: "RECORD" }).status !== "RECORDING"
+    )
+      return;
+    recording.current = true;
+    send({ type: "RECORD" });
     try {
       await create.mutateAsync({
         input: { ...draft.input, method },
         idempotencyKey: key,
       });
-      setAwaitingUpi(false);
-      setReturned(false);
+      send({ type: "COMPLETE" });
       setKey(crypto.randomUUID());
       toast.success("Payment recorded");
       drawer?.complete();
       onRecorded?.();
+      if (!drawer) send({ type: "RESET" });
     } catch (cause) {
+      send({ type: "FAIL" });
       toast.error(
         cause instanceof Error ? cause.message : "Couldn't record payment",
       );
+    } finally {
+      recording.current = false;
     }
   }
   function launchUpi() {
@@ -128,15 +142,14 @@ export function PaymentForm({
       scope?.currency !== "INR"
     )
       return;
-    setAwaitingUpi(true);
-    setReturned(false);
+    send({ type: "LAUNCH_UPI" });
     window.location.assign(
       upiLink(person.upiId, person.name, draft.input.amount),
     );
   }
-  function submit(action: "record" | "upi") {
-    if (!draft) return;
-    if (draft.preview.needsConfirmation) setConfirmation(action);
+  function submit(action: PaymentAction) {
+    if (!draft || flow.status !== "EDITING") return;
+    if (draft.preview.needsConfirmation) send({ type: "CONFIRM", action });
     else if (action === "upi") launchUpi();
     else void record();
   }
@@ -331,8 +344,7 @@ export function PaymentForm({
             variant="outline"
             disabled={create.isPending}
             onClick={() => {
-              setAwaitingUpi(false);
-              setReturned(false);
+              send({ type: "CANCEL_UPI" });
             }}
           >
             No
@@ -372,7 +384,7 @@ export function PaymentForm({
       <AlertDialog
         open={confirmation !== null}
         onOpenChange={(open) => {
-          if (!open) setConfirmation(null);
+          if (!open) send({ type: "CANCEL_CONFIRMATION" });
         }}
       >
         <AlertDialogContent>
@@ -410,7 +422,6 @@ export function PaymentForm({
             <AlertDialogAction
               onClick={() => {
                 const action = confirmation;
-                setConfirmation(null);
                 if (action === "upi") launchUpi();
                 else void record();
               }}
