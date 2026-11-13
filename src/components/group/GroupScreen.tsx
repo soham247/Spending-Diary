@@ -143,6 +143,7 @@ export function GroupScreen({ id }: { id: string }) {
               other={other}
               net={balance.net}
               scopeId={balance.scopeId}
+              currency={balance.currency}
             />
           ) : null;
         })}
