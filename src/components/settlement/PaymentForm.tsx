@@ -49,6 +49,7 @@ export function PaymentForm({
   other,
   net,
   scopeId,
+  currency,
   scopes,
   onRecorded,
 }: SettlePanelProps & { scopes: PaymentContext }) {
@@ -77,6 +78,7 @@ export function PaymentForm({
   const choices = scopes.filter(
     (scope) =>
       (!scopeId || scope.id === scopeId) &&
+      (!currency || scope.currency === currency) &&
       (!other || scope.people.some((person) => person.id === other.id)),
   );
   const scope = choices.find((row) => row.id === selectedScope);
@@ -153,6 +155,12 @@ export function PaymentForm({
     else if (action === "upi") launchUpi();
     else void record();
   }
+  if (currency && !choices.length)
+    return (
+      <EmptyState>
+        Payments in {currency} are unavailable for this balance.
+      </EmptyState>
+    );
   if (!choices.some((choice) => choice.people.length > 0))
     return (
       <EmptyState>No eligible payment counterparties in this scope.</EmptyState>

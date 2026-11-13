@@ -46,6 +46,7 @@ export function SettleSheet({
           other={other}
           net={net}
           scopeId={scopeId}
+          currency={currency}
         />
       </FormDrawer>
     </>

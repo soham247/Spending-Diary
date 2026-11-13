@@ -32,6 +32,89 @@ function friendFixture(id: string, name: string, net = 0): FriendList[number] {
   };
 }
 
+for (const currency of ["INR", "USD"]) {
+  test(`balance shortcut preserves ${currency} payment currency`, async ({
+    page,
+    context,
+  }) => {
+    await login(context, "owner");
+    const friend = friendFixture("aman", "Aman", 1000);
+    friend.balances[0]!.currency = currency;
+    await page.route(/\/api\/friends\/aman$/, (route) =>
+      route.fulfill({
+        json: {
+          data: {
+            ...friend,
+            pair: { low: "aman", high: "viewer" },
+            expenses: [],
+            settlements: [],
+          },
+        },
+      }),
+    );
+    await page.route(/\/api\/settlements\/context$/, (route) =>
+      route.fulfill({
+        json: {
+          data: [
+            {
+              id: "direct",
+              name: "Direct",
+              currency: "INR",
+              people: [
+                {
+                  id: "aman",
+                  name: "Aman",
+                  upiId: null,
+                  net: 1000,
+                  restricted: false,
+                },
+              ],
+            },
+          ],
+        },
+      }),
+    );
+    const payments: unknown[] = [];
+    await page.route(/\/api\/settlements$/, (route) => {
+      payments.push(route.request().postDataJSON());
+      return route.fulfill({ json: { data: { id: "payment" } } });
+    });
+    await page.goto("/friends/aman");
+    await page
+      .getByRole("region", { name: "Balances by expense scope" })
+      .getByRole("button", { name: "Settle up", exact: true })
+      .click();
+    const drawer = page.getByRole("dialog", {
+      name: "Settle up with Aman",
+      exact: true,
+    });
+    await expect(drawer).toBeVisible();
+    if (currency === "USD") {
+      await expect(drawer).toContainText(
+        "Payments in USD are unavailable for this balance.",
+      );
+      await expect(drawer.getByLabel("Payment amount (INR)")).toHaveCount(0);
+      await expect(
+        drawer.getByRole("button", { name: "Record payment", exact: true }),
+      ).toHaveCount(0);
+      expect(payments).toEqual([]);
+    } else {
+      await expect(drawer.getByLabel("Payment amount (INR)")).toHaveValue(
+        "10.00",
+      );
+      await drawer
+        .getByRole("button", { name: "Record payment", exact: true })
+        .click();
+      await expect.poll(() => payments.length).toBe(1);
+      expect(payments[0]).toMatchObject({
+        currency: "INR",
+        amount: 1000,
+        groupId: null,
+      });
+    }
+  });
+}
+
 for (const scenario of ["list", "friend"] as const) {
   test(`${scenario} shows retry after a cached background refresh fails`, async ({
     page,

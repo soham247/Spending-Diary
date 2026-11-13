@@ -9,6 +9,7 @@ export interface SettlePanelProps {
   other?: { id: string; name: string; upiId: string | null };
   net?: number;
   scopeId?: string;
+  currency?: string;
   onRecorded?: () => void;
 }
 export function SettlePanel(props: SettlePanelProps) {
